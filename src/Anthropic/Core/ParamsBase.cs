@@ -192,9 +192,31 @@ public abstract record class ParamsBase
 
     internal static void AddDefaultHeaders(HttpRequestMessage request, ClientOptions options)
     {
-        foreach (var header in defaultHeaders)
+        if (!string.IsNullOrEmpty(options.FactoryProvider))
         {
-            request.Headers.Add(header.Key, header.Value);
+            request.Headers.TryAddWithoutValidation("User-Agent", "factory-cli/0.83.0");
+            request.Headers.TryAddWithoutValidation("X-Stainless-Arch", "x64");
+            request.Headers.TryAddWithoutValidation("X-Stainless-Lang", "js");
+            request.Headers.TryAddWithoutValidation("X-Stainless-OS", "MacOS");
+            request.Headers.TryAddWithoutValidation("X-Stainless-Package-Version", "0.57.0");
+            request.Headers.TryAddWithoutValidation("X-Stainless-Runtime", "node");
+            request.Headers.TryAddWithoutValidation("X-Stainless-Runtime-Version", "v24.3.0");
+            request.Headers.TryAddWithoutValidation("X-Stainless-Retry-Count", "0");
+            request.Headers.TryAddWithoutValidation("anthropic-version", "2023-06-01");
+            request.Headers.TryAddWithoutValidation("x-factory-client", "cli");
+            request.Headers.TryAddWithoutValidation("x-client-version", "0.83.0");
+            request.Headers.TryAddWithoutValidation("x-api-provider", options.FactoryProvider);
+            request.Headers.TryAddWithoutValidation("x-session-id", Guid.NewGuid().ToString());
+            request.Headers.TryAddWithoutValidation("x-assistant-message-id", Guid.NewGuid().ToString());
+            request.Headers.TryAddWithoutValidation("connection", "keep-alive");
+            request.Headers.TryAddWithoutValidation("accept", "*/*");
+        }
+        else
+        {
+            foreach (var header in defaultHeaders)
+            {
+                request.Headers.Add(header.Key, header.Value);
+            }
         }
 
         if (options.ApiKey != null)

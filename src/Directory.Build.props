@@ -9,9 +9,8 @@
     <RepositoryUrl>https://www.github.com/anthropics/anthropic-sdk-csharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <!-- Strong naming -->
-    <AssemblyOriginatorKeyFile>../../Open.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
+    <!-- Strong naming disabled for submodule integration -->
+    <SignAssembly>false</SignAssembly>
 
     <!-- Documentation-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

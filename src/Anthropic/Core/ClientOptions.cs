@@ -98,6 +98,14 @@ public record struct ClientOptions()
         set { _authToken = new(() => value); }
     }
 
+    /// <summary>
+    /// When set (e.g. "anthropic"), switches to Factory proxy mode:
+    /// replaces SDK telemetry headers with Factory-expected JS SDK identity
+    /// and injects Factory-specific routing headers.
+    /// Leave null for standard Anthropic API usage.
+    /// </summary>
+    public string? FactoryProvider { get; set; } = null;
+
     internal static TimeSpan TimeoutFromMaxTokens(
         long maxTokens,
         bool isStreaming,
