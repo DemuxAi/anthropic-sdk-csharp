@@ -23,7 +23,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <DebugType>embedded</DebugType>
 
-    <TargetFrameworks>net8.0;net9.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <LangVersion>12</LangVersion>
     <Configurations>Debug;Release</Configurations>
     <BuildPackage>true</BuildPackage>
@@ -32,6 +32,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ImplicitUsings>disable</ImplicitUsings>
     <!-- Disable deprecation warnings since we may reference our own deprecated symbols. -->
-    <NoWarn>$(NoWarn),0618</NoWarn>
+    <NoWarn>$(NoWarn),0618,NU1510</NoWarn>
   </PropertyGroup>
 </Project>
