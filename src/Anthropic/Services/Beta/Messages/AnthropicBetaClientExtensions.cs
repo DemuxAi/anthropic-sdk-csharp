@@ -1366,7 +1366,7 @@ public static class AnthropicBetaClientExtensions
                 case BetaMcpToolResultBlock mcpToolResult:
                     return new McpServerToolResultContent(mcpToolResult.ToolUseID)
                     {
-                        Output = mcpToolResult.IsError
+                        Outputs = mcpToolResult.IsError
                             ? [new ErrorContent(mcpToolResult.Content.Value?.ToString())]
                             : mcpToolResult.Content.Value switch
                             {
@@ -1381,13 +1381,12 @@ public static class AnthropicBetaClientExtensions
 
                 case BetaCodeExecutionToolResultBlock ce:
                 {
-                    CodeInterpreterToolResultContent c = new()
-                    {
-                        CallId = ce.ToolUseID,
-                        RawRepresentation = ce,
-                    };
+                        CodeInterpreterToolResultContent c = new(ce.ToolUseID)
+                        {
+                            RawRepresentation = ce,
+                        };
 
-                    if (ce.Content.TryPickError(out var ceError))
+                        if (ce.Content.TryPickError(out var ceError))
                     {
                         (c.Outputs ??= []).Add(
                             new ErrorContent(null)
@@ -1434,13 +1433,12 @@ public static class AnthropicBetaClientExtensions
                 // This is the same as BetaCodeExecutionToolResultBlock but with a different type names.
                 // Keep both of them in sync.
                 {
-                    CodeInterpreterToolResultContent c = new()
-                    {
-                        CallId = ce.ToolUseID,
-                        RawRepresentation = ce,
-                    };
+                        CodeInterpreterToolResultContent c = new(ce.ToolUseID)
+                        {
+                            RawRepresentation = ce,
+                        };
 
-                    if (ce.Content.TryPickBetaBashCodeExecutionToolResultError(out var ceError))
+                        if (ce.Content.TryPickBetaBashCodeExecutionToolResultError(out var ceError))
                     {
                         (c.Outputs ??= []).Add(
                             new ErrorContent(null)
