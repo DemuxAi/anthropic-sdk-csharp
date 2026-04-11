@@ -1,8 +1,8 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Anthropic.Core;
-using Anthropic.Exceptions;
 using System = System;
 
 namespace Anthropic.Models.Beta.Messages.Batches;
@@ -342,97 +342,97 @@ sealed class BetaMessageBatchResultConverter : JsonConverter<BetaMessageBatchRes
         switch (type)
         {
             case "succeeded":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaMessageBatchSucceededResult>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaMessageBatchSucceededResult>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "errored":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaMessageBatchErroredResult>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaMessageBatchErroredResult>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "canceled":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaMessageBatchCanceledResult>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaMessageBatchCanceledResult>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "expired":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaMessageBatchExpiredResult>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaMessageBatchExpiredResult>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             default:
-            {
-                return new BetaMessageBatchResult(element);
-            }
+                {
+                    return new BetaMessageBatchResult(element);
+                }
         }
     }
 

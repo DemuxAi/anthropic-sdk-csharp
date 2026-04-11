@@ -1,8 +1,8 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Anthropic.Core;
-using Anthropic.Exceptions;
 using System = System;
 
 namespace Anthropic.Models.Messages;
@@ -705,265 +705,265 @@ sealed class ContentBlockConverter : JsonConverter<ContentBlock>
         switch (type)
         {
             case "text":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<TextBlock>(element, options);
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<TextBlock>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "thinking":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<ThinkingBlock>(element, options);
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<ThinkingBlock>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "redacted_thinking":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<RedactedThinkingBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "tool_use":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<ToolUseBlock>(element, options);
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "server_tool_use":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<ServerToolUseBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "web_search_tool_result":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<WebSearchToolResultBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "web_fetch_tool_result":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<WebFetchToolResultBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "code_execution_tool_result":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<CodeExecutionToolResultBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "bash_code_execution_tool_result":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<BashCodeExecutionToolResultBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "text_editor_code_execution_tool_result":
-            {
-                try
-                {
-                    var deserialized =
-                        JsonSerializer.Deserialize<TextEditorCodeExecutionToolResultBlock>(
+                        var deserialized = JsonSerializer.Deserialize<RedactedThinkingBlock>(
                             element,
                             options
                         );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
+            case "tool_use":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<ToolUseBlock>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "server_tool_use":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<ServerToolUseBlock>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "web_search_tool_result":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<WebSearchToolResultBlock>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "web_fetch_tool_result":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<WebFetchToolResultBlock>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "code_execution_tool_result":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<CodeExecutionToolResultBlock>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "bash_code_execution_tool_result":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<BashCodeExecutionToolResultBlock>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "text_editor_code_execution_tool_result":
+                {
+                    try
+                    {
+                        var deserialized =
+                            JsonSerializer.Deserialize<TextEditorCodeExecutionToolResultBlock>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
             case "tool_search_tool_result":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<ToolSearchToolResultBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<ToolSearchToolResultBlock>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "container_upload":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<ContainerUploadBlock>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<ContainerUploadBlock>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             default:
-            {
-                return new ContentBlock(element);
-            }
+                {
+                    return new ContentBlock(element);
+                }
         }
     }
 

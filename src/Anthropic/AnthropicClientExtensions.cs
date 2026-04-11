@@ -1,3 +1,6 @@
+using Anthropic;
+using Anthropic.Core;
+using Anthropic.Models.Messages;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -8,9 +11,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic;
-using Anthropic.Core;
-using Anthropic.Models.Messages;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 

@@ -1,10 +1,10 @@
+using Anthropic.Exceptions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Anthropic.Exceptions;
 
 namespace Anthropic.Core;
 

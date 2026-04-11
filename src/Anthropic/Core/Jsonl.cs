@@ -1,10 +1,10 @@
+using Anthropic.Exceptions;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
-using Anthropic.Exceptions;
 
 namespace Anthropic.Core;
 

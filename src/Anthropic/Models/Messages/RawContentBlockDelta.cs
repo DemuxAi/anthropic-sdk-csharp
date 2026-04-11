@@ -1,8 +1,8 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Anthropic.Core;
-using Anthropic.Exceptions;
 using System = System;
 
 namespace Anthropic.Models.Messages;
@@ -368,104 +368,104 @@ sealed class RawContentBlockDeltaConverter : JsonConverter<RawContentBlockDelta>
         switch (type)
         {
             case "text_delta":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<TextDelta>(element, options);
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<TextDelta>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "input_json_delta":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<InputJsonDelta>(element, options);
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<InputJsonDelta>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "citations_delta":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<CitationsDelta>(element, options);
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<CitationsDelta>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "thinking_delta":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<ThinkingDelta>(element, options);
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<ThinkingDelta>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "signature_delta":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<SignatureDelta>(element, options);
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<SignatureDelta>(element, options);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             default:
-            {
-                return new RawContentBlockDelta(element);
-            }
+                {
+                    return new RawContentBlockDelta(element);
+                }
         }
     }
 

@@ -1,11 +1,11 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Anthropic.Core;
-using Anthropic.Exceptions;
 using System = System;
 
 namespace Anthropic.Models.Beta.Messages;
@@ -368,75 +368,75 @@ sealed class EditConverter : JsonConverter<Edit>
         switch (type)
         {
             case "clear_tool_uses_20250919":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaClearToolUses20250919Edit>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaClearToolUses20250919Edit>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "clear_thinking_20251015":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaClearThinking20251015Edit>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaClearThinking20251015Edit>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "compact_20260112":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaCompact20260112Edit>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaCompact20260112Edit>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             default:
-            {
-                return new Edit(element);
-            }
+                {
+                    return new Edit(element);
+                }
         }
     }
 

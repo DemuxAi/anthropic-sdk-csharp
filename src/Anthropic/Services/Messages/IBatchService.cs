@@ -1,9 +1,9 @@
+using Anthropic.Core;
+using Anthropic.Models.Messages.Batches;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Models.Messages.Batches;
 
 namespace Anthropic.Services.Messages;
 

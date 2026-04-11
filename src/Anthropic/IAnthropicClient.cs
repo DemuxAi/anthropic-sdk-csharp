@@ -1,9 +1,9 @@
+using Anthropic.Core;
+using Anthropic.Services;
 using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Services;
 
 namespace Anthropic;
 

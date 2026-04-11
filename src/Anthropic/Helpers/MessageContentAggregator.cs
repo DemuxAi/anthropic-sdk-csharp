@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Anthropic.Exceptions;
 using Anthropic.Models.Messages;
 using Anthropic.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Anthropic.Helpers;
 

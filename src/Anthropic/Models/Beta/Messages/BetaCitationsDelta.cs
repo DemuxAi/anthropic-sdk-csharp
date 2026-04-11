@@ -1,10 +1,10 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Anthropic.Core;
-using Anthropic.Exceptions;
 using System = System;
 
 namespace Anthropic.Models.Beta.Messages;
@@ -564,120 +564,120 @@ sealed class CitationConverter : JsonConverter<Citation>
         switch (type)
         {
             case "char_location":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaCitationCharLocation>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "page_location":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<BetaCitationPageLocation>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "content_block_location":
-            {
-                try
-                {
-                    var deserialized = JsonSerializer.Deserialize<BetaCitationContentBlockLocation>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
-                    }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
-
-                return new(element);
-            }
-            case "web_search_result_location":
-            {
-                try
-                {
-                    var deserialized =
-                        JsonSerializer.Deserialize<BetaCitationsWebSearchResultLocation>(
+                        var deserialized = JsonSerializer.Deserialize<BetaCitationCharLocation>(
                             element,
                             options
                         );
-                    if (deserialized != null)
-                    {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
+            case "page_location":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<BetaCitationPageLocation>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "content_block_location":
+                {
+                    try
+                    {
+                        var deserialized = JsonSerializer.Deserialize<BetaCitationContentBlockLocation>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
+            case "web_search_result_location":
+                {
+                    try
+                    {
+                        var deserialized =
+                            JsonSerializer.Deserialize<BetaCitationsWebSearchResultLocation>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
+                    }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
+
+                    return new(element);
+                }
             case "search_result_location":
-            {
-                try
                 {
-                    var deserialized = JsonSerializer.Deserialize<BetaCitationSearchResultLocation>(
-                        element,
-                        options
-                    );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized = JsonSerializer.Deserialize<BetaCitationSearchResultLocation>(
+                            element,
+                            options
+                        );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             default:
-            {
-                return new Citation(element);
-            }
+                {
+                    return new Citation(element);
+                }
         }
     }
 

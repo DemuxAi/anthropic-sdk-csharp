@@ -1,10 +1,10 @@
+using Anthropic.Core;
+using Anthropic.Models.Beta.Messages;
+using Anthropic.Services.Beta.Messages;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Models.Beta.Messages;
-using Anthropic.Services.Beta.Messages;
 
 namespace Anthropic.Services.Beta;
 

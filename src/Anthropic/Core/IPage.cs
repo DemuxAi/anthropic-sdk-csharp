@@ -1,7 +1,7 @@
+using Anthropic.Exceptions;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Exceptions;
 
 namespace Anthropic.Core;
 

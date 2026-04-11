@@ -1,11 +1,11 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Anthropic.Core;
-using Anthropic.Exceptions;
 
 namespace Anthropic.Models.Messages;
 

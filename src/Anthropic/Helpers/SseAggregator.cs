@@ -1,9 +1,8 @@
+using Anthropic.Exceptions;
+using Anthropic.Models.Messages;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Anthropic.Exceptions;
-using Anthropic.Models.Messages;
 
 namespace Anthropic.Helpers;
 

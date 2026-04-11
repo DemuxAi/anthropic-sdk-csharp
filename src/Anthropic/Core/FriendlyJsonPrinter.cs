@@ -54,23 +54,23 @@ static class FriendlyJsonPrinter
                     ? JsonSerializer.SerializeToElement($"[Binary Content {binaryContentCount++}]")
                     : json;
             case JsonValueKind.Object:
-            {
-                var ret = new Dictionary<string, JsonElement>();
-                foreach (var item in json.EnumerateObject())
                 {
-                    ret[item.Name] = PrintValue(item.Value, binaryContent, ref binaryContentCount);
+                    var ret = new Dictionary<string, JsonElement>();
+                    foreach (var item in json.EnumerateObject())
+                    {
+                        ret[item.Name] = PrintValue(item.Value, binaryContent, ref binaryContentCount);
+                    }
+                    return PrintValue(ret);
                 }
-                return PrintValue(ret);
-            }
             case JsonValueKind.Array:
-            {
-                var ret = new List<JsonElement>();
-                foreach (var item in json.EnumerateArray())
                 {
-                    ret.Add(PrintValue(item, binaryContent, ref binaryContentCount));
+                    var ret = new List<JsonElement>();
+                    foreach (var item in json.EnumerateArray())
+                    {
+                        ret.Add(PrintValue(item, binaryContent, ref binaryContentCount));
+                    }
+                    return PrintValue(ret);
                 }
-                return PrintValue(ret);
-            }
             default:
                 throw new InvalidOperationException("Unreachable");
         }

@@ -1,3 +1,6 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
+using Anthropic.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,9 +8,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Exceptions;
-using Anthropic.Services;
 
 namespace Anthropic;
 

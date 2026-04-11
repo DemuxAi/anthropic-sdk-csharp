@@ -1,5 +1,5 @@
-using System;
 using Anthropic.Models.Messages;
+using System;
 
 namespace Anthropic.Services;
 

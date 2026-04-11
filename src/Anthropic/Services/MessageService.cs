@@ -1,3 +1,6 @@
+using Anthropic.Core;
+using Anthropic.Models.Messages;
+using Anthropic.Services.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,9 +9,6 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Models.Messages;
-using Anthropic.Services.Messages;
 
 namespace Anthropic.Services;
 

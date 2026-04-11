@@ -1,10 +1,10 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
+using Anthropic.Models.Beta.Models;
 using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Exceptions;
-using Anthropic.Models.Beta.Models;
 
 namespace Anthropic.Services.Beta;
 

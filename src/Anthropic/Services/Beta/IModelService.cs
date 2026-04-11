@@ -1,8 +1,8 @@
+using Anthropic.Core;
+using Anthropic.Models.Beta.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Models.Beta.Models;
 
 namespace Anthropic.Services.Beta;
 

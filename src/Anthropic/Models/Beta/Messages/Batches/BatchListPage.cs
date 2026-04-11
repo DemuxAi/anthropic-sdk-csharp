@@ -1,12 +1,12 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
+using Anthropic.Services.Beta.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Anthropic.Core;
-using Anthropic.Exceptions;
-using Anthropic.Services.Beta.Messages;
 
 namespace Anthropic.Models.Beta.Messages.Batches;
 

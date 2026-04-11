@@ -1,8 +1,8 @@
+using Anthropic.Exceptions;
+using Anthropic.Models.Beta.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Anthropic.Exceptions;
-using Anthropic.Models.Beta.Messages;
 
 namespace Anthropic.Helpers;
 

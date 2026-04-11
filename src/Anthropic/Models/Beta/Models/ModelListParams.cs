@@ -1,3 +1,4 @@
+using Anthropic.Core;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -5,7 +6,6 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text.Json;
-using Anthropic.Core;
 
 namespace Anthropic.Models.Beta.Models;
 

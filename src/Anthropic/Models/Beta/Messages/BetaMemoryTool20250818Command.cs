@@ -1,8 +1,8 @@
+using Anthropic.Core;
+using Anthropic.Exceptions;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Anthropic.Core;
-using Anthropic.Exceptions;
 using System = System;
 
 namespace Anthropic.Models.Beta.Messages;
@@ -465,147 +465,147 @@ sealed class BetaMemoryTool20250818CommandConverter : JsonConverter<BetaMemoryTo
         switch (command)
         {
             case "view":
-            {
-                try
                 {
-                    var deserialized =
-                        JsonSerializer.Deserialize<BetaMemoryTool20250818ViewCommand>(
-                            element,
-                            options
-                        );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized =
+                            JsonSerializer.Deserialize<BetaMemoryTool20250818ViewCommand>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "create":
-            {
-                try
                 {
-                    var deserialized =
-                        JsonSerializer.Deserialize<BetaMemoryTool20250818CreateCommand>(
-                            element,
-                            options
-                        );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized =
+                            JsonSerializer.Deserialize<BetaMemoryTool20250818CreateCommand>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "str_replace":
-            {
-                try
                 {
-                    var deserialized =
-                        JsonSerializer.Deserialize<BetaMemoryTool20250818StrReplaceCommand>(
-                            element,
-                            options
-                        );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized =
+                            JsonSerializer.Deserialize<BetaMemoryTool20250818StrReplaceCommand>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "insert":
-            {
-                try
                 {
-                    var deserialized =
-                        JsonSerializer.Deserialize<BetaMemoryTool20250818InsertCommand>(
-                            element,
-                            options
-                        );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized =
+                            JsonSerializer.Deserialize<BetaMemoryTool20250818InsertCommand>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "delete":
-            {
-                try
                 {
-                    var deserialized =
-                        JsonSerializer.Deserialize<BetaMemoryTool20250818DeleteCommand>(
-                            element,
-                            options
-                        );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized =
+                            JsonSerializer.Deserialize<BetaMemoryTool20250818DeleteCommand>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             case "rename":
-            {
-                try
                 {
-                    var deserialized =
-                        JsonSerializer.Deserialize<BetaMemoryTool20250818RenameCommand>(
-                            element,
-                            options
-                        );
-                    if (deserialized != null)
+                    try
                     {
-                        deserialized.Validate();
-                        return new(deserialized, element);
+                        var deserialized =
+                            JsonSerializer.Deserialize<BetaMemoryTool20250818RenameCommand>(
+                                element,
+                                options
+                            );
+                        if (deserialized != null)
+                        {
+                            deserialized.Validate();
+                            return new(deserialized, element);
+                        }
                     }
-                }
-                catch (System::Exception e)
-                    when (e is JsonException || e is AnthropicInvalidDataException)
-                {
-                    // ignore
-                }
+                    catch (System::Exception e)
+                        when (e is JsonException || e is AnthropicInvalidDataException)
+                    {
+                        // ignore
+                    }
 
-                return new(element);
-            }
+                    return new(element);
+                }
             default:
-            {
-                return new BetaMemoryTool20250818Command(element);
-            }
+                {
+                    return new BetaMemoryTool20250818Command(element);
+                }
         }
     }
 
