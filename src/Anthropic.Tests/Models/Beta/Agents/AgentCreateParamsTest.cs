@@ -348,7 +348,9 @@ public class AgentCreateParamsTest : TestBase
 
         var url = parameters.Url(new() { ApiKey = "my-anthropic-api-key" });
 
-        Assert.Equal(new Uri("https://api.anthropic.com/v1/agents?beta=true"), url);
+        Assert.True(
+            TestBase.UrisEqual(new Uri("https://api.anthropic.com/v1/agents?beta=true"), url)
+        );
     }
 
     [Fact]
@@ -438,7 +440,7 @@ public class ModelTest : TestBase
     [Fact]
     public void BetaManagedAgentsValidationWorks()
     {
-        Model value = BetaManagedAgentsModel.ClaudeOpus4_6;
+        Model value = BetaManagedAgentsModel.ClaudeOpus4_7;
         value.Validate();
     }
 
@@ -456,7 +458,7 @@ public class ModelTest : TestBase
     [Fact]
     public void BetaManagedAgentsSerializationRoundtripWorks()
     {
-        Model value = BetaManagedAgentsModel.ClaudeOpus4_6;
+        Model value = BetaManagedAgentsModel.ClaudeOpus4_7;
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<Model>(element, ModelBase.SerializerOptions);
 
