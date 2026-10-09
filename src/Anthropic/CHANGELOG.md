@@ -2,6 +2,11 @@
 
 ## [12.55.1](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.55.1) (2026-10-09)
 
+### Chores
+
+* **docs:** correct prefill, thinking, fallback and model descriptions
+
+
 ### Documentation
 
 * **api:** clarify when custom tool results can be sent
