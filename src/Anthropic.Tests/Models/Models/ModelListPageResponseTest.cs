@@ -17,7 +17,7 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     Capabilities = new()
                     {
                         Batch = new(true),
@@ -59,9 +59,9 @@ public class ModelListPageResponseTest : TestBase
                             },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
                     DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-                    DisplayName = "Claude Opus 5",
+                    DisplayName = "Claude Opus 5.5",
                     Lifecycle = ModelInfoLifecycle.Active,
                     Line = ModelLine.Haiku,
                     MaxInputTokens = 0,
@@ -78,7 +78,7 @@ public class ModelListPageResponseTest : TestBase
         [
             new()
             {
-                ID = "claude-opus-5",
+                ID = "claude-opus-5-5",
                 Capabilities = new()
                 {
                     Batch = new(true),
@@ -120,9 +120,9 @@ public class ModelListPageResponseTest : TestBase
                         },
                     },
                 },
-                CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+                CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
                 DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-                DisplayName = "Claude Opus 5",
+                DisplayName = "Claude Opus 5.5",
                 Lifecycle = ModelInfoLifecycle.Active,
                 Line = ModelLine.Haiku,
                 MaxInputTokens = 0,
@@ -153,7 +153,7 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     Capabilities = new()
                     {
                         Batch = new(true),
@@ -195,9 +195,9 @@ public class ModelListPageResponseTest : TestBase
                             },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
                     DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-                    DisplayName = "Claude Opus 5",
+                    DisplayName = "Claude Opus 5.5",
                     Lifecycle = ModelInfoLifecycle.Active,
                     Line = ModelLine.Haiku,
                     MaxInputTokens = 0,
@@ -228,7 +228,7 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     Capabilities = new()
                     {
                         Batch = new(true),
@@ -270,9 +270,9 @@ public class ModelListPageResponseTest : TestBase
                             },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
                     DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-                    DisplayName = "Claude Opus 5",
+                    DisplayName = "Claude Opus 5.5",
                     Lifecycle = ModelInfoLifecycle.Active,
                     Line = ModelLine.Haiku,
                     MaxInputTokens = 0,
@@ -296,7 +296,7 @@ public class ModelListPageResponseTest : TestBase
         [
             new()
             {
-                ID = "claude-opus-5",
+                ID = "claude-opus-5-5",
                 Capabilities = new()
                 {
                     Batch = new(true),
@@ -338,9 +338,9 @@ public class ModelListPageResponseTest : TestBase
                         },
                     },
                 },
-                CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+                CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
                 DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-                DisplayName = "Claude Opus 5",
+                DisplayName = "Claude Opus 5.5",
                 Lifecycle = ModelInfoLifecycle.Active,
                 Line = ModelLine.Haiku,
                 MaxInputTokens = 0,
@@ -371,7 +371,7 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     Capabilities = new()
                     {
                         Batch = new(true),
@@ -413,9 +413,9 @@ public class ModelListPageResponseTest : TestBase
                             },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
                     DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-                    DisplayName = "Claude Opus 5",
+                    DisplayName = "Claude Opus 5.5",
                     Lifecycle = ModelInfoLifecycle.Active,
                     Line = ModelLine.Haiku,
                     MaxInputTokens = 0,
@@ -440,7 +440,7 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     Capabilities = new()
                     {
                         Batch = new(true),
@@ -482,9 +482,9 @@ public class ModelListPageResponseTest : TestBase
                             },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
                     DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-                    DisplayName = "Claude Opus 5",
+                    DisplayName = "Claude Opus 5.5",
                     Lifecycle = ModelInfoLifecycle.Active,
                     Line = ModelLine.Haiku,
                     MaxInputTokens = 0,

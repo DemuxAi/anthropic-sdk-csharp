@@ -49,7 +49,7 @@ public class RawMessageStreamEventTest : TestBase
                     },
                 ],
                 Diagnostics = new(new CacheMissModelChanged(0)),
-                Model = Model.ClaudeOpus5,
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Category.Cyber,
@@ -214,7 +214,7 @@ public class RawMessageStreamEventTest : TestBase
                     },
                 ],
                 Diagnostics = new(new CacheMissModelChanged(0)),
-                Model = Model.ClaudeOpus5,
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Category.Cyber,

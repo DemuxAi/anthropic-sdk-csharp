@@ -25,7 +25,7 @@ public class BatchCreateParamsTest : TestBase
                     {
                         MaxTokens = 1024,
                         Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = Messages::Model.ClaudeOpus5,
+                        Model = Messages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                         Container = new Messages::ContainerParams()
                         {
@@ -134,7 +134,7 @@ public class BatchCreateParamsTest : TestBase
                 {
                     MaxTokens = 1024,
                     Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                    Model = Messages::Model.ClaudeOpus5,
+                    Model = Messages::Model.ClaudeOpus5_5,
                     CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                     Container = new Messages::ContainerParams()
                     {
@@ -253,7 +253,7 @@ public class BatchCreateParamsTest : TestBase
                     {
                         MaxTokens = 1024,
                         Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = Messages::Model.ClaudeOpus5,
+                        Model = Messages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                         Container = new Messages::ContainerParams()
                         {
@@ -371,7 +371,7 @@ public class BatchCreateParamsTest : TestBase
                     {
                         MaxTokens = 1024,
                         Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = Messages::Model.ClaudeOpus5,
+                        Model = Messages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                         Container = new Messages::ContainerParams()
                         {
@@ -493,7 +493,7 @@ public class BatchCreateParamsTest : TestBase
                     {
                         MaxTokens = 1024,
                         Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = Messages::Model.ClaudeOpus5,
+                        Model = Messages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                         Container = new Messages::ContainerParams()
                         {
@@ -618,7 +618,7 @@ public class BatchCreateParamsTest : TestBase
                     {
                         MaxTokens = 1024,
                         Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = Messages::Model.ClaudeOpus5,
+                        Model = Messages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                         Container = new Messages::ContainerParams()
                         {
@@ -738,7 +738,7 @@ public class BatchCreateParamsTest : TestBase
                     {
                         MaxTokens = 1024,
                         Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = Messages::Model.ClaudeOpus5,
+                        Model = Messages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                         Container = new Messages::ContainerParams()
                         {
@@ -864,7 +864,7 @@ public class BatchCreateParamsTest : TestBase
                     {
                         MaxTokens = 1024,
                         Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = Messages::Model.ClaudeOpus5,
+                        Model = Messages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                         Container = new Messages::ContainerParams()
                         {
@@ -982,7 +982,7 @@ public class RequestTest : TestBase
             {
                 MaxTokens = 1024,
                 Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = Messages::Model.ClaudeOpus5,
+                Model = Messages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                 Container = new Messages::ContainerParams()
                 {
@@ -1080,7 +1080,7 @@ public class RequestTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -1186,7 +1186,7 @@ public class RequestTest : TestBase
             {
                 MaxTokens = 1024,
                 Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = Messages::Model.ClaudeOpus5,
+                Model = Messages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                 Container = new Messages::ContainerParams()
                 {
@@ -1295,7 +1295,7 @@ public class RequestTest : TestBase
             {
                 MaxTokens = 1024,
                 Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = Messages::Model.ClaudeOpus5,
+                Model = Messages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                 Container = new Messages::ContainerParams()
                 {
@@ -1400,7 +1400,7 @@ public class RequestTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -1506,7 +1506,7 @@ public class RequestTest : TestBase
             {
                 MaxTokens = 1024,
                 Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = Messages::Model.ClaudeOpus5,
+                Model = Messages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                 Container = new Messages::ContainerParams()
                 {
@@ -1612,7 +1612,7 @@ public class RequestTest : TestBase
             {
                 MaxTokens = 1024,
                 Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = Messages::Model.ClaudeOpus5,
+                Model = Messages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
                 Container = new Messages::ContainerParams()
                 {
@@ -1720,7 +1720,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -1817,7 +1817,7 @@ public class ParamsTest : TestBase
         [
             new() { Content = "Hello, world", Role = Messages::Role.User },
         ];
-        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5;
+        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5_5;
         Messages::CacheControlEphemeral expectedCacheControl = new() { Ttl = Messages::Ttl.Ttl5m };
         Messages::MessageCreateParamsContainer expectedContainer = new Messages::ContainerParams()
         {
@@ -1959,7 +1959,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2064,7 +2064,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2165,7 +2165,7 @@ public class ParamsTest : TestBase
         [
             new() { Content = "Hello, world", Role = Messages::Role.User },
         ];
-        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5;
+        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5_5;
         Messages::CacheControlEphemeral expectedCacheControl = new() { Ttl = Messages::Ttl.Ttl5m };
         Messages::MessageCreateParamsContainer expectedContainer = new Messages::ContainerParams()
         {
@@ -2307,7 +2307,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2409,7 +2409,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2461,7 +2461,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2490,7 +2490,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2556,7 +2556,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2696,7 +2696,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {
@@ -2739,7 +2739,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             Metadata = new() { UserID = "13803d75-b4b5-4c3e-b2a2-6f21399b021b" },
             OutputConfig = new()
             {
@@ -2832,7 +2832,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             Metadata = new() { UserID = "13803d75-b4b5-4c3e-b2a2-6f21399b021b" },
             OutputConfig = new()
             {
@@ -2918,7 +2918,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             Metadata = new() { UserID = "13803d75-b4b5-4c3e-b2a2-6f21399b021b" },
             OutputConfig = new()
             {
@@ -3016,7 +3016,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             Metadata = new() { UserID = "13803d75-b4b5-4c3e-b2a2-6f21399b021b" },
             OutputConfig = new()
             {
@@ -3107,7 +3107,7 @@ public class ParamsTest : TestBase
         {
             MaxTokens = 1024,
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             Container = new Messages::ContainerParams()
             {

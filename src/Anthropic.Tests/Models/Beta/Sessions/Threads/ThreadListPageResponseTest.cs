@@ -35,7 +35,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -135,7 +135,7 @@ public class ThreadListPageResponseTest : TestBase
                     ],
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -245,7 +245,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -359,7 +359,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -466,7 +466,7 @@ public class ThreadListPageResponseTest : TestBase
                     ],
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -576,7 +576,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -722,7 +722,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -849,7 +849,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -957,7 +957,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -1064,7 +1064,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -1174,7 +1174,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -1283,7 +1283,7 @@ public class ThreadListPageResponseTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),

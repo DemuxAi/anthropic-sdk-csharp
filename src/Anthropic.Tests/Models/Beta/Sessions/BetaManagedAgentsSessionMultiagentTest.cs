@@ -30,7 +30,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -88,7 +88,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
     {
         BetaManagedAgentsSessionMultiagent value = new BetaManagedAgentsSessionMultiagent20261001()
         {
-            Advisor = new BetaManagedAgentsMultiagentAdvisorEnabled("claude-fable-5"),
+            Advisor = new BetaManagedAgentsMultiagentAdvisorEnabled("claude-opus-5-5"),
             Subagents = new BetaManagedAgentsSessionMultiagentSubagentsEnabled()
             {
                 InlineAgents = new BetaManagedAgentsMultiagentInlineAgentsEnabled(),
@@ -109,7 +109,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -178,7 +178,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -254,7 +254,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -318,7 +318,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
     {
         BetaManagedAgentsSessionMultiagent value = new BetaManagedAgentsSessionMultiagent20261001()
         {
-            Advisor = new BetaManagedAgentsMultiagentAdvisorEnabled("claude-fable-5"),
+            Advisor = new BetaManagedAgentsMultiagentAdvisorEnabled("claude-opus-5-5"),
             Subagents = new BetaManagedAgentsSessionMultiagentSubagentsEnabled()
             {
                 InlineAgents = new BetaManagedAgentsMultiagentInlineAgentsEnabled(),
@@ -339,7 +339,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),
@@ -408,7 +408,7 @@ public class BetaManagedAgentsSessionMultiagentTest : TestBase
                         ],
                         Model = new()
                         {
-                            ID = BetaManagedAgentsModel.ClaudeOpus5,
+                            ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                             Effort = new BetaManagedAgentsEffortLow(
                                 BetaManagedAgentsEffortLowType.Low
                             ),

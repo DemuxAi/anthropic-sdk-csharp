@@ -13,7 +13,7 @@ public class ModelInfoTest : TestBase
     {
         var model = new ModelInfo
         {
-            ID = "claude-opus-5",
+            ID = "claude-opus-5-5",
             Capabilities = new()
             {
                 Batch = new(true),
@@ -55,9 +55,9 @@ public class ModelInfoTest : TestBase
                     },
                 },
             },
-            CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+            CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
             DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-            DisplayName = "Claude Opus 5",
+            DisplayName = "Claude Opus 5.5",
             Lifecycle = ModelInfoLifecycle.Active,
             Line = ModelLine.Haiku,
             MaxInputTokens = 0,
@@ -65,7 +65,7 @@ public class ModelInfoTest : TestBase
             RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
         };
 
-        string expectedID = "claude-opus-5";
+        string expectedID = "claude-opus-5-5";
         ModelCapabilities expectedCapabilities = new()
         {
             Batch = new(true),
@@ -107,9 +107,9 @@ public class ModelInfoTest : TestBase
                 },
             },
         };
-        DateTimeOffset expectedCreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z");
+        DateTimeOffset expectedCreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z");
         DateTimeOffset expectedDeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z");
-        string expectedDisplayName = "Claude Opus 5";
+        string expectedDisplayName = "Claude Opus 5.5";
         ApiEnum<string, ModelInfoLifecycle> expectedLifecycle = ModelInfoLifecycle.Active;
         ApiEnum<string, ModelLine> expectedLine = ModelLine.Haiku;
         long expectedMaxInputTokens = 0;
@@ -135,7 +135,7 @@ public class ModelInfoTest : TestBase
     {
         var model = new ModelInfo
         {
-            ID = "claude-opus-5",
+            ID = "claude-opus-5-5",
             Capabilities = new()
             {
                 Batch = new(true),
@@ -177,9 +177,9 @@ public class ModelInfoTest : TestBase
                     },
                 },
             },
-            CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+            CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
             DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-            DisplayName = "Claude Opus 5",
+            DisplayName = "Claude Opus 5.5",
             Lifecycle = ModelInfoLifecycle.Active,
             Line = ModelLine.Haiku,
             MaxInputTokens = 0,
@@ -198,7 +198,7 @@ public class ModelInfoTest : TestBase
     {
         var model = new ModelInfo
         {
-            ID = "claude-opus-5",
+            ID = "claude-opus-5-5",
             Capabilities = new()
             {
                 Batch = new(true),
@@ -240,9 +240,9 @@ public class ModelInfoTest : TestBase
                     },
                 },
             },
-            CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+            CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
             DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-            DisplayName = "Claude Opus 5",
+            DisplayName = "Claude Opus 5.5",
             Lifecycle = ModelInfoLifecycle.Active,
             Line = ModelLine.Haiku,
             MaxInputTokens = 0,
@@ -257,7 +257,7 @@ public class ModelInfoTest : TestBase
         );
         Assert.NotNull(deserialized);
 
-        string expectedID = "claude-opus-5";
+        string expectedID = "claude-opus-5-5";
         ModelCapabilities expectedCapabilities = new()
         {
             Batch = new(true),
@@ -299,9 +299,9 @@ public class ModelInfoTest : TestBase
                 },
             },
         };
-        DateTimeOffset expectedCreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z");
+        DateTimeOffset expectedCreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z");
         DateTimeOffset expectedDeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z");
-        string expectedDisplayName = "Claude Opus 5";
+        string expectedDisplayName = "Claude Opus 5.5";
         ApiEnum<string, ModelInfoLifecycle> expectedLifecycle = ModelInfoLifecycle.Active;
         ApiEnum<string, ModelLine> expectedLine = ModelLine.Haiku;
         long expectedMaxInputTokens = 0;
@@ -327,7 +327,7 @@ public class ModelInfoTest : TestBase
     {
         var model = new ModelInfo
         {
-            ID = "claude-opus-5",
+            ID = "claude-opus-5-5",
             Capabilities = new()
             {
                 Batch = new(true),
@@ -369,9 +369,9 @@ public class ModelInfoTest : TestBase
                     },
                 },
             },
-            CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+            CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
             DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-            DisplayName = "Claude Opus 5",
+            DisplayName = "Claude Opus 5.5",
             Lifecycle = ModelInfoLifecycle.Active,
             Line = ModelLine.Haiku,
             MaxInputTokens = 0,
@@ -387,7 +387,7 @@ public class ModelInfoTest : TestBase
     {
         var model = new ModelInfo
         {
-            ID = "claude-opus-5",
+            ID = "claude-opus-5-5",
             Capabilities = new()
             {
                 Batch = new(true),
@@ -429,9 +429,9 @@ public class ModelInfoTest : TestBase
                     },
                 },
             },
-            CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
+            CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
             DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
-            DisplayName = "Claude Opus 5",
+            DisplayName = "Claude Opus 5.5",
             Lifecycle = ModelInfoLifecycle.Active,
             Line = ModelLine.Haiku,
             MaxInputTokens = 0,

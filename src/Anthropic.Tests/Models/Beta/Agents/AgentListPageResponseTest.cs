@@ -33,7 +33,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -138,7 +138,7 @@ public class AgentListPageResponseTest : TestBase
                 Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                 Model = new()
                 {
-                    ID = BetaManagedAgentsModel.ClaudeOpus5,
+                    ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                     Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                     InferenceGeo = "inference_geo",
                     Speed = Speed.Standard,
@@ -255,7 +255,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -374,7 +374,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -486,7 +486,7 @@ public class AgentListPageResponseTest : TestBase
                 Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                 Model = new()
                 {
-                    ID = BetaManagedAgentsModel.ClaudeOpus5,
+                    ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                     Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                     InferenceGeo = "inference_geo",
                     Speed = Speed.Standard,
@@ -603,7 +603,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -716,7 +716,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -829,7 +829,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -941,7 +941,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -1056,7 +1056,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,
@@ -1170,7 +1170,7 @@ public class AgentListPageResponseTest : TestBase
                     Metadata = new Dictionary<string, string>() { { "foo", "bar" } },
                     Model = new()
                     {
-                        ID = BetaManagedAgentsModel.ClaudeOpus5,
+                        ID = BetaManagedAgentsModel.ClaudeOpus5_5,
                         Effort = new BetaManagedAgentsEffortLow(BetaManagedAgentsEffortLowType.Low),
                         InferenceGeo = "inference_geo",
                         Speed = Speed.Standard,

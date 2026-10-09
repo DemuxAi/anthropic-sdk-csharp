@@ -26,7 +26,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
             ],
             Model = new()
             {
-                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5,
+                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5_5,
                 Effort = new Agents::BetaManagedAgentsEffortLow(
                     Agents::BetaManagedAgentsEffortLowType.Low
                 ),
@@ -81,7 +81,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         ];
         Agents::BetaManagedAgentsModelConfig expectedModel = new()
         {
-            ID = Agents::BetaManagedAgentsModel.ClaudeOpus5,
+            ID = Agents::BetaManagedAgentsModel.ClaudeOpus5_5,
             Effort = new Agents::BetaManagedAgentsEffortLow(
                 Agents::BetaManagedAgentsEffortLowType.Low
             ),
@@ -164,7 +164,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
             ],
             Model = new()
             {
-                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5,
+                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5_5,
                 Effort = new Agents::BetaManagedAgentsEffortLow(
                     Agents::BetaManagedAgentsEffortLowType.Low
                 ),
@@ -234,7 +234,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
             ],
             Model = new()
             {
-                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5,
+                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5_5,
                 Effort = new Agents::BetaManagedAgentsEffortLow(
                     Agents::BetaManagedAgentsEffortLowType.Low
                 ),
@@ -296,7 +296,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         ];
         Agents::BetaManagedAgentsModelConfig expectedModel = new()
         {
-            ID = Agents::BetaManagedAgentsModel.ClaudeOpus5,
+            ID = Agents::BetaManagedAgentsModel.ClaudeOpus5_5,
             Effort = new Agents::BetaManagedAgentsEffortLow(
                 Agents::BetaManagedAgentsEffortLowType.Low
             ),
@@ -379,7 +379,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
             ],
             Model = new()
             {
-                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5,
+                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5_5,
                 Effort = new Agents::BetaManagedAgentsEffortLow(
                     Agents::BetaManagedAgentsEffortLowType.Low
                 ),
@@ -443,7 +443,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
             ],
             Model = new()
             {
-                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5,
+                ID = Agents::BetaManagedAgentsModel.ClaudeOpus5_5,
                 Effort = new Agents::BetaManagedAgentsEffortLow(
                     Agents::BetaManagedAgentsEffortLowType.Low
                 ),
