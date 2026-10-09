@@ -1,5 +1,11 @@
 # Changelog
 
+## [12.55.1](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.55.1) (2026-10-09)
+
+### Documentation
+
+* **api:** clarify when custom tool results can be sent
+
 ## [12.55.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.54.1...Anthropic-v12.55.0) (2026-10-09)
 
 ### Features
