@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using Anthropic.Models;
@@ -10,8 +11,19 @@ public class AnthropicExceptionFactory
     public static AnthropicApiException CreateApiException(
         HttpStatusCode statusCode,
         string responseBody
+    ) => CreateApiException(statusCode, responseBody, AnthropicApiException.EmptyHeaders);
+
+    public static AnthropicApiException CreateApiException(
+        HttpStatusCode statusCode,
+        string responseBody,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> responseHeaders
     )
     {
+        if (responseHeaders == null)
+        {
+            throw new ArgumentNullException(nameof(responseHeaders));
+        }
+
         var errorType = ExtractErrorType(responseBody);
 
         return (int)statusCode switch
@@ -20,54 +32,63 @@ public class AnthropicExceptionFactory
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             401 => new AnthropicUnauthorizedException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             403 => new AnthropicForbiddenException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             404 => new AnthropicNotFoundException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             422 => new AnthropicUnprocessableEntityException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             429 => new AnthropicRateLimitException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             >= 400 and <= 499 => new Anthropic4xxException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             >= 500 and <= 599 => new Anthropic5xxException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
             _ => new AnthropicUnexpectedStatusCodeException()
             {
                 StatusCode = statusCode,
                 ResponseBody = responseBody,
+                ResponseHeaders = responseHeaders,
                 ErrorType = errorType,
             },
         };

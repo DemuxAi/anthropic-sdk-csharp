@@ -288,6 +288,50 @@ public class RetriesTest : TestBase
     }
 
     [Fact]
+    public async Task ApiException_CarriesResponseHeaders()
+    {
+        var failResponse = new HttpResponseMessage()
+        {
+            StatusCode = (HttpStatusCode)429,
+            Content = new StringContent(
+                "{\"type\":\"error\",\"error\":{\"type\":\"rate_limit_error\",\"message\":\"x\"}}"
+            ),
+        };
+        failResponse.Headers.TryAddWithoutValidation(
+            "anthropic-ratelimit-unified-representative-claim",
+            "five_hour"
+        );
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(failResponse);
+
+        AnthropicClient client = new()
+        {
+            HttpClient = new HttpClient(handlerMock.Object),
+            MaxRetries = 0,
+        };
+
+        var ex = await Assert.ThrowsAsync<Exceptions.AnthropicRateLimitException>(() =>
+            client.WithRawResponse.Execute(
+                new HttpRequest<BlankParams> { Method = HttpMethod.Get, Params = new() },
+                TestContext.Current.CancellationToken
+            )
+        );
+
+        Assert.Equal(
+            new[] { "five_hour" },
+            ex.ResponseHeaders["Anthropic-RateLimit-Unified-Representative-Claim"]
+        );
+    }
+
+    [Fact]
     public async Task RetryAfterMsHeader_Works()
     {
         var failResponse = new HttpResponseMessage()
