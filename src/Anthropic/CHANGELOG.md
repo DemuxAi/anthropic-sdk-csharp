@@ -1,6 +1,6 @@
 # Changelog
 
-## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-09)
+## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-10)
 
 ### Features
 
@@ -16,6 +16,7 @@
 ### Documentation
 
 * **api:** clarify when custom tool results can be sent
+* **api:** say is_enabled is always true for user spend limits
 
 ## [12.55.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.54.1...Anthropic-v12.55.0) (2026-10-09)
 
