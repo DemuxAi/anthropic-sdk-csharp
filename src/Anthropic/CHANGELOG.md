@@ -7,6 +7,11 @@
 * **api:** add organization_type_not_supported error to spend limit lists
 
 
+### Bug Fixes
+
+* **client:** don't follow redirects on token requests
+
+
 ### Chores
 
 * **docs:** correct prefill, thinking, fallback and model descriptions
