@@ -51,7 +51,8 @@ public record class InviteCreateParams : ParamsBase
     /// <para>The accepted values depend on the organization type. Console and API
     /// organizations accept `user`, `developer`, `billing`, and `claude_code_user`;
     /// `admin` cannot be assigned through the API. Claude Enterprise organizations
-    /// accept `user` and `managed`.</para>
+    /// accept `user` and `managed`; inviting with the `managed` role requires the
+    /// `write:rbac_groups` scope in addition to `write:members`.</para>
     /// </summary>
     public required ApiEnum<string, Role> Role
     {
@@ -206,7 +207,9 @@ public record class InviteCreateParams : ParamsBase
 ///
 /// <para>The accepted values depend on the organization type. Console and API organizations
 /// accept `user`, `developer`, `billing`, and `claude_code_user`; `admin` cannot
-/// be assigned through the API. Claude Enterprise organizations accept `user` and `managed`.</para>
+/// be assigned through the API. Claude Enterprise organizations accept `user` and
+/// `managed`; inviting with the `managed` role requires the `write:rbac_groups`
+/// scope in addition to `write:members`.</para>
 /// </summary>
 [JsonConverter(typeof(RoleConverter))]
 public enum Role

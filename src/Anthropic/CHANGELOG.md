@@ -1,6 +1,6 @@
 # Changelog
 
-## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-10)
+## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-13)
 
 ### Features
 
@@ -15,6 +15,7 @@
 ### Chores
 
 * **docs:** correct prefill, thinking, fallback and model descriptions
+* **docs:** document the scope required to assign the managed role
 * **docs:** update model examples
 
 
