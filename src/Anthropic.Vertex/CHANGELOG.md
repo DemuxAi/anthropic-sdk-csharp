@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Vertex-v0.5.3...Vertex-v0.6.0) (2026-10-14)
+
+### Features
+
+* **client:** add OpenTelemetry tracing. `AnthropicVertexClient` emits its spans from the `com.anthropic.sdk.csharp.vertex` activity source, with `gcp.vertex_ai` as their `gen_ai.provider.name`. Listen to that source: listening to `com.anthropic.sdk.csharp` alone does not cover it
+
 ## 0.5.3 (2026-08-19)
 
 Full Changelog: [Vertex-v0.5.2...Vertex-v0.5.3](https://github.com/anthropics/anthropic-sdk-csharp/compare/Vertex-v0.5.2...Vertex-v0.5.3)

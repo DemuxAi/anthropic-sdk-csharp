@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Foundry-v0.7.1...Foundry-v0.8.0) (2026-10-14)
+
+### Features
+
+* **client:** add OpenTelemetry tracing. `AnthropicFoundryClient` emits its spans from the `com.anthropic.sdk.csharp.foundry` activity source. Listen to that source: listening to `com.anthropic.sdk.csharp` alone does not cover it
+
 ## 0.7.1 (2026-06-24)
 
 Full Changelog: [Foundry-v0.7.0...Foundry-v0.7.1](https://github.com/anthropics/anthropic-sdk-csharp/compare/Foundry-v0.7.0...Foundry-v0.7.1)
