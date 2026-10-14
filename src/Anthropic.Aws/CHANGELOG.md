@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Aws-v0.5.3...Aws-v0.6.0) (2026-10-14)
+
+### Features
+
+* **client:** add OpenTelemetry tracing. `AnthropicAwsClient` emits its spans from the `com.anthropic.sdk.csharp.aws` activity source. Listen to that source: listening to `com.anthropic.sdk.csharp` alone does not cover it
+
 ## 0.5.3 (2026-08-27)
 
 Full Changelog: [Aws-v0.5.2...Aws-v0.5.3](https://github.com/anthropics/anthropic-sdk-csharp/compare/Aws-v0.5.2...Aws-v0.5.3)

@@ -1,5 +1,11 @@
 # Changelog
 
+## [12.57.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.56.0...Anthropic-v12.57.0) (2026-10-14)
+
+### Features
+
+* **api:** return a Console organization's usage-tier spend cap as a read-only spend limit
+
 ## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-14)
 
 ### Features
@@ -24,6 +30,7 @@
 * **docs:** correct prefill, thinking, fallback and model descriptions
 * **docs:** document the scope required to assign the managed role
 * **docs:** update model examples
+* **internal:** observe the redirecting test server's task
 
 
 ### Documentation

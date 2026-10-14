@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.14.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Bedrock-v0.13.7...Bedrock-v0.14.0) (2026-10-14)
+
+### Features
+
+* **client:** add OpenTelemetry tracing. `AnthropicBedrockClient` and `AnthropicBedrockMantleClient` emit their spans from the `com.anthropic.sdk.csharp.bedrock` activity source, with `aws.bedrock` as their `gen_ai.provider.name`. Listen to that source: listening to `com.anthropic.sdk.csharp` alone does not cover it
+
 ## 0.13.7 (2026-10-07)
 
 Full Changelog: [Bedrock-v0.13.6...Bedrock-v0.13.7](https://github.com/anthropics/anthropic-sdk-csharp/compare/Bedrock-v0.13.6...Bedrock-v0.13.7)
