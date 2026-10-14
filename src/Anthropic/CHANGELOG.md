@@ -30,6 +30,7 @@
 * **docs:** correct prefill, thinking, fallback and model descriptions
 * **docs:** document the scope required to assign the managed role
 * **docs:** update model examples
+* **internal:** observe the redirecting test server's task
 
 
 ### Documentation

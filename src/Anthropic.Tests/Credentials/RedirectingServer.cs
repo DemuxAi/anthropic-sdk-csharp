@@ -25,14 +25,23 @@ internal sealed class RedirectingServer : IDisposable
         _listener.Start();
         _ = Task.Run(async () =>
         {
-            var redirected = (await _listener.GetContextAsync().ConfigureAwait(false)).Response;
-            redirected.StatusCode = (int)HttpStatusCode.TemporaryRedirect;
-            redirected.RedirectLocation = BaseUrl + "/elsewhere";
-            redirected.Close();
+            try
+            {
+                var redirected = (await _listener.GetContextAsync().ConfigureAwait(false)).Response;
+                redirected.StatusCode = (int)HttpStatusCode.TemporaryRedirect;
+                redirected.RedirectLocation = BaseUrl + "/elsewhere";
+                redirected.Close();
 
-            var followed = (await _listener.GetContextAsync().ConfigureAwait(false)).Response;
-            followed.StatusCode = (int)HttpStatusCode.NotFound;
-            followed.Close();
+                var followed = (await _listener.GetContextAsync().ConfigureAwait(false)).Response;
+                followed.StatusCode = (int)HttpStatusCode.NotFound;
+                followed.Close();
+            }
+            catch (Exception e) when (e is HttpListenerException or ObjectDisposedException)
+            {
+                // Closing the listener fails the wait for a request that never comes. Nothing
+                // awaits this task, so the failure would surface as an unobserved exception in
+                // whichever test runs when the task is collected.
+            }
         });
     }
 
