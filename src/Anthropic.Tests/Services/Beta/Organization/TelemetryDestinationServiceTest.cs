@@ -69,12 +69,12 @@ public class TelemetryDestinationServiceTest : TestBase
     [Fact]
     public async Task Test_Works()
     {
-        var betaTelemetryDestinationTest =
+        var betaTelemetryDestinationTestResponse =
             await this.client.Beta.Organization.TelemetryDestinations.Test(
                 "destination_id",
                 new(),
                 TestContext.Current.CancellationToken
             );
-        betaTelemetryDestinationTest.Validate();
+        betaTelemetryDestinationTestResponse.Validate();
     }
 }

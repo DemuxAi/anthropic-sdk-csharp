@@ -146,7 +146,7 @@ public sealed class TelemetryDestinationService : ITelemetryDestinationService
     }
 
     /// <inheritdoc/>
-    public async Task<BetaTelemetryDestinationTest> Test(
+    public async Task<BetaTelemetryDestinationTestResponse> Test(
         TelemetryDestinationTestParams parameters,
         CancellationToken cancellationToken = default
     )
@@ -158,7 +158,7 @@ public sealed class TelemetryDestinationService : ITelemetryDestinationService
     }
 
     /// <inheritdoc/>
-    public Task<BetaTelemetryDestinationTest> Test(
+    public Task<BetaTelemetryDestinationTestResponse> Test(
         string destinationID,
         TelemetryDestinationTestParams? parameters = null,
         CancellationToken cancellationToken = default
@@ -414,7 +414,7 @@ public sealed class TelemetryDestinationServiceWithRawResponse
     }
 
     /// <inheritdoc/>
-    public async Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+    public async Task<HttpResponse<BetaTelemetryDestinationTestResponse>> Test(
         TelemetryDestinationTestParams parameters,
         CancellationToken cancellationToken = default
     )
@@ -439,20 +439,20 @@ public sealed class TelemetryDestinationServiceWithRawResponse
             response,
             async (token) =>
             {
-                var betaTelemetryDestinationTest = await response
-                    .Deserialize<BetaTelemetryDestinationTest>(token)
+                var betaTelemetryDestinationTestResponse = await response
+                    .Deserialize<BetaTelemetryDestinationTestResponse>(token)
                     .ConfigureAwait(false);
                 if (this._client.ResponseValidation)
                 {
-                    betaTelemetryDestinationTest.Validate();
+                    betaTelemetryDestinationTestResponse.Validate();
                 }
-                return betaTelemetryDestinationTest;
+                return betaTelemetryDestinationTestResponse;
             }
         );
     }
 
     /// <inheritdoc/>
-    public Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+    public Task<HttpResponse<BetaTelemetryDestinationTestResponse>> Test(
         string destinationID,
         TelemetryDestinationTestParams? parameters = null,
         CancellationToken cancellationToken = default

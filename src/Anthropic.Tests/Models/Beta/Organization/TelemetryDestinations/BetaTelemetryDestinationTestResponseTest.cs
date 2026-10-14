@@ -4,12 +4,12 @@ using Anthropic.Models.Beta.Organization.TelemetryDestinations;
 
 namespace Anthropic.Tests.Models.Beta.Organization.TelemetryDestinations;
 
-public class BetaTelemetryDestinationTestTest : TestBase
+public class BetaTelemetryDestinationTestResponseTest : TestBase
 {
     [Fact]
     public void FieldRoundtrip_Works()
     {
-        var model = new BetaTelemetryDestinationTest
+        var model = new BetaTelemetryDestinationTestResponse
         {
             Result = new BetaTelemetryDestinationTestSuccess(),
         };
@@ -25,13 +25,13 @@ public class BetaTelemetryDestinationTestTest : TestBase
     [Fact]
     public void SerializationRoundtrip_Works()
     {
-        var model = new BetaTelemetryDestinationTest
+        var model = new BetaTelemetryDestinationTestResponse
         {
             Result = new BetaTelemetryDestinationTestSuccess(),
         };
 
         string json = JsonSerializer.Serialize(model, ModelBase.SerializerOptions);
-        var deserialized = JsonSerializer.Deserialize<BetaTelemetryDestinationTest>(
+        var deserialized = JsonSerializer.Deserialize<BetaTelemetryDestinationTestResponse>(
             json,
             ModelBase.SerializerOptions
         );
@@ -42,13 +42,13 @@ public class BetaTelemetryDestinationTestTest : TestBase
     [Fact]
     public void FieldRoundtripThroughSerialization_Works()
     {
-        var model = new BetaTelemetryDestinationTest
+        var model = new BetaTelemetryDestinationTestResponse
         {
             Result = new BetaTelemetryDestinationTestSuccess(),
         };
 
         string element = JsonSerializer.Serialize(model, ModelBase.SerializerOptions);
-        var deserialized = JsonSerializer.Deserialize<BetaTelemetryDestinationTest>(
+        var deserialized = JsonSerializer.Deserialize<BetaTelemetryDestinationTestResponse>(
             element,
             ModelBase.SerializerOptions
         );
@@ -65,7 +65,7 @@ public class BetaTelemetryDestinationTestTest : TestBase
     [Fact]
     public void Validation_Works()
     {
-        var model = new BetaTelemetryDestinationTest
+        var model = new BetaTelemetryDestinationTestResponse
         {
             Result = new BetaTelemetryDestinationTestSuccess(),
         };
@@ -76,12 +76,12 @@ public class BetaTelemetryDestinationTestTest : TestBase
     [Fact]
     public void CopyConstructor_Works()
     {
-        var model = new BetaTelemetryDestinationTest
+        var model = new BetaTelemetryDestinationTestResponse
         {
             Result = new BetaTelemetryDestinationTestSuccess(),
         };
 
-        BetaTelemetryDestinationTest copied = new(model);
+        BetaTelemetryDestinationTestResponse copied = new(model);
 
         Assert.Equal(model, copied);
     }

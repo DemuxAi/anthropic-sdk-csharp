@@ -12,9 +12,12 @@ namespace Anthropic.Models.Beta.Organization.TelemetryDestinations;
 /// The result of one test span sent to a destination.
 /// </summary>
 [JsonConverter(
-    typeof(JsonModelConverter<BetaTelemetryDestinationTest, BetaTelemetryDestinationTestFromRaw>)
+    typeof(JsonModelConverter<
+        BetaTelemetryDestinationTestResponse,
+        BetaTelemetryDestinationTestResponseFromRaw
+    >)
 )]
-public sealed record class BetaTelemetryDestinationTest : JsonModel
+public sealed record class BetaTelemetryDestinationTestResponse : JsonModel
 {
     /// <summary>
     /// How the test went: `success` when the destination answered with a 2xx status,
@@ -55,18 +58,20 @@ public sealed record class BetaTelemetryDestinationTest : JsonModel
         }
     }
 
-    public BetaTelemetryDestinationTest()
+    public BetaTelemetryDestinationTestResponse()
     {
         this.Type = JsonSerializer.SerializeToElement("telemetry_destination_test");
     }
 
 #pragma warning disable CS8618
     [SetsRequiredMembers]
-    public BetaTelemetryDestinationTest(BetaTelemetryDestinationTest betaTelemetryDestinationTest)
-        : base(betaTelemetryDestinationTest) { }
+    public BetaTelemetryDestinationTestResponse(
+        BetaTelemetryDestinationTestResponse betaTelemetryDestinationTestResponse
+    )
+        : base(betaTelemetryDestinationTestResponse) { }
 #pragma warning restore CS8618
 
-    public BetaTelemetryDestinationTest(IReadOnlyDictionary<string, JsonElement> rawData)
+    public BetaTelemetryDestinationTestResponse(IReadOnlyDictionary<string, JsonElement> rawData)
     {
         this._rawData = new(rawData);
 
@@ -75,14 +80,14 @@ public sealed record class BetaTelemetryDestinationTest : JsonModel
 
 #pragma warning disable CS8618
     [SetsRequiredMembers]
-    BetaTelemetryDestinationTest(FrozenDictionary<string, JsonElement> rawData)
+    BetaTelemetryDestinationTestResponse(FrozenDictionary<string, JsonElement> rawData)
     {
         this._rawData = new(rawData);
     }
 #pragma warning restore CS8618
 
-    /// <inheritdoc cref="BetaTelemetryDestinationTestFromRaw.FromRawUnchecked"/>
-    public static BetaTelemetryDestinationTest FromRawUnchecked(
+    /// <inheritdoc cref="BetaTelemetryDestinationTestResponseFromRaw.FromRawUnchecked"/>
+    public static BetaTelemetryDestinationTestResponse FromRawUnchecked(
         IReadOnlyDictionary<string, JsonElement> rawData
     )
     {
@@ -90,17 +95,18 @@ public sealed record class BetaTelemetryDestinationTest : JsonModel
     }
 
     [SetsRequiredMembers]
-    public BetaTelemetryDestinationTest(BetaTelemetryDestinationTestResult result)
+    public BetaTelemetryDestinationTestResponse(BetaTelemetryDestinationTestResult result)
         : this()
     {
         this.Result = result;
     }
 }
 
-class BetaTelemetryDestinationTestFromRaw : IFromRawJson<BetaTelemetryDestinationTest>
+class BetaTelemetryDestinationTestResponseFromRaw
+    : IFromRawJson<BetaTelemetryDestinationTestResponse>
 {
     /// <inheritdoc/>
-    public BetaTelemetryDestinationTest FromRawUnchecked(
+    public BetaTelemetryDestinationTestResponse FromRawUnchecked(
         IReadOnlyDictionary<string, JsonElement> rawData
-    ) => BetaTelemetryDestinationTest.FromRawUnchecked(rawData);
+    ) => BetaTelemetryDestinationTestResponse.FromRawUnchecked(rawData);
 }

@@ -14,6 +14,7 @@
 
 ### Bug Fixes
 
+* **api:** rename telemetry destination test response model
 * **client:** don't follow redirects on token requests
 
 

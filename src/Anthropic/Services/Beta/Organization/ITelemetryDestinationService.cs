@@ -139,13 +139,13 @@ public interface ITelemetryDestinationService
     /// 10 seconds between tests of one destination; a request that comes sooner may be
     /// answered with status 429.
     /// </summary>
-    Task<BetaTelemetryDestinationTest> Test(
+    Task<BetaTelemetryDestinationTestResponse> Test(
         TelemetryDestinationTestParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <inheritdoc cref="Test(TelemetryDestinationTestParams, CancellationToken)"/>
-    Task<BetaTelemetryDestinationTest> Test(
+    Task<BetaTelemetryDestinationTestResponse> Test(
         string destinationID,
         TelemetryDestinationTestParams? parameters = null,
         CancellationToken cancellationToken = default
@@ -239,13 +239,13 @@ public interface ITelemetryDestinationServiceWithRawResponse
     /// Returns a raw HTTP response for <c>post /v1/organizations/telemetry_destinations/{destination_id}/test?beta=true</c>, but is otherwise the
     /// same as <see cref="ITelemetryDestinationService.Test(TelemetryDestinationTestParams, CancellationToken)"/>.
     /// </summary>
-    Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+    Task<HttpResponse<BetaTelemetryDestinationTestResponse>> Test(
         TelemetryDestinationTestParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <inheritdoc cref="Test(TelemetryDestinationTestParams, CancellationToken)"/>
-    Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+    Task<HttpResponse<BetaTelemetryDestinationTestResponse>> Test(
         string destinationID,
         TelemetryDestinationTestParams? parameters = null,
         CancellationToken cancellationToken = default
