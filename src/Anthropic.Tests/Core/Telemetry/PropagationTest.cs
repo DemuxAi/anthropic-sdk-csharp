@@ -258,6 +258,53 @@ public class PropagationTest : TracingTestBase
         Assert.Equal(ActivityStatusCode.Ok, trace.Single("anthropic.messages.create").Status);
     }
 
+    [Fact]
+    public async Task BackendAdaptationHandler_DoesNotSeeTheTraceContextHeadersThatAreSent()
+    {
+        using var trace = new RecordedTrace();
+        trace.Root.TraceStateString = "vendor=value";
+        trace.Root.AddBaggage("tenant", "t1");
+        var handler = new ScriptedHandler().RespondJson(Fixtures.MessageJson);
+        var applicationHandler = new RecordingHandler();
+        var backendAdaptationHandler = new RecordingHandler();
+        var client = new AnthropicClient
+        {
+            HttpClient = new HttpClient(handler),
+            BaseUrl = Fixtures.BaseUrl,
+            ApiKey = "test-key",
+            Handlers = [applicationHandler],
+            BackendAdaptationHandler = () => backendAdaptationHandler,
+        };
+
+        await client.Messages.Create(MessageParams(), TestContext.Current.CancellationToken);
+
+        var span = trace.Single("anthropic.messages.create");
+        var names = TraceContextHeaders.Names();
+        var seen = Assert.Single(applicationHandler.Requests);
+        var adapted = Assert.Single(backendAdaptationHandler.Requests);
+        var sent = Assert.Single(handler.Requests);
+        Assert.Equal($"00-{span.TraceId}-{span.SpanId}-01", sent.Header("traceparent"));
+        Assert.Equal("vendor=value", sent.Header("tracestate"));
+        Assert.Contains(sent.Headers.Values, value => value.Contains("tenant"));
+        Assert.DoesNotContain(adapted.Headers.Keys, names.Contains);
+        Assert.Equal(seen.Headers, sent.Headers);
+        Assert.Equal(seen.Headers.Where(header => !names.Contains(header.Key)), adapted.Headers);
+    }
+
+    sealed class RecordingHandler : DelegatingHandler
+    {
+        public List<RecordedRequest> Requests { get; } = [];
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken
+        )
+        {
+            Requests.Add(RecordedRequest.From(request));
+            return base.SendAsync(request, cancellationToken);
+        }
+    }
+
     /// <summary>
     /// Stands in for an HTTP instrumentation below the SDK: replaces the trace context of each
     /// request with that of its own attempt span.

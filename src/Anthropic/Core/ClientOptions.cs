@@ -96,11 +96,12 @@ public record struct ClientOptions
     /// Factory for the handler that adapts requests and responses for a cloud backend
     /// (URL/body rewriting, request signing, response normalization).
     ///
-    /// <para>The created handler is attached as the innermost handler, inside all user
+    /// <para>The created handler is attached inside all user
     /// <see cref="Handlers"/>, so user handlers observe Anthropic-shaped requests and
     /// normalized responses, and any request mutation they perform is covered by backend
-    /// request signing. A factory (rather than an instance) because every attached handler
-    /// chain needs its own unattached instance.</para>
+    /// request signing, except for the trace-context headers, which the handler does not see
+    /// (<see cref="UnsignedTraceContextHandler"/>). A factory (rather than an instance) because
+    /// every attached handler chain needs its own unattached instance.</para>
     /// </summary>
     internal Func<DelegatingHandler>? BackendAdaptationHandler
     {
@@ -377,7 +378,8 @@ public record struct ClientOptions
     /// through the chain.
     ///
     /// <para>When a backend adaptation handler factory is given, the created handler is
-    /// placed inside all the given handlers, just outside the HTTP client itself.</para>
+    /// placed inside all the given handlers, in an <see cref="UnsignedTraceContextHandler"/>
+    /// just outside the HTTP client itself.</para>
     /// </summary>
     static HttpMessageInvoker AttachHandlers(
         HttpClient httpClient,
@@ -388,9 +390,10 @@ public record struct ClientOptions
         HttpMessageHandler innerHandler = new HttpClientPassthroughHandler(httpClient);
         if (backendAdaptationHandler != null)
         {
-            var handler = backendAdaptationHandler();
-            handler.InnerHandler = innerHandler;
-            innerHandler = handler;
+            innerHandler = new UnsignedTraceContextHandler(
+                backendAdaptationHandler(),
+                innerHandler
+            );
         }
         for (var index = handlers.Count - 1; index >= 0; index--)
         {

@@ -16,6 +16,7 @@
 
 * **api:** rename telemetry destination test response model
 * **client:** don't follow redirects on token requests
+* **client:** leave the trace context headers unsigned with released `Anthropic.Aws` and `Anthropic.Bedrock` packages too
 
 
 ### Chores
