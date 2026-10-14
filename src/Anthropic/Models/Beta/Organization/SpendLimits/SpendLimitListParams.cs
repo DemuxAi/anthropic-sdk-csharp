@@ -187,6 +187,10 @@ public record class SpendLimitListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/organizations/spend_limits";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "page", "scope_type"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

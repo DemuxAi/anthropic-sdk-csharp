@@ -45,6 +45,22 @@ public record class AgentUpdateParams : ParamsBase
     }
 
     /// <summary>
+    /// Execution principal for runs of this agent. Full replacement. Omit to preserve;
+    /// send null or `{"type": "service_account"}` to restore the default.
+    /// </summary>
+    public BetaManagedAgentsExecutionIdentityParams? ExecutionIdentity
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<BetaManagedAgentsExecutionIdentityParams>(
+                "execution_identity"
+            );
+        }
+        init { this._rawBodyData.Set("execution_identity", value); }
+    }
+
+    /// <summary>
     /// MCP servers. Full replacement. Omit to preserve; send empty array or `null`
     /// to clear. Names must be unique. Maximum 20. Every server must be referenced
     /// by an `mcp_toolset` in the agent's resulting `tools`; unreferenced servers
@@ -388,6 +404,8 @@ public record class AgentUpdateParams : ParamsBase
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/agents/{agent_id}";
 
     internal override HttpContent? BodyContent()
     {

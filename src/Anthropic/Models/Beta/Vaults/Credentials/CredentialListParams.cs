@@ -232,6 +232,10 @@ public record class CredentialListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/vaults/{vault_id}/credentials";
+
+    internal override IReadOnlyList<string> QueryParams => ["include_archived", "limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

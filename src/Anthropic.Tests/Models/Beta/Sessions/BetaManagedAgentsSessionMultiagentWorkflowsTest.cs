@@ -21,6 +21,7 @@ public class BetaManagedAgentsSessionMultiagentWorkflowsTest : TestBase
                     {
                         ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                         Description = "A focused research subagent.",
+                        ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                         McpServers =
                         [
                             new()
@@ -105,6 +106,7 @@ public class BetaManagedAgentsSessionMultiagentWorkflowsTest : TestBase
                     {
                         ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                         Description = "A focused research subagent.",
+                        ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                         McpServers =
                         [
                             new()

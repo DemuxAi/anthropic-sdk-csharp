@@ -20,6 +20,8 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorTest : TestBase
                 {
                     ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                     Description = "A focused research subagent.",
+                    ExecutionIdentity =
+                        new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -89,6 +91,7 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -170,6 +173,8 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorTest : TestBase
                 {
                     ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                     Description = "A focused research subagent.",
+                    ExecutionIdentity =
+                        new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -254,6 +259,8 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorTest : TestBase
                 {
                     ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                     Description = "A focused research subagent.",
+                    ExecutionIdentity =
+                        new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -331,6 +338,7 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -412,6 +420,8 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorTest : TestBase
                 {
                     ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                     Description = "A focused research subagent.",
+                    ExecutionIdentity =
+                        new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -489,6 +499,8 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorTest : TestBase
                 {
                     ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                     Description = "A focused research subagent.",
+                    ExecutionIdentity =
+                        new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -568,6 +580,7 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorAgentTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -645,6 +658,7 @@ public class BetaManagedAgentsSessionMultiagentCoordinatorAgentTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()

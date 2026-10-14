@@ -351,6 +351,20 @@ public record class EventListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}/events";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        [
+            "created_at[gt]",
+            "created_at[gte]",
+            "created_at[lt]",
+            "created_at[lte]",
+            "limit",
+            "order",
+            "page",
+            "types",
+        ];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

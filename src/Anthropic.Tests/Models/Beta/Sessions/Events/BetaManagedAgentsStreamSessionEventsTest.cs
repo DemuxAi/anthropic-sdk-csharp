@@ -631,6 +631,7 @@ public class BetaManagedAgentsStreamSessionEventsTest : TestBase
                 {
                     ID = "agent_011CZkYpogX7uDKUyvBTophP",
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -655,6 +656,8 @@ public class BetaManagedAgentsStreamSessionEventsTest : TestBase
                             {
                                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                                 Description = "A focused research subagent.",
+                                ExecutionIdentity =
+                                    new BetaManagedAgentsServiceAccountExecutionIdentity(),
                                 McpServers =
                                 [
                                     new()
@@ -1782,6 +1785,7 @@ public class BetaManagedAgentsStreamSessionEventsTest : TestBase
                 {
                     ID = "agent_011CZkYpogX7uDKUyvBTophP",
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -1806,6 +1810,8 @@ public class BetaManagedAgentsStreamSessionEventsTest : TestBase
                             {
                                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                                 Description = "A focused research subagent.",
+                                ExecutionIdentity =
+                                    new BetaManagedAgentsServiceAccountExecutionIdentity(),
                                 McpServers =
                                 [
                                     new()

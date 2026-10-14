@@ -203,6 +203,8 @@ public record class CertificateCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/tunnels/{tunnel_id}/certificates";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

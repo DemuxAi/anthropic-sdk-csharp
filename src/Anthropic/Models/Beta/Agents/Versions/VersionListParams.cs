@@ -210,6 +210,10 @@ public record class VersionListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/agents/{agent_id}/versions";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

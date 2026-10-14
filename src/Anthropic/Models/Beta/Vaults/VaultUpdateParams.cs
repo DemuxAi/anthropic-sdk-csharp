@@ -218,6 +218,8 @@ public record class VaultUpdateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/vaults/{vault_id}";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

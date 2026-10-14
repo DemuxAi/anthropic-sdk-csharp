@@ -855,6 +855,8 @@ public record class MessageCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/messages";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

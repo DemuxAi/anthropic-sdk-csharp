@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -195,6 +196,57 @@ public record struct ClientOptions
     /// <para>Defaults to <c>TimeSpan.FromMinutes(10)</c> when null.</para>
     /// </summary>
     public TimeSpan? Timeout { get; set; } = null;
+
+    /// <summary>
+    /// The telemetry that the client emits through OpenTelemetry. <c>false</c> disables its spans.
+    ///
+    /// <para>Defaults to null, which leaves every setting at its default. See
+    /// <see cref="OpenTelemetryTraces"/>.</para>
+    ///
+    /// <para>Setting this through <c>WithOptions</c> replaces the options of the client it was
+    /// called on as a whole: the two are not merged. See <see cref="OpenTelemetryOptions"/>.</para>
+    /// </summary>
+    public OpenTelemetryOptions? OpenTelemetry { get; set; } = null;
+
+    readonly Lazy<bool> _openTelemetryTraces = new(Tracing.ReadTraces);
+
+    readonly Lazy<bool> _openTelemetryPropagation = new(Tracing.ReadPropagation);
+
+    /// <summary>
+    /// <see cref="OpenTelemetry"/> with what it leaves unset taken from the
+    /// <c>ANTHROPIC_OPEN_TELEMETRY</c> and <c>ANTHROPIC_OPEN_TELEMETRY_PROPAGATION</c> environment
+    /// variables. They are read once, when a client is made with these options, and the copies
+    /// that <c>WithOptions</c> makes of the options keep what was read. Options that the modifier
+    /// of <c>WithOptions</c> makes anew read the environment again, as they do for the API key.
+    /// </summary>
+    internal readonly OpenTelemetryOptions ResolvedOpenTelemetry
+    {
+        get
+        {
+            // Read before anything else, so that making a client reads the environment even when
+            // the option sets the values.
+            var enabled = _openTelemetryTraces.Value;
+            var propagation = _openTelemetryPropagation.Value;
+            if (OpenTelemetry is { Propagation: not null, Traces.Enabled: not null })
+            {
+                return OpenTelemetry;
+            }
+            var traces = OpenTelemetry?.Traces ?? new();
+            return (OpenTelemetry ?? new()) with
+            {
+                Propagation = OpenTelemetry?.Propagation ?? propagation,
+                Traces = traces with { Enabled = traces.Enabled ?? enabled },
+            };
+        }
+    }
+
+    /// <summary>
+    /// The source of the spans, which gives them their instrumentation scope. The clients for a
+    /// cloud platform set it to the source of their package
+    /// (<see cref="Tracing.PlatformSource"/>); without one, the spans are those of
+    /// <see cref="Tracing.Source"/>.
+    /// </summary>
+    internal ActivitySource? OpenTelemetrySource { get; set; }
 
     Lazy<string?> _apiKey = new(() => Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY"));
     internal bool ApiKeyExplicit { get; private set; }

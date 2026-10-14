@@ -70,6 +70,22 @@ public record class AgentCreateParams : ParamsBase
     }
 
     /// <summary>
+    /// Execution principal for runs of this agent. Omitting it, sending null, or
+    /// sending `{"type": "service_account"}` stores the default.
+    /// </summary>
+    public BetaManagedAgentsExecutionIdentityParams? ExecutionIdentity
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<BetaManagedAgentsExecutionIdentityParams>(
+                "execution_identity"
+            );
+        }
+        init { this._rawBodyData.Set("execution_identity", value); }
+    }
+
+    /// <summary>
     /// MCP servers this agent connects to. Maximum 20. Names must be unique within
     /// the array. Every server must be referenced by an `mcp_toolset` in `tools`;
     /// unreferenced servers are rejected. See the [MCP connector guide](https://platform.claude.com/docs/en/managed-agents/mcp-connector).
@@ -345,6 +361,8 @@ public record class AgentCreateParams : ParamsBase
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/agents";
 
     internal override HttpContent? BodyContent()
     {

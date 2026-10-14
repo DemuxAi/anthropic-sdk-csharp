@@ -204,6 +204,8 @@ public record class EventSendParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}/events";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

@@ -166,6 +166,8 @@ public record class DeploymentRunParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/deployments/{deployment_id}/run";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

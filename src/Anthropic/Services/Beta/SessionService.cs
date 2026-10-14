@@ -230,6 +230,7 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.sessions.create",
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -243,6 +244,12 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
                 {
                     betaManagedAgentsSession.Validate();
                 }
+                Tracing.SetCreatedId(
+                    response.Span,
+                    "anthropic.session.id",
+                    betaManagedAgentsSession,
+                    static created => created.ID
+                );
                 return betaManagedAgentsSession;
             }
         );
@@ -263,6 +270,8 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
         {
             Method = HttpMethod.Get,
             Params = parameters,
+            SpanName = "anthropic.sessions.retrieve",
+            SpanResourceIds = [new("anthropic.session.id", parameters.SessionID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -308,6 +317,8 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.sessions.update",
+            SpanResourceIds = [new("anthropic.session.id", parameters.SessionID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -350,6 +361,7 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
         {
             Method = HttpMethod.Get,
             Params = parameters,
+            SpanName = "anthropic.sessions.list",
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -383,6 +395,8 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
         {
             Method = HttpMethod.Delete,
             Params = parameters,
+            SpanName = "anthropic.sessions.delete",
+            SpanResourceIds = [new("anthropic.session.id", parameters.SessionID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -428,6 +442,8 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.sessions.archive",
+            SpanResourceIds = [new("anthropic.session.id", parameters.SessionID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(

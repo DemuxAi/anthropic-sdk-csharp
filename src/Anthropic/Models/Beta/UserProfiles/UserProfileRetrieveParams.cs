@@ -166,6 +166,8 @@ public record class UserProfileRetrieveParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/user_profiles/{user_profile_id}";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

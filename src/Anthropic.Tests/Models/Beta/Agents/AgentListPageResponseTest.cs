@@ -21,6 +21,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -126,6 +127,7 @@ public class AgentListPageResponseTest : TestBase
                 ArchivedAt = null,
                 CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                 Description = "A general-purpose starter agent.",
+                ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -243,6 +245,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -362,6 +365,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -474,6 +478,7 @@ public class AgentListPageResponseTest : TestBase
                 ArchivedAt = null,
                 CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                 Description = "A general-purpose starter agent.",
+                ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -591,6 +596,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -704,6 +710,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -817,6 +824,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -929,6 +937,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -1044,6 +1053,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()
@@ -1158,6 +1168,7 @@ public class AgentListPageResponseTest : TestBase
                     ArchivedAt = null,
                     CreatedAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z"),
                     Description = "A general-purpose starter agent.",
+                    ExecutionIdentity = new BetaManagedAgentsServiceAccountExecutionIdentity(),
                     McpServers =
                     [
                         new()

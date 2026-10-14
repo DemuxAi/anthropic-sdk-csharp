@@ -121,6 +121,7 @@ public sealed class MessageServiceWithRawResponse : IMessageServiceWithRawRespon
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.messages.create",
         };
         var response = await this
             ._client.WithOptions(options =>
@@ -177,6 +178,7 @@ public sealed class MessageServiceWithRawResponse : IMessageServiceWithRawRespon
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.messages.create",
         };
         var response = await this
             ._client.WithOptions(options =>
@@ -227,6 +229,7 @@ public sealed class MessageServiceWithRawResponse : IMessageServiceWithRawRespon
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.messages.count_tokens",
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(

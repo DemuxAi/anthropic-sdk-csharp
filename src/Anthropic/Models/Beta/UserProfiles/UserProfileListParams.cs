@@ -243,6 +243,10 @@ public record class UserProfileListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/user_profiles";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "order", "order_by", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

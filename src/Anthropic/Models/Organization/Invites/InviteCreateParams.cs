@@ -177,6 +177,8 @@ public record class InviteCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/organizations/invites";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

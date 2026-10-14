@@ -567,6 +567,8 @@ public record class MessageCountTokensParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/messages/count_tokens";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

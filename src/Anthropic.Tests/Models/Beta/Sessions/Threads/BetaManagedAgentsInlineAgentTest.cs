@@ -15,6 +15,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         var model = new BetaManagedAgentsInlineAgent
         {
             Description = null,
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -70,6 +71,8 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
             ],
         };
 
+        Agents::BetaManagedAgentsExecutionIdentity expectedExecutionIdentity =
+            new Agents::BetaManagedAgentsServiceAccountExecutionIdentity();
         List<Agents::BetaManagedAgentsMcpServerUrlDefinition> expectedMcpServers =
         [
             new()
@@ -126,6 +129,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         JsonElement expectedType = JsonSerializer.SerializeToElement("inline");
 
         Assert.Null(model.Description);
+        Assert.Equal(expectedExecutionIdentity, model.ExecutionIdentity);
         Assert.Equal(expectedMcpServers.Count, model.McpServers.Count);
         for (int i = 0; i < expectedMcpServers.Count; i++)
         {
@@ -153,6 +157,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         var model = new BetaManagedAgentsInlineAgent
         {
             Description = null,
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -223,6 +228,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         var model = new BetaManagedAgentsInlineAgent
         {
             Description = null,
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -285,6 +291,8 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         );
         Assert.NotNull(deserialized);
 
+        Agents::BetaManagedAgentsExecutionIdentity expectedExecutionIdentity =
+            new Agents::BetaManagedAgentsServiceAccountExecutionIdentity();
         List<Agents::BetaManagedAgentsMcpServerUrlDefinition> expectedMcpServers =
         [
             new()
@@ -341,6 +349,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         JsonElement expectedType = JsonSerializer.SerializeToElement("inline");
 
         Assert.Null(deserialized.Description);
+        Assert.Equal(expectedExecutionIdentity, deserialized.ExecutionIdentity);
         Assert.Equal(expectedMcpServers.Count, deserialized.McpServers.Count);
         for (int i = 0; i < expectedMcpServers.Count; i++)
         {
@@ -368,6 +377,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         var model = new BetaManagedAgentsInlineAgent
         {
             Description = null,
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -432,6 +442,7 @@ public class BetaManagedAgentsInlineAgentTest : TestBase
         var model = new BetaManagedAgentsInlineAgent
         {
             Description = null,
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()

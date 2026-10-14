@@ -338,6 +338,8 @@ public record class SessionCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

@@ -237,6 +237,10 @@ public record class CertificateListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/tunnels/{tunnel_id}/certificates";
+
+    internal override IReadOnlyList<string> QueryParams => ["include_archived", "limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

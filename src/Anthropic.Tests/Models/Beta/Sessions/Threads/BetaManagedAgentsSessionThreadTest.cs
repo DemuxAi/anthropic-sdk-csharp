@@ -21,6 +21,7 @@ public class BetaManagedAgentsSessionThreadTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -110,6 +111,7 @@ public class BetaManagedAgentsSessionThreadTest : TestBase
         {
             ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
             Description = "A focused research subagent.",
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -214,6 +216,7 @@ public class BetaManagedAgentsSessionThreadTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -317,6 +320,7 @@ public class BetaManagedAgentsSessionThreadTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -413,6 +417,7 @@ public class BetaManagedAgentsSessionThreadTest : TestBase
         {
             ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
             Description = "A focused research subagent.",
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -517,6 +522,7 @@ public class BetaManagedAgentsSessionThreadTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -614,6 +620,7 @@ public class BetaManagedAgentsSessionThreadTest : TestBase
             {
                 ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
                 Description = "A focused research subagent.",
+                ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
                 McpServers =
                 [
                     new()
@@ -713,6 +720,7 @@ public class AgentTest : TestBase
         {
             ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
             Description = "A focused research subagent.",
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -790,6 +798,7 @@ public class AgentTest : TestBase
         Threads::Agent value = new Threads::BetaManagedAgentsInlineAgent()
         {
             Description = null,
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -854,6 +863,7 @@ public class AgentTest : TestBase
         {
             ID = "agent_011CZkYqphY8vELVzwCUpqiQ",
             Description = "A focused research subagent.",
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -943,6 +953,7 @@ public class AgentTest : TestBase
         Threads::Agent value = new Threads::BetaManagedAgentsInlineAgent()
         {
             Description = null,
+            ExecutionIdentity = new Agents::BetaManagedAgentsServiceAccountExecutionIdentity(),
             McpServers =
             [
                 new()
@@ -1014,6 +1025,9 @@ public class AgentTest : TestBase
                 """
                 {
                   "description": "A focused research subagent.",
+                  "execution_identity": {
+                    "type": "service_account"
+                  },
                   "mcp_servers": [
                     {
                       "name": "example-mcp",
@@ -1030,6 +1044,8 @@ public class AgentTest : TestBase
         Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
 
         string expectedDescription = "A focused research subagent.";
+        Agents::BetaManagedAgentsExecutionIdentity expectedExecutionIdentity =
+            new Agents::BetaManagedAgentsServiceAccountExecutionIdentity();
         List<Agents::BetaManagedAgentsMcpServerUrlDefinition> expectedMcpServers =
         [
             new()
@@ -1044,6 +1060,7 @@ public class AgentTest : TestBase
             "You are a research subagent that gathers and summarises sources for the coordinating agent.";
 
         Assert.Equal(expectedDescription, value.Description);
+        Assert.Equal(expectedExecutionIdentity, value.ExecutionIdentity);
         Assert.NotNull(value.McpServers);
         Assert.Equal(expectedMcpServers.Count, value.McpServers.Count);
         for (int i = 0; i < expectedMcpServers.Count; i++)
@@ -1056,6 +1073,7 @@ public class AgentTest : TestBase
         Threads::Agent emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
 
         Assert.Null(emptyValue.Description);
+        Assert.Null(emptyValue.ExecutionIdentity);
         Assert.Null(emptyValue.McpServers);
         Assert.Null(emptyValue.Name);
         Assert.Null(emptyValue.System);

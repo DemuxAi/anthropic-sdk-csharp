@@ -183,6 +183,9 @@ public record class CertificateArchiveParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route =>
+        "/v1/tunnels/{tunnel_id}/certificates/{certificate_id}/archive";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

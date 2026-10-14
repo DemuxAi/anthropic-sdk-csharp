@@ -203,6 +203,7 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.messages.batches.create",
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -216,6 +217,12 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
                 {
                     messageBatch.Validate();
                 }
+                Tracing.SetCreatedId(
+                    response.Span,
+                    "anthropic.message.batch.id",
+                    messageBatch,
+                    static created => created.ID
+                );
                 return messageBatch;
             }
         );
@@ -236,6 +243,8 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
         {
             Method = HttpMethod.Get,
             Params = parameters,
+            SpanName = "anthropic.messages.batches.retrieve",
+            SpanResourceIds = [new("anthropic.message.batch.id", parameters.MessageBatchID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -284,6 +293,7 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
         {
             Method = HttpMethod.Get,
             Params = parameters,
+            SpanName = "anthropic.messages.batches.list",
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -317,6 +327,8 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
         {
             Method = HttpMethod.Delete,
             Params = parameters,
+            SpanName = "anthropic.messages.batches.delete",
+            SpanResourceIds = [new("anthropic.message.batch.id", parameters.MessageBatchID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -362,6 +374,8 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
         {
             Method = HttpMethod.Post,
             Params = parameters,
+            SpanName = "anthropic.messages.batches.cancel",
+            SpanResourceIds = [new("anthropic.message.batch.id", parameters.MessageBatchID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -407,6 +421,8 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
         {
             Method = HttpMethod.Get,
             Params = parameters,
+            SpanName = "anthropic.messages.batches.results",
+            SpanResourceIds = [new("anthropic.message.batch.id", parameters.MessageBatchID)],
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
 

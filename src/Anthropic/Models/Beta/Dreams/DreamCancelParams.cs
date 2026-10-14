@@ -174,6 +174,8 @@ public record class DreamCancelParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/dreams/{dream_id}/cancel";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

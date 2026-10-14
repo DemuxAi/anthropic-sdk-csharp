@@ -193,6 +193,8 @@ public record class BatchCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/messages/batches";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

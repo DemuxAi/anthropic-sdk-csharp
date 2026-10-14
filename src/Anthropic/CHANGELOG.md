@@ -1,10 +1,12 @@
 # Changelog
 
-## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-13)
+## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-14)
 
 ### Features
 
+* **api:** add execution_identity to Managed Agents agents
 * **api:** add organization_type_not_supported error to spend limit lists
+* **client:** add OpenTelemetry spans for API calls
 
 
 ### Bug Fixes

@@ -147,6 +147,8 @@ public record class UserUpdateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/organizations/users/{user_id}";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

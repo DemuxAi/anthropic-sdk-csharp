@@ -19,6 +19,7 @@ public class AgentCreateParamsTest : TestBase
             Model = BetaManagedAgentsModel.ClaudeOpus5_5,
             Name = "My First Agent",
             Description = "A general-purpose starter agent.",
+            ExecutionIdentity = new BetaManagedAgentsAwsRoleExecutionIdentityParams("role_arn"),
             McpServers =
             [
                 new()
@@ -83,6 +84,8 @@ public class AgentCreateParamsTest : TestBase
         Model expectedModel = BetaManagedAgentsModel.ClaudeOpus5_5;
         string expectedName = "My First Agent";
         string expectedDescription = "A general-purpose starter agent.";
+        BetaManagedAgentsExecutionIdentityParams expectedExecutionIdentity =
+            new BetaManagedAgentsAwsRoleExecutionIdentityParams("role_arn");
         List<BetaManagedAgentsUrlMcpServerParams> expectedMcpServers =
         [
             new()
@@ -150,6 +153,7 @@ public class AgentCreateParamsTest : TestBase
         Assert.Equal(expectedModel, parameters.Model);
         Assert.Equal(expectedName, parameters.Name);
         Assert.Equal(expectedDescription, parameters.Description);
+        Assert.Equal(expectedExecutionIdentity, parameters.ExecutionIdentity);
         Assert.NotNull(parameters.McpServers);
         Assert.Equal(expectedMcpServers.Count, parameters.McpServers.Count);
         for (int i = 0; i < expectedMcpServers.Count; i++)
@@ -195,6 +199,7 @@ public class AgentCreateParamsTest : TestBase
             Model = BetaManagedAgentsModel.ClaudeOpus5_5,
             Name = "My First Agent",
             Description = "A general-purpose starter agent.",
+            ExecutionIdentity = new BetaManagedAgentsAwsRoleExecutionIdentityParams("role_arn"),
             Multiagent = new BetaManagedAgentsMultiagentCoordinatorParams()
             {
                 Agents =
@@ -232,6 +237,7 @@ public class AgentCreateParamsTest : TestBase
             Model = BetaManagedAgentsModel.ClaudeOpus5_5,
             Name = "My First Agent",
             Description = "A general-purpose starter agent.",
+            ExecutionIdentity = new BetaManagedAgentsAwsRoleExecutionIdentityParams("role_arn"),
             Multiagent = new BetaManagedAgentsMultiagentCoordinatorParams()
             {
                 Agents =
@@ -277,6 +283,7 @@ public class AgentCreateParamsTest : TestBase
             Model = BetaManagedAgentsModel.ClaudeOpus5_5,
             Name = "My First Agent",
             Description = "A general-purpose starter agent.",
+            ExecutionIdentity = new BetaManagedAgentsAwsRoleExecutionIdentityParams("role_arn"),
             McpServers =
             [
                 new()
@@ -418,6 +425,8 @@ public class AgentCreateParamsTest : TestBase
 
         Assert.Null(parameters.Description);
         Assert.False(parameters.RawBodyData.ContainsKey("description"));
+        Assert.Null(parameters.ExecutionIdentity);
+        Assert.False(parameters.RawBodyData.ContainsKey("execution_identity"));
         Assert.Null(parameters.Multiagent);
         Assert.False(parameters.RawBodyData.ContainsKey("multiagent"));
         Assert.Null(parameters.System);
@@ -479,12 +488,15 @@ public class AgentCreateParamsTest : TestBase
             WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             Description = null,
+            ExecutionIdentity = null,
             Multiagent = null,
             System = null,
         };
 
         Assert.Null(parameters.Description);
         Assert.True(parameters.RawBodyData.ContainsKey("description"));
+        Assert.Null(parameters.ExecutionIdentity);
+        Assert.True(parameters.RawBodyData.ContainsKey("execution_identity"));
         Assert.Null(parameters.Multiagent);
         Assert.True(parameters.RawBodyData.ContainsKey("multiagent"));
         Assert.Null(parameters.System);
@@ -539,6 +551,7 @@ public class AgentCreateParamsTest : TestBase
             Model = BetaManagedAgentsModel.ClaudeOpus5_5,
             Name = "My First Agent",
             Description = "A general-purpose starter agent.",
+            ExecutionIdentity = new BetaManagedAgentsAwsRoleExecutionIdentityParams("role_arn"),
             McpServers =
             [
                 new()

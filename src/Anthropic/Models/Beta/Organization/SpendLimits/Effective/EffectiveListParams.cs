@@ -181,6 +181,10 @@ public record class EffectiveListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/organizations/spend_limits/effective";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "page", "period", "user_ids"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);
