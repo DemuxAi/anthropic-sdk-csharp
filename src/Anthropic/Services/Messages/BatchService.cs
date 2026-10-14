@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Anthropic.Core;
+using Anthropic.Core.Telemetry;
 using Anthropic.Exceptions;
 using Anthropic.Models.Messages.Batches;
 
@@ -204,6 +205,9 @@ public sealed class BatchServiceWithRawResponse : IBatchServiceWithRawResponse
             Method = HttpMethod.Post,
             Params = parameters,
             SpanName = "anthropic.messages.batches.create",
+            SpanResourceIds = ApiCallSpans.IsEnabled(this._client)
+                ? ApiCallSpans.BatchesCreateAttributes(() => parameters.Requests.Count)
+                : null,
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(

@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Anthropic.Core;
+using Anthropic.Core.Telemetry;
 using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Sessions;
 using Anthropic.Services.Beta.Sessions;
@@ -231,6 +232,9 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
             Method = HttpMethod.Post,
             Params = parameters,
             SpanName = "anthropic.sessions.create",
+            SpanResourceIds = ApiCallSpans.IsEnabled(this._client)
+                ? ApiCallSpans.SessionsCreateIds(parameters)
+                : null,
         };
         var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
         return new(
@@ -250,6 +254,7 @@ public sealed class SessionServiceWithRawResponse : ISessionServiceWithRawRespon
                     betaManagedAgentsSession,
                     static created => created.ID
                 );
+                ApiCallSpans.SetSessionAgent(response.Span, betaManagedAgentsSession);
                 return betaManagedAgentsSession;
             }
         );

@@ -9,7 +9,10 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
+using Anthropic.Core.Telemetry;
 using Anthropic.Exceptions;
 
 namespace Anthropic.Core;
@@ -35,16 +38,15 @@ namespace Anthropic.Core;
 /// Either starts it with every attribute known by then, because a sampler decides on those that
 /// a span starts with and sees none set later: the HTTP method and the route are among them
 /// (<see cref="AddRequestAttributes"/>). The client sends the span's trace context with each
-/// attempt (<see cref="InjectTraceHeaders"/>) unless
-/// <see cref="OpenTelemetryOptions.Propagation"/> is false, and its innermost handler records
-/// each HTTP request that it sends (<see cref="RecordRequest"/>): the URL of the first, and how
-/// many followed it. The span ends with the call's result: at once
+/// attempt (<see cref="InjectTraceHeaders"/>), and its innermost handler records each HTTP
+/// request that it sends (<see cref="RecordRequest"/>): the URL of the first, and how many
+/// followed it. The span ends with the call's result: at once
 /// when the call fails, when the response body has been deserialized, or when the application
 /// disposes of the response (<see cref="EndApiCallSpan(Activity)"/> and its overloads), or, for a
 /// streamed body, when the application has read the stream or stopped reading it
 /// (<see cref="EndApiCallSpanWhenStreamEnds"/>).</para>
 /// </summary>
-internal static class Tracing
+static class Tracing
 {
     /// <summary>
     /// The source of the SDK's activities. A call emits one only while something listens to the
@@ -151,33 +153,20 @@ internal static class Tracing
     const string RequestCountProperty = "com.anthropic.sdk.csharp.request_count";
 
     /// <summary>
-    /// Whether a client with <paramref name="options"/> emits spans. When the options leave
-    /// <c>Traces.Enabled</c> unset, it does unless the <c>ANTHROPIC_OPEN_TELEMETRY</c> environment
-    /// variable is <c>false</c>.
+    /// Whether a client with <paramref name="options"/> emits spans. Without options, it does
+    /// unless the <c>ANTHROPIC_OPEN_TELEMETRY</c> environment variable is <c>false</c>. Options
+    /// that leave <c>Traces.Enabled</c> unset leave the spans on, whatever the variable says.
     /// </summary>
     internal static bool TracesEnabled(OpenTelemetryOptions? options) =>
-        options?.Traces?.Enabled ?? ReadTraces();
+        options == null ? ReadTraces() : options.Traces?.Enabled ?? true;
 
     /// <summary>
     /// Whether the <c>ANTHROPIC_OPEN_TELEMETRY</c> environment variable leaves the spans on: it does
     /// unless it is <c>false</c>.
     /// </summary>
-    internal static bool ReadTraces() => ReadUnlessFalse("ANTHROPIC_OPEN_TELEMETRY");
-
-    /// <summary>
-    /// Whether the <c>ANTHROPIC_OPEN_TELEMETRY_PROPAGATION</c> environment variable leaves the
-    /// propagation of the trace context on: it does unless it is <c>false</c>.
-    /// </summary>
-    internal static bool ReadPropagation() =>
-        ReadUnlessFalse("ANTHROPIC_OPEN_TELEMETRY_PROPAGATION");
-
-    /// <summary>
-    /// Whether the environment variable <paramref name="variable"/> leaves what it governs on: it
-    /// does unless it is <c>false</c>.
-    /// </summary>
-    static bool ReadUnlessFalse(string variable) =>
+    internal static bool ReadTraces() =>
         !string.Equals(
-            Environment.GetEnvironmentVariable(variable),
+            Environment.GetEnvironmentVariable("ANTHROPIC_OPEN_TELEMETRY"),
             "false",
             StringComparison.OrdinalIgnoreCase
         );
@@ -254,9 +243,8 @@ internal static class Tracing
 
     /// <summary>
     /// The attributes that the call span that <paramref name="request"/> names starts with, for a
-    /// client with <paramref name="options"/>: the server of the options, which is the host of the
-    /// base URL and its port or the scheme's default, then the resource IDs that the method gave
-    /// the request, each under the name of its attribute. A failed call keeps them.
+    /// client with <paramref name="options"/>: those of the options, and what the method gave the
+    /// request.
     /// </summary>
     internal static List<KeyValuePair<string, object?>> StartAttributes<P>(
         ClientOptions options,
@@ -264,21 +252,7 @@ internal static class Tracing
     )
         where P : ParamsBase
     {
-        List<KeyValuePair<string, object?>> tags = [];
-        if (Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var baseUrl))
-        {
-            // `Uri.Host` keeps an IPv6 literal's brackets, which delimit it in a URL;
-            // `server.address` is the bare address.
-            tags.Add(new(AttributeServerAddress, baseUrl.Host.Trim('[', ']')));
-            tags.Add(new(AttributeServerPort, baseUrl.Port));
-        }
-        foreach (var resourceId in request.SpanResourceIds ?? [])
-        {
-            if (resourceId.Value != null)
-            {
-                tags.Add(resourceId);
-            }
-        }
+        var tags = ApiCallSpans.StartAttributes(options, request.SpanResourceIds);
         AddRequestAttributes(tags, request.Method, request.Params);
         return tags;
     }
@@ -555,24 +529,12 @@ internal static class Tracing
         string name,
         T created,
         Func<T, string?> id
-    )
-    {
-        if (span is not { IsAllDataRequested: true })
-        {
-            return;
-        }
-        try
-        {
-            if (id(created) is { } value)
-            {
-                span.SetTag(name, value);
-            }
-        }
-        catch (Exception)
-        {
-            // A model throws for a required field that the response does not have.
-        }
-    }
+    ) =>
+        // A model throws for a required field that the response does not have.
+        ActivityTags.Record(
+            span,
+            recordingSpan => ActivityTags.SetTag(recordingSpan, name, id(created))
+        );
 
     /// <summary>
     /// Ends <paramref name="span"/>, the call span of an API call that ran its course: the client
@@ -640,7 +602,7 @@ internal static class Tracing
     /// that has the body. For a stream that has an end event, <paramref name="hasReadEndEvent"/> says
     /// whether the items read so far include that event: then a stream that the server ends before
     /// it is an <c>api_error</c>. The application stopping early leaves no status even after that
-    /// event, because the server had not ended the stream yet, so the application cancelled the
+    /// event, because the server had not ended the stream yet, so the application canceled the
     /// call. A stream of server-sent events (a <c>text/event-stream</c> body) without
     /// <paramref name="hasReadEndEvent"/> has no end event, so it is never read to the end: when the
     /// server ends it, the span ends with no status.
@@ -679,7 +641,7 @@ internal static class Tracing
     /// The stream that <see cref="EndApiCallSpanWhenStreamEnds"/> returns: it reads
     /// <paramref name="source"/> through to the application and gives <paramref name="span"/> the
     /// outcome of that read and ends it exactly once, however the read ends: exhausted, failed,
-    /// stopped early by the application, or cancelled through <paramref name="cancellationToken"/>.
+    /// stopped early by the application, or canceled through <paramref name="cancellationToken"/>.
     /// <paramref name="hasReadEndEvent"/> and <paramref name="isServerSentEvents"/> decide the status as that method
     /// describes.
     /// </summary>
@@ -778,11 +740,36 @@ internal static class Tracing
 
     /// <summary>
     /// The <c>error.type</c> of an operation that failed with <paramref name="error"/>. An error
-    /// from the API has its status code. A cancellation is a timeout, because one that the
-    /// application requested never gets here.
+    /// from the API has the type of its error envelope when the API sent one, and its status code
+    /// otherwise. A cancellation is a timeout, because one that the application requested never
+    /// gets here.
     /// </summary>
     static string ErrorType(Exception error)
     {
+        // The envelope is the body of an error response, or the data of a stream's `error` event.
+        // It is read as text, so a type that this SDK version does not know is kept as sent.
+        var envelopeJson = error switch
+        {
+            AnthropicApiException { ResponseBody: var body } => body,
+            AnthropicSseException { EventData: var data } => data,
+            _ => null,
+        };
+        if (
+            envelopeJson != null
+            && JsonNodes.ParseObject(envelopeJson)?["error"] is JsonObject envelope
+            && JsonNodes.GetString(envelope["type"]) is { Length: > 0 } raw
+        )
+        {
+            return raw;
+        }
+        if (
+            error is AnthropicServiceException { ErrorType: { } errorType }
+            && JsonSerializer.SerializeToElement(errorType, ModelBase.SerializerOptions)
+                is { ValueKind: JsonValueKind.String } element
+        )
+        {
+            return element.GetString() ?? "api_error";
+        }
         return error switch
         {
             OperationCanceledException => "client_timeout_error",

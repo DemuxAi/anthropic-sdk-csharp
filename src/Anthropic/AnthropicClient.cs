@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Anthropic.Core;
+using Anthropic.Core.Telemetry;
 using Anthropic.Credentials;
 using Anthropic.Exceptions;
 using Anthropic.Services;
@@ -108,6 +109,25 @@ public class AnthropicClient : IAnthropicClient
     {
         get { return this._options.ExtraHeaders; }
         init { this._options.ExtraHeaders = value; }
+    }
+
+    /// <inheritdoc cref="ClientOptions.OpenTelemetryProviderName"/>
+    internal string OpenTelemetryProviderName
+    {
+        get { return this._options.OpenTelemetryProviderName; }
+        init { this._options.OpenTelemetryProviderName = value; }
+    }
+
+    internal ClientOptions Options
+    {
+        get { return this._options; }
+    }
+
+    /// <inheritdoc cref="ClientOptions.OpenTelemetrySource"/>
+    internal ActivitySource? OpenTelemetrySource
+    {
+        get { return this._options.OpenTelemetrySource; }
+        init { this._options.OpenTelemetrySource = value; }
     }
 
     readonly Lazy<IAnthropicClientWithRawResponse> _withRawResponse;
@@ -275,6 +295,11 @@ public class AnthropicClient : IAnthropicClient
 /// <inheritdoc/>
 public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
 {
+    internal ClientOptions Options
+    {
+        get { return this._options; }
+    }
+
 #if NET
     static readonly Random Random = Random.Shared;
 #else
@@ -378,6 +403,8 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         {
             options.BackendAdaptationHandler = this._options.BackendAdaptationHandler;
         }
+        // The spans of such a client keep the scope of its package too.
+        options.OpenTelemetrySource ??= this._options.OpenTelemetrySource;
         return new AnthropicClientWithRawResponse(options);
     }
 
@@ -417,7 +444,7 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         get { return _beta.Value; }
     }
 
-    private async Task<HttpResponse> ExecuteWithRetries<T>(
+    async Task<HttpResponse> ExecuteWithRetries<T>(
         HttpRequest<T> request,
         Activity? span,
         CancellationToken cancellationToken
@@ -494,6 +521,7 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
                 {
                     // The span records the final attempt's response.
                     Tracing.SetResponseStatusCode(span, response.RawMessage);
+                    ApiCallSpans.SetResponseHeaderAttributes(span, response.RawMessage);
                 }
                 if (response.IsSuccessStatusCode)
                 {
@@ -716,11 +744,13 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
             await BeforeSend(request, requestMessage, cts.Token).ConfigureAwait(false);
             if (span != null)
             {
-                if (this._options.ResolvedOpenTelemetry.Propagation != false)
-                {
-                    Tracing.InjectTraceHeaders(span, requestMessage.Headers);
-                }
-                Tracing.TrackRequest(requestMessage, span, request.Params, false);
+                Tracing.InjectTraceHeaders(span, requestMessage.Headers);
+                Tracing.TrackRequest(
+                    requestMessage,
+                    span,
+                    request.Params,
+                    Content.IsRecorded(this._options.ResolvedOpenTelemetry)
+                );
             }
             responseMessage = await this
                 ._options.SendRequestAsync(requestMessage, cts.Token)
