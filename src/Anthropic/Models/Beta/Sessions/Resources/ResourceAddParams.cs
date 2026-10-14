@@ -223,6 +223,8 @@ public record class ResourceAddParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}/resources";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

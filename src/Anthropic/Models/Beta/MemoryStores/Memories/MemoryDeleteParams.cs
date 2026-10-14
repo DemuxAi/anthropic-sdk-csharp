@@ -202,6 +202,10 @@ public record class MemoryDeleteParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/memory_stores/{memory_store_id}/memories/{memory_id}";
+
+    internal override IReadOnlyList<string> QueryParams => ["expected_content_sha256"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

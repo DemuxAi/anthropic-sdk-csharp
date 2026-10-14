@@ -357,6 +357,8 @@ public record class DeploymentCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/deployments";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

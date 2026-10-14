@@ -207,6 +207,11 @@ public record class MemoryVersionRetrieveParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route =>
+        "/v1/memory_stores/{memory_store_id}/memory_versions/{memory_version_id}";
+
+    internal override IReadOnlyList<string> QueryParams => ["view"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

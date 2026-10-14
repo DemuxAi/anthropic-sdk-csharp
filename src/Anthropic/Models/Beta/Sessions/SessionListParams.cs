@@ -443,6 +443,25 @@ public record class SessionListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        [
+            "agent_id",
+            "agent_version",
+            "created_at[gt]",
+            "created_at[gte]",
+            "created_at[lt]",
+            "created_at[lte]",
+            "deployment_id",
+            "include_archived",
+            "limit",
+            "memory_store_id",
+            "order",
+            "page",
+            "statuses",
+        ];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

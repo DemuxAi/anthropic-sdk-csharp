@@ -211,6 +211,10 @@ public record class ResourceListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}/resources";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

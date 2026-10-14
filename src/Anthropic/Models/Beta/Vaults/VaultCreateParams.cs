@@ -206,6 +206,8 @@ public record class VaultCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/vaults";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

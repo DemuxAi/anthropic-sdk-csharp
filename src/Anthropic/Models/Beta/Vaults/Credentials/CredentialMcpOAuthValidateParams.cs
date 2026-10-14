@@ -178,6 +178,9 @@ public record class CredentialMcpOAuthValidateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route =>
+        "/v1/vaults/{vault_id}/credentials/{credential_id}/mcp_oauth_validate";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

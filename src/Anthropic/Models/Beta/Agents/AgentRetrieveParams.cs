@@ -188,6 +188,10 @@ public record class AgentRetrieveParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/agents/{agent_id}";
+
+    internal override IReadOnlyList<string> QueryParams => ["version"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

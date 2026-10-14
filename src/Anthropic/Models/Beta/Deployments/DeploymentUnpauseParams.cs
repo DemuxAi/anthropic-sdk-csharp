@@ -166,6 +166,8 @@ public record class DeploymentUnpauseParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/deployments/{deployment_id}/unpause";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

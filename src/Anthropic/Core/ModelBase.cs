@@ -12,6 +12,7 @@ using Anthropic.Models.Beta.Organization.RbacGroups;
 using Anthropic.Models.Beta.Organization.SpendLimits;
 using Anthropic.Models.Beta.Organization.SpendLimits.Effective;
 using Anthropic.Models.Beta.Organization.SpendLimits.IncreaseRequests;
+using Anthropic.Models.Beta.Organization.TelemetryDestinations;
 using Anthropic.Models.Messages;
 using Anthropic.Models.Models;
 using Anthropic.Models.Organization;
@@ -905,6 +906,7 @@ public abstract record class ModelBase
             new ApiEnumConverter<string, PluginMarketplaces::DefaultInstallationPreference>(),
             new ApiEnumConverter<string, PluginMarketplaces::OwnerType>(),
             new ApiEnumConverter<string, PluginMarketplaces::Source>(),
+            new ApiEnumConverter<string, BetaTelemetryDestinationContentMode>(),
         },
     };
 

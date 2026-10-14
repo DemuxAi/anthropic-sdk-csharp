@@ -202,6 +202,8 @@ public record class TunnelRotateTokenParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/tunnels/{tunnel_id}/rotate_token";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

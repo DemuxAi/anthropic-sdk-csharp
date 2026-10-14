@@ -201,6 +201,10 @@ public record class EventStreamParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}/events/stream";
+
+    internal override IReadOnlyList<string> QueryParams => ["event_deltas"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

@@ -31,7 +31,7 @@ public record class AgentCreateParams : ParamsBase
 
     /// <summary>
     /// Model identifier. Accepts the [model string](https://platform.claude.com/docs/en/about-claude/models/overview#latest-models-comparison),
-    /// e.g. `claude-opus-5`, or a `model_config` object for additional configuration control
+    /// e.g. `claude-opus-5-5`, or a `model_config` object for additional configuration control
     /// </summary>
     public required Model Model
     {
@@ -67,6 +67,22 @@ public record class AgentCreateParams : ParamsBase
             return this._rawBodyData.GetNullableClass<string>("description");
         }
         init { this._rawBodyData.Set("description", value); }
+    }
+
+    /// <summary>
+    /// Execution principal for runs of this agent. Omitting it, sending null, or
+    /// sending `{"type": "service_account"}` stores the default.
+    /// </summary>
+    public BetaManagedAgentsExecutionIdentityParams? ExecutionIdentity
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<BetaManagedAgentsExecutionIdentityParams>(
+                "execution_identity"
+            );
+        }
+        init { this._rawBodyData.Set("execution_identity", value); }
     }
 
     /// <summary>
@@ -346,6 +362,8 @@ public record class AgentCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/agents";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(
@@ -373,7 +391,7 @@ public record class AgentCreateParams : ParamsBase
 
 /// <summary>
 /// Model identifier. Accepts the [model string](https://platform.claude.com/docs/en/about-claude/models/overview#latest-models-comparison),
-/// e.g. `claude-opus-5`, or a `model_config` object for additional configuration control
+/// e.g. `claude-opus-5-5`, or a `model_config` object for additional configuration control
 /// </summary>
 [JsonConverter(typeof(ModelConverter))]
 public record class Model : ModelBase

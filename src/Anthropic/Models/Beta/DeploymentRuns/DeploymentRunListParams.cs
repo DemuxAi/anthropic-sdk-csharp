@@ -352,6 +352,21 @@ public record class DeploymentRunListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/deployment_runs";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        [
+            "created_at[gt]",
+            "created_at[gte]",
+            "created_at[lt]",
+            "created_at[lte]",
+            "deployment_id",
+            "has_error",
+            "limit",
+            "page",
+            "trigger_type",
+        ];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

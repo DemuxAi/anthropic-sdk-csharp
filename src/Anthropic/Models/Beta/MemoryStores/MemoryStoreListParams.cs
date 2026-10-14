@@ -264,6 +264,11 @@ public record class MemoryStoreListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/memory_stores";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        ["created_at[gte]", "created_at[lte]", "include_archived", "limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

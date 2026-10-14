@@ -176,6 +176,8 @@ public record class CredentialRetrieveParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/vaults/{vault_id}/credentials/{credential_id}";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

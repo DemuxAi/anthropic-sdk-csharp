@@ -296,6 +296,11 @@ public record class DreamListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/dreams";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        ["created_at[gt]", "created_at[lt]", "include_archived", "limit", "page", "statuses"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

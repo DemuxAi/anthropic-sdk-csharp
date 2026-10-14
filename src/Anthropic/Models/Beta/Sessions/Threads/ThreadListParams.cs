@@ -239,6 +239,10 @@ public record class ThreadListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}/threads";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "page", "statuses"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

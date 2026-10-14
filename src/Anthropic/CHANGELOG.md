@@ -1,5 +1,36 @@
 # Changelog
 
+## [12.56.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.55.0...Anthropic-v12.56.0) (2026-10-14)
+
+### Features
+
+* **api:** add execution_identity to Managed Agents agents
+* **api:** add organization_type_not_supported error to spend limit lists
+* **api:** add telemetry destination test endpoint
+* **api:** add telemetry destinations to the Admin API
+* **client:** add OpenTelemetry tracing for API calls, streaming and tool runs. A client emits spans, and its requests carry `traceparent`, as soon as something listens to the `com.anthropic.sdk.csharp` activity source, such as an OpenTelemetry tracer provider that adds it. `OpenTelemetry = false` or `ANTHROPIC_OPEN_TELEMETRY=false` turns both off; the `ANTHROPIC_OPEN_TELEMETRY*` variables apply only to a client that is given no `OpenTelemetry` option. To stop only the headers, set .NET's `DistributedContextPropagator.Current = DistributedContextPropagator.CreateNoOutputPropagator()`, which holds for every `HttpClient` in the process. The `netstandard2.0` build now depends on `System.Diagnostics.DiagnosticSource` 8.0.1
+* **client:** `Aggregate()` and `CollectAsync` now return when the response body ends, not at `message_stop`
+
+
+### Bug Fixes
+
+* **api:** rename telemetry destination test response model
+* **client:** don't follow redirects on token requests
+* **client:** leave the trace context headers unsigned with released `Anthropic.Aws` and `Anthropic.Bedrock` packages too
+
+
+### Chores
+
+* **docs:** correct prefill, thinking, fallback and model descriptions
+* **docs:** document the scope required to assign the managed role
+* **docs:** update model examples
+
+
+### Documentation
+
+* **api:** clarify when custom tool results can be sent
+* **api:** say is_enabled is always true for user spend limits
+
 ## [12.55.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.54.1...Anthropic-v12.55.0) (2026-10-09)
 
 ### Features

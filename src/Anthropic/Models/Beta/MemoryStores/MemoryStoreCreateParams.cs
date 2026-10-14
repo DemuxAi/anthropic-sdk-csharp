@@ -234,6 +234,8 @@ public record class MemoryStoreCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/memory_stores";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

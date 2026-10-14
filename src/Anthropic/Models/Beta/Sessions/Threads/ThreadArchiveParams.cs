@@ -176,6 +176,8 @@ public record class ThreadArchiveParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}/threads/{thread_id}/archive";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

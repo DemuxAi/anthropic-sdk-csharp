@@ -253,6 +253,8 @@ public record class CredentialUpdateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/vaults/{vault_id}/credentials/{credential_id}";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

@@ -186,6 +186,8 @@ public record class TunnelCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/tunnels";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

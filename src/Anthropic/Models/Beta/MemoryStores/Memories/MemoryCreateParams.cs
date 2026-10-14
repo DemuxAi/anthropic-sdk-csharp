@@ -242,6 +242,10 @@ public record class MemoryCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/memory_stores/{memory_store_id}/memories";
+
+    internal override IReadOnlyList<string> QueryParams => ["view"];
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

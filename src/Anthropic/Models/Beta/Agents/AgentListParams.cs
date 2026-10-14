@@ -259,6 +259,11 @@ public record class AgentListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/agents";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        ["created_at[gte]", "created_at[lte]", "include_archived", "limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

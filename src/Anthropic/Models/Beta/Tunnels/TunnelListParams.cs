@@ -220,6 +220,10 @@ public record class TunnelListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/tunnels";
+
+    internal override IReadOnlyList<string> QueryParams => ["include_archived", "limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

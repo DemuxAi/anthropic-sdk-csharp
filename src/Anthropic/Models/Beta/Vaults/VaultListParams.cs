@@ -215,6 +215,10 @@ public record class VaultListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/vaults";
+
+    internal override IReadOnlyList<string> QueryParams => ["include_archived", "limit", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

@@ -171,6 +171,8 @@ public record class DreamRetrieveParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/dreams/{dream_id}";
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

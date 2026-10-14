@@ -257,6 +257,8 @@ public record class DreamCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/dreams";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

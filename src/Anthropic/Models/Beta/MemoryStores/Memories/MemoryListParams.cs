@@ -286,6 +286,13 @@ public record class MemoryListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/memory_stores/{memory_store_id}/memories";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        ["depth", "limit", "page", "path_prefix", "view"];
+
+    internal override IReadOnlyList<string> ContentQueryParams => ["page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

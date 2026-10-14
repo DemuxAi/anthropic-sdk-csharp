@@ -288,6 +288,8 @@ public record class SessionUpdateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions/{session_id}";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(

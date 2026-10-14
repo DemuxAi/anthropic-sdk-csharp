@@ -306,6 +306,19 @@ public record class DeploymentListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/deployments";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        [
+            "agent_id",
+            "created_at[gte]",
+            "created_at[lte]",
+            "include_archived",
+            "limit",
+            "page",
+            "status",
+        ];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);

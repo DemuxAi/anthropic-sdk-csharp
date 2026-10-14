@@ -306,6 +306,8 @@ public record class UserProfileCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/user_profiles";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(
