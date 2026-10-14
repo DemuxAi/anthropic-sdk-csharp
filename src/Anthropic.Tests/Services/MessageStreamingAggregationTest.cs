@@ -36,6 +36,7 @@ public class MessageStreamingAggregationTest
                 OutputTokensDetails = new(0),
                 ServerToolUse = null,
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = null,
                 InferenceGeo = "inference_geo",
             },
         };
@@ -575,6 +576,7 @@ public class MessageStreamingAggregationTest
                 OutputTokensDetails = new(11),
                 ServerToolUse = new() { WebFetchRequests = 1, WebSearchRequests = 1 },
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = UsageSpeed.Fast,
                 InferenceGeo = "inference_geo",
             },
         };
@@ -714,6 +716,7 @@ public class MessageStreamingAggregationTest
         Assert.NotNull(stream.Usage.CacheCreation);
         Assert.Equal(5, stream.Usage.CacheCreation!.Ephemeral5mInputTokens);
         Assert.Equal(UsageServiceTier.Standard, stream.Usage.ServiceTier!.Value());
+        Assert.Equal(UsageSpeed.Fast, stream.Usage.Speed!.Value());
         Assert.Equal("inference_geo", stream.Usage.InferenceGeo);
         Assert.Null(stream.Container);
     }

@@ -1,5 +1,11 @@
 # Changelog
 
+## [12.58.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.57.0...Anthropic-v12.58.0) (2026-10-14)
+
+### Features
+
+* **api:** add the speed parameter and usage.speed to Messages
+
 ## [12.57.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.56.0...Anthropic-v12.57.0) (2026-10-14)
 
 ### Features

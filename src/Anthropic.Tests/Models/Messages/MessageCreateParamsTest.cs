@@ -47,6 +47,7 @@ public class MessageCreateParamsTest : TestBase
                 },
             },
             ServiceTier = Messages::ServiceTier.Auto,
+            Speed = Messages::Speed.Standard,
             StopSequences = ["string"],
             System = new(
                 [
@@ -151,6 +152,7 @@ public class MessageCreateParamsTest : TestBase
             },
         };
         ApiEnum<string, Messages::ServiceTier> expectedServiceTier = Messages::ServiceTier.Auto;
+        ApiEnum<string, Messages::Speed> expectedSpeed = Messages::Speed.Standard;
         List<string> expectedStopSequences = ["string"];
         Messages::MessageCreateParamsSystem expectedSystem = new(
             [
@@ -230,6 +232,7 @@ public class MessageCreateParamsTest : TestBase
         Assert.Equal(expectedMetadata, parameters.Metadata);
         Assert.Equal(expectedOutputConfig, parameters.OutputConfig);
         Assert.Equal(expectedServiceTier, parameters.ServiceTier);
+        Assert.Equal(expectedSpeed, parameters.Speed);
         Assert.NotNull(parameters.StopSequences);
         Assert.Equal(expectedStopSequences.Count, parameters.StopSequences.Count);
         for (int i = 0; i < expectedStopSequences.Count; i++)
@@ -276,6 +279,7 @@ public class MessageCreateParamsTest : TestBase
             },
             Diagnostics = new() { PreviousMessageID = "previous_message_id" },
             InferenceGeo = "inference_geo",
+            Speed = Messages::Speed.Standard,
         };
 
         Assert.Null(parameters.Metadata);
@@ -330,6 +334,7 @@ public class MessageCreateParamsTest : TestBase
             },
             Diagnostics = new() { PreviousMessageID = "previous_message_id" },
             InferenceGeo = "inference_geo",
+            Speed = Messages::Speed.Standard,
 
             // Null should be interpreted as omitted for these properties
             Metadata = null,
@@ -412,6 +417,7 @@ public class MessageCreateParamsTest : TestBase
                 },
             },
             ServiceTier = Messages::ServiceTier.Auto,
+            Speed = Messages::Speed.Standard,
             StopSequences = ["string"],
             System = new(
                 [
@@ -611,6 +617,8 @@ public class MessageCreateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("diagnostics"));
         Assert.Null(parameters.InferenceGeo);
         Assert.False(parameters.RawBodyData.ContainsKey("inference_geo"));
+        Assert.Null(parameters.Speed);
+        Assert.False(parameters.RawBodyData.ContainsKey("speed"));
     }
 
     [Fact]
@@ -700,6 +708,7 @@ public class MessageCreateParamsTest : TestBase
             Container = null,
             Diagnostics = null,
             InferenceGeo = null,
+            Speed = null,
         };
 
         Assert.Null(parameters.CacheControl);
@@ -710,6 +719,8 @@ public class MessageCreateParamsTest : TestBase
         Assert.True(parameters.RawBodyData.ContainsKey("diagnostics"));
         Assert.Null(parameters.InferenceGeo);
         Assert.True(parameters.RawBodyData.ContainsKey("inference_geo"));
+        Assert.Null(parameters.Speed);
+        Assert.True(parameters.RawBodyData.ContainsKey("speed"));
     }
 
     [Fact]
@@ -789,6 +800,7 @@ public class MessageCreateParamsTest : TestBase
                 },
             },
             ServiceTier = Messages::ServiceTier.Auto,
+            Speed = Messages::Speed.Standard,
             StopSequences = ["string"],
             System = new(
                 [
@@ -908,6 +920,64 @@ public class ServiceTierTest : TestBase
         );
         string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<ApiEnum<string, Messages::ServiceTier>>(
+            json,
+            ModelBase.SerializerOptions
+        );
+
+        Assert.Equal(value, deserialized);
+    }
+}
+
+public class SpeedTest : TestBase
+{
+    [Theory]
+    [InlineData(Messages::Speed.Standard)]
+    [InlineData(Messages::Speed.Fast)]
+    public void Validation_Works(Messages::Speed rawValue)
+    {
+        // force implicit conversion because Theory can't do that for us
+        ApiEnum<string, Messages::Speed> value = rawValue;
+        value.Validate();
+    }
+
+    [Fact]
+    public void InvalidEnumValidationThrows_Works()
+    {
+        var value = JsonSerializer.Deserialize<ApiEnum<string, Messages::Speed>>(
+            JsonSerializer.SerializeToElement("invalid value"),
+            ModelBase.SerializerOptions
+        );
+
+        Assert.NotNull(value);
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+    }
+
+    [Theory]
+    [InlineData(Messages::Speed.Standard)]
+    [InlineData(Messages::Speed.Fast)]
+    public void SerializationRoundtrip_Works(Messages::Speed rawValue)
+    {
+        // force implicit conversion because Theory can't do that for us
+        ApiEnum<string, Messages::Speed> value = rawValue;
+
+        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<ApiEnum<string, Messages::Speed>>(
+            json,
+            ModelBase.SerializerOptions
+        );
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void InvalidEnumSerializationRoundtrip_Works()
+    {
+        var value = JsonSerializer.Deserialize<ApiEnum<string, Messages::Speed>>(
+            JsonSerializer.SerializeToElement("invalid value"),
+            ModelBase.SerializerOptions
+        );
+        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<ApiEnum<string, Messages::Speed>>(
             json,
             ModelBase.SerializerOptions
         );

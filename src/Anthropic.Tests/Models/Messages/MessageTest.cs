@@ -68,6 +68,7 @@ public class MessageTest : TestBase
                 OutputTokensDetails = new(0),
                 ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = UsageSpeed.Standard,
             },
         };
 
@@ -127,6 +128,7 @@ public class MessageTest : TestBase
             OutputTokensDetails = new(0),
             ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
             ServiceTier = UsageServiceTier.Standard,
+            Speed = UsageSpeed.Standard,
         };
 
         Assert.Equal(expectedID, model.ID);
@@ -206,6 +208,7 @@ public class MessageTest : TestBase
                 OutputTokensDetails = new(0),
                 ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = UsageSpeed.Standard,
             },
         };
 
@@ -275,6 +278,7 @@ public class MessageTest : TestBase
                 OutputTokensDetails = new(0),
                 ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = UsageSpeed.Standard,
             },
         };
 
@@ -341,6 +345,7 @@ public class MessageTest : TestBase
             OutputTokensDetails = new(0),
             ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
             ServiceTier = UsageServiceTier.Standard,
+            Speed = UsageSpeed.Standard,
         };
 
         Assert.Equal(expectedID, deserialized.ID);
@@ -420,6 +425,7 @@ public class MessageTest : TestBase
                 OutputTokensDetails = new(0),
                 ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = UsageSpeed.Standard,
             },
         };
 
@@ -486,6 +492,7 @@ public class MessageTest : TestBase
                 OutputTokensDetails = new(0),
                 ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = UsageSpeed.Standard,
             },
         };
 
