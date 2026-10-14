@@ -65,4 +65,16 @@ public class TelemetryDestinationServiceTest : TestBase
             );
         betaDeletedTelemetryDestination.Validate();
     }
+
+    [Fact]
+    public async Task Test_Works()
+    {
+        var betaTelemetryDestinationTest =
+            await this.client.Beta.Organization.TelemetryDestinations.Test(
+                "destination_id",
+                new(),
+                TestContext.Current.CancellationToken
+            );
+        betaTelemetryDestinationTest.Validate();
+    }
 }

@@ -6,7 +6,7 @@ using Anthropic.Models.Beta.Organization.TelemetryDestinations;
 
 namespace Anthropic.Tests.Models.Beta.Organization.TelemetryDestinations;
 
-public class BetaTelemetryDestinationTest : TestBase
+public class BetaTelemetryDestinationTest1 : TestBase
 {
     [Fact]
     public void FieldRoundtrip_Works()

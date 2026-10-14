@@ -144,6 +144,30 @@ public sealed class TelemetryDestinationService : ITelemetryDestinationService
 
         return this.Delete(parameters with { DestinationID = destinationID }, cancellationToken);
     }
+
+    /// <inheritdoc/>
+    public async Task<BetaTelemetryDestinationTest> Test(
+        TelemetryDestinationTestParams parameters,
+        CancellationToken cancellationToken = default
+    )
+    {
+        using var response = await this
+            .WithRawResponse.Test(parameters, cancellationToken)
+            .ConfigureAwait(false);
+        return await response.Deserialize(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
+    public Task<BetaTelemetryDestinationTest> Test(
+        string destinationID,
+        TelemetryDestinationTestParams? parameters = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        parameters ??= new();
+
+        return this.Test(parameters with { DestinationID = destinationID }, cancellationToken);
+    }
 }
 
 /// <inheritdoc/>
@@ -387,5 +411,55 @@ public sealed class TelemetryDestinationServiceWithRawResponse
         parameters ??= new();
 
         return this.Delete(parameters with { DestinationID = destinationID }, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+        TelemetryDestinationTestParams parameters,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (parameters.DestinationID == null)
+        {
+            throw new AnthropicInvalidDataException("'parameters.DestinationID' cannot be null");
+        }
+
+        HttpRequest<TelemetryDestinationTestParams> request = new()
+        {
+            Method = HttpMethod.Post,
+            Params = parameters,
+            SpanName = "anthropic.organization.telemetry_destinations.test",
+            SpanResourceIds =
+            [
+                new("anthropic.organization.telemetry_destination.id", parameters.DestinationID),
+            ],
+        };
+        var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
+        return new(
+            response,
+            async (token) =>
+            {
+                var betaTelemetryDestinationTest = await response
+                    .Deserialize<BetaTelemetryDestinationTest>(token)
+                    .ConfigureAwait(false);
+                if (this._client.ResponseValidation)
+                {
+                    betaTelemetryDestinationTest.Validate();
+                }
+                return betaTelemetryDestinationTest;
+            }
+        );
+    }
+
+    /// <inheritdoc/>
+    public Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+        string destinationID,
+        TelemetryDestinationTestParams? parameters = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        parameters ??= new();
+
+        return this.Test(parameters with { DestinationID = destinationID }, cancellationToken);
     }
 }

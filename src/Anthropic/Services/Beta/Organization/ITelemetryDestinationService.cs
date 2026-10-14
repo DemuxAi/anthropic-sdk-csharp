@@ -128,6 +128,28 @@ public interface ITelemetryDestinationService
         TelemetryDestinationDeleteParams? parameters = null,
         CancellationToken cancellationToken = default
     );
+
+    /// <summary>
+    /// Send one test span, named `anthropic.test`, to the destination with its
+    /// registered headers, once and without retries, and report the destination's
+    /// answer. The response is 200 whether or not the destination answered with a 2xx
+    /// status: its `result` has the type `success`, or the type `failure` and the
+    /// reason in `error`. The destination's configuration, `state` and
+    /// `delivery_health` do not change. A disabled destination can be tested too. Wait
+    /// 10 seconds between tests of one destination; a request that comes sooner may be
+    /// answered with status 429.
+    /// </summary>
+    Task<BetaTelemetryDestinationTest> Test(
+        TelemetryDestinationTestParams parameters,
+        CancellationToken cancellationToken = default
+    );
+
+    /// <inheritdoc cref="Test(TelemetryDestinationTestParams, CancellationToken)"/>
+    Task<BetaTelemetryDestinationTest> Test(
+        string destinationID,
+        TelemetryDestinationTestParams? parameters = null,
+        CancellationToken cancellationToken = default
+    );
 }
 
 /// <summary>
@@ -210,6 +232,22 @@ public interface ITelemetryDestinationServiceWithRawResponse
     Task<HttpResponse<BetaDeletedTelemetryDestination>> Delete(
         string destinationID,
         TelemetryDestinationDeleteParams? parameters = null,
+        CancellationToken cancellationToken = default
+    );
+
+    /// <summary>
+    /// Returns a raw HTTP response for <c>post /v1/organizations/telemetry_destinations/{destination_id}/test?beta=true</c>, but is otherwise the
+    /// same as <see cref="ITelemetryDestinationService.Test(TelemetryDestinationTestParams, CancellationToken)"/>.
+    /// </summary>
+    Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+        TelemetryDestinationTestParams parameters,
+        CancellationToken cancellationToken = default
+    );
+
+    /// <inheritdoc cref="Test(TelemetryDestinationTestParams, CancellationToken)"/>
+    Task<HttpResponse<BetaTelemetryDestinationTest>> Test(
+        string destinationID,
+        TelemetryDestinationTestParams? parameters = null,
         CancellationToken cancellationToken = default
     );
 }
