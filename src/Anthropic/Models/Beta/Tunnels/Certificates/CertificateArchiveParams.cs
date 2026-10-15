@@ -31,7 +31,8 @@ public record class CertificateArchiveParams : ParamsBase
     public string? CertificateID { get; init; }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `mcp-tunnels-2026-06-22` in
+    /// this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
