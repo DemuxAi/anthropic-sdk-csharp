@@ -182,26 +182,30 @@ internal sealed class RequestSnapshot
 
     /// <summary>
     /// Returns the hop request for a spliced stream: the initial request's body with the model
-    /// and credit token swapped in and the continuation appended as a trailing assistant turn.
+    /// and speed of the entry at the given index and the credit token swapped in, and the
+    /// continuation appended as a trailing assistant turn.
     /// </summary>
     public HttpRequestMessage HopRequest(
-        string model,
+        int index,
         string fallbackCreditToken,
         IReadOnlyList<JsonObject> continuation
     )
     {
-        // Rebuilt on every attempt so each request starts from the body the token was minted
-        // against, the initial request's; a pinned entry's overrides are included, since the
-        // initial request carried them and the token binds to them.
+        // Each attempt is rebuilt from the initial request's body, including a pinned entry's
+        // overrides, since that request carried them.
         var body = EffectiveBody(InitialIndex);
 
-        body["model"] = model;
+        // Only model and speed come from the entry. Its other overrides are not applied, because
+        // the credit token is tied to the refused request's body.
+        var entry = Entries[index];
+        body["model"] = entry.Model.Raw();
+        if (entry.RawData.TryGetValue("speed", out var speed))
+        {
+            Patch(body, "speed", speed);
+        }
         body["fallback_credit_token"] = CreditTokenNode(fallbackCreditToken);
         DegradeBetweenToolsThinking(body);
 
-        // The token is only redeemable against the same body, so model, fallback_credit_token,
-        // and the one appended assistant turn are the only permitted deltas; anything else,
-        // per-entry BetaFallbackParam overrides included, is a 400.
         if (continuation.Count > 0)
         {
             if (body["messages"] is not JsonArray messages)

@@ -117,7 +117,7 @@ public class RequestSnapshotTest
             (JsonObject)JsonNode.Parse("""{"type": "text", "text": "partial"}""")!,
         ];
 
-        var body = await Body(snapshot.HopRequest("fallback", "token-1", continuation));
+        var body = await Body(snapshot.HopRequest(0, "token-1", continuation));
 
         Assert.Equal("fallback", (string?)body["model"]);
         Assert.Equal("token-1", (string?)body["fallback_credit_token"]?["token"]);
@@ -135,7 +135,7 @@ public class RequestSnapshotTest
             body: """{"model": "m", "messages": [{"role": "user", "content": "hi"}]}"""
         );
 
-        var body = await Body(snapshot.HopRequest("fallback", "t", []));
+        var body = await Body(snapshot.HopRequest(0, "t", []));
 
         Assert.Single((JsonArray)body["messages"]!);
     }
@@ -146,14 +146,70 @@ public class RequestSnapshotTest
         // A pinned initial index means the token binds to that entry's overrides, so the
         // hop body keeps them.
         var snapshot = Snapshot(
-            entries: [Entry("""{"model": "opus", "max_tokens": 500}""")],
+            entries:
+            [
+                Entry("""{"model": "opus", "max_tokens": 500}"""),
+                Entry("""{"model": "next-model"}"""),
+            ],
             initialIndex: 0
         );
 
-        var body = await Body(snapshot.HopRequest("next-model", "t", []));
+        var body = await Body(snapshot.HopRequest(1, "t", []));
 
         Assert.Equal("next-model", (string?)body["model"]);
         Assert.Equal(500, (int)body["max_tokens"]!);
+    }
+
+    [Fact]
+    public async Task HopRequestRemovesSpeedWhenTheEntrySetsItToNull()
+    {
+        var snapshot = Snapshot(
+            body: """{"model": "original", "speed": "fast"}""",
+            entries: [Entry("""{"model": "fallback", "speed": null}""")]
+        );
+
+        var body = await Body(snapshot.HopRequest(0, "t", []));
+
+        Assert.False(body.ContainsKey("speed"));
+    }
+
+    [Fact]
+    public async Task HopRequestOverridesSpeedWhenTheEntrySetsIt()
+    {
+        var snapshot = Snapshot(
+            body: """{"model": "original", "speed": "fast"}""",
+            entries: [Entry("""{"model": "fallback", "speed": "standard"}""")]
+        );
+
+        var body = await Body(snapshot.HopRequest(0, "t", []));
+
+        Assert.Equal("standard", (string?)body["speed"]);
+    }
+
+    [Fact]
+    public async Task HopRequestKeepsSpeedWhenTheEntryOmitsIt()
+    {
+        var snapshot = Snapshot(
+            body: """{"model": "original", "speed": "fast"}""",
+            entries: [Entry("""{"model": "fallback"}""")]
+        );
+
+        var body = await Body(snapshot.HopRequest(0, "t", []));
+
+        Assert.Equal("fast", (string?)body["speed"]);
+    }
+
+    [Fact]
+    public async Task HopRequestIgnoresTheOtherEntryOverrides()
+    {
+        var snapshot = Snapshot(
+            body: """{"model": "original", "max_tokens": 10}""",
+            entries: [Entry("""{"model": "fallback", "max_tokens": 99}""")]
+        );
+
+        var body = await Body(snapshot.HopRequest(0, "t", []));
+
+        Assert.Equal(10, (int)body["max_tokens"]!);
     }
 
     [Fact]
@@ -162,7 +218,7 @@ public class RequestSnapshotTest
         var snapshot = Snapshot();
         var block = (JsonObject)JsonNode.Parse("""{"type": "text", "text": "x"}""")!;
 
-        using (snapshot.HopRequest("m", "t", [block])) { }
+        using (snapshot.HopRequest(0, "t", [block])) { }
 
         Assert.Equal("""{"type":"text","text":"x"}""", block.ToJsonString());
     }

@@ -183,6 +183,36 @@ public class BetaRefusalFallbackHandlerStreamingTest
     }
 
     [Fact]
+    public async Task RemovesSpeedFromTheHopWhenTheEntrySetsItToNull()
+    {
+        var transport = new FakeTransport()
+            .EnqueueSse(MessageStartEvent() + RefusalDelta("tok_abc"))
+            .EnqueueSse(StreamB);
+        var handler = new BetaRefusalFallbackHandler
+        {
+            Fallbacks = [new BetaFallbackParam(FallbackModel) { Speed = null }],
+            InnerHandler = transport,
+        };
+        using HttpMessageInvoker invoker = new(handler);
+
+        var body = StreamingBody();
+        body["speed"] = "fast";
+
+        using var _ = BetaFallbackState.Create().Use();
+        var response = await invoker.SendAsync(
+            StreamingRequest(body),
+            TestContext.Current.CancellationToken
+        );
+        await ReadBody(response);
+
+        Assert.Equal("fast", transport.JsonBodies[0]["speed"]?.GetValue<string>());
+        var hopBody = transport.JsonBodies[1];
+        Assert.False(hopBody.ContainsKey("speed"));
+        Assert.Equal(FallbackModel, hopBody["model"]?.GetValue<string>());
+        Assert.Equal("tok_abc", hopBody["fallback_credit_token"]?["token"]?.GetValue<string>());
+    }
+
+    [Fact]
     public async Task AppendsTheFallbackCreditBetaToTheOriginalAndHopRequests()
     {
         var transport = new FakeTransport().EnqueueSse(StreamA).EnqueueSse(StreamB);
