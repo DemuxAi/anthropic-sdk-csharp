@@ -542,6 +542,23 @@ public sealed record class Params : JsonModel
     }
 
     /// <summary>
+    /// The inference speed mode for this request. `"fast"` enables high output-tokens-per-second inference.
+    ///
+    /// <para>Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+    /// value. See [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode)
+    /// for which models.</para>
+    /// </summary>
+    public ApiEnum<string, Speed>? Speed
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableClass<ApiEnum<string, Speed>>("speed");
+        }
+        init { this._rawData.Set("speed", value); }
+    }
+
+    /// <summary>
     /// Custom text sequences that will cause the model to stop generating.
     ///
     /// <para>Our models will normally stop when they have naturally completed their
@@ -860,6 +877,7 @@ public sealed record class Params : JsonModel
         this.Metadata?.Validate();
         this.OutputConfig?.Validate();
         this.ServiceTier?.Validate();
+        this.Speed?.Validate();
         _ = this.StopSequences;
         _ = this.Stream;
         this.System?.Validate();
@@ -951,6 +969,53 @@ sealed class ServiceTierConverter : JsonConverter<ServiceTier>
             {
                 ServiceTier.Auto => "auto",
                 ServiceTier.StandardOnly => "standard_only",
+                _ => throw new AnthropicInvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
+    }
+}
+
+/// <summary>
+/// The inference speed mode for this request. `"fast"` enables high output-tokens-per-second inference.
+///
+/// <para>Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+/// value. See [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode)
+/// for which models.</para>
+/// </summary>
+[JsonConverter(typeof(SpeedConverter))]
+public enum Speed
+{
+    Standard,
+    Fast,
+}
+
+sealed class SpeedConverter : JsonConverter<Speed>
+{
+    public override Speed Read(
+        ref Utf8JsonReader reader,
+        System::Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "standard" => Speed.Standard,
+            "fast" => Speed.Fast,
+            _ => (Speed)(-1),
+        };
+    }
+
+    public override void Write(Utf8JsonWriter writer, Speed value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                Speed.Standard => "standard",
+                Speed.Fast => "fast",
                 _ => throw new AnthropicInvalidDataException(
                     string.Format("Invalid value '{0}' in {1}", value, nameof(value))
                 ),

@@ -25,7 +25,8 @@ public record class TelemetryDestinationRetrieveParams : ParamsBase
     public string? DestinationID { get; init; }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+    /// in this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {

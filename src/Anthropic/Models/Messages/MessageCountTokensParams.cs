@@ -155,6 +155,25 @@ public record class MessageCountTokensParams : ParamsBase
     }
 
     /// <summary>
+    /// The inference speed mode for this request. `"fast"` enables high output-tokens-per-second inference.
+    ///
+    /// <para>Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+    /// value. See [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode)
+    /// for which models.</para>
+    /// </summary>
+    public ApiEnum<string, MessageCountTokensParamsSpeed>? Speed
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<
+                ApiEnum<string, MessageCountTokensParamsSpeed>
+            >("speed");
+        }
+        init { this._rawBodyData.Set("speed", value); }
+    }
+
+    /// <summary>
     /// System prompt.
     ///
     /// <para>A system prompt is a way of providing context and instructions to Claude,
@@ -465,6 +484,57 @@ public record class MessageCountTokensParams : ParamsBase
     public override int GetHashCode()
     {
         return 0;
+    }
+}
+
+/// <summary>
+/// The inference speed mode for this request. `"fast"` enables high output-tokens-per-second inference.
+///
+/// <para>Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+/// value. See [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode)
+/// for which models.</para>
+/// </summary>
+[JsonConverter(typeof(MessageCountTokensParamsSpeedConverter))]
+public enum MessageCountTokensParamsSpeed
+{
+    Standard,
+    Fast,
+}
+
+sealed class MessageCountTokensParamsSpeedConverter : JsonConverter<MessageCountTokensParamsSpeed>
+{
+    public override MessageCountTokensParamsSpeed Read(
+        ref Utf8JsonReader reader,
+        System::Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "standard" => MessageCountTokensParamsSpeed.Standard,
+            "fast" => MessageCountTokensParamsSpeed.Fast,
+            _ => (MessageCountTokensParamsSpeed)(-1),
+        };
+    }
+
+    public override void Write(
+        Utf8JsonWriter writer,
+        MessageCountTokensParamsSpeed value,
+        JsonSerializerOptions options
+    )
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                MessageCountTokensParamsSpeed.Standard => "standard",
+                MessageCountTokensParamsSpeed.Fast => "fast",
+                _ => throw new AnthropicInvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
     }
 }
 

@@ -73,6 +73,7 @@ public class RawMessageStreamEventTest : TestBase
                     OutputTokensDetails = new(0),
                     ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                     ServiceTier = UsageServiceTier.Standard,
+                    Speed = UsageSpeed.Standard,
                 },
             }
         );
@@ -238,6 +239,7 @@ public class RawMessageStreamEventTest : TestBase
                     OutputTokensDetails = new(0),
                     ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                     ServiceTier = UsageServiceTier.Standard,
+                    Speed = UsageSpeed.Standard,
                 },
             }
         );

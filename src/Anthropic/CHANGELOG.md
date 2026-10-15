@@ -1,5 +1,22 @@
 # Changelog
 
+## [12.58.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.57.0...Anthropic-v12.58.0) (2026-10-15)
+
+### Features
+
+* **api:** add between_tools to thinking types in model capabilities
+* **api:** add the speed parameter and usage.speed to Messages
+
+
+### Chores
+
+* **docs:** describe headers on Managed Agents and telemetry endpoints
+
+
+### Documentation
+
+* **api:** note that some models need a beta header to use speed
+
 ## [12.57.0](https://github.com/anthropics/anthropic-sdk-csharp/compare/Anthropic-v12.56.0...Anthropic-v12.57.0) (2026-10-14)
 
 ### Features
@@ -14,7 +31,10 @@
 * **api:** add organization_type_not_supported error to spend limit lists
 * **api:** add telemetry destination test endpoint
 * **api:** add telemetry destinations to the Admin API
-* **client:** add OpenTelemetry tracing for API calls, streaming and tool runs. A client emits spans, and its requests carry `traceparent`, as soon as something listens to the `com.anthropic.sdk.csharp` activity source, such as an OpenTelemetry tracer provider that adds it. `OpenTelemetry = false` or `ANTHROPIC_OPEN_TELEMETRY=false` turns both off; the `ANTHROPIC_OPEN_TELEMETRY*` variables apply only to a client that is given no `OpenTelemetry` option. To stop only the headers, set .NET's `DistributedContextPropagator.Current = DistributedContextPropagator.CreateNoOutputPropagator()`, which holds for every `HttpClient` in the process. The `netstandard2.0` build now depends on `System.Diagnostics.DiagnosticSource` 8.0.1
+* **client:** add native support for OpenTelemetry tracing
+
+  To get the SDK's spans, add the `com.anthropic.sdk.csharp*` source to your tracer provider. To disable, initialize the client with `OpenTelemetry = false` or set `ANTHROPIC_OPEN_TELEMETRY=false`. Learn more in the [documentation](https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk).
+
 * **client:** `Aggregate()` and `CollectAsync` now return when the response body ends, not at `message_stop`
 
 

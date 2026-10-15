@@ -50,6 +50,7 @@ public class ModelInfoTest : TestBase
                     Types = new()
                     {
                         Adaptive = new(true),
+                        BetweenTools = new(true),
                         Disabled = new(true),
                         Enabled = new(true),
                     },
@@ -102,6 +103,7 @@ public class ModelInfoTest : TestBase
                 Types = new()
                 {
                     Adaptive = new(true),
+                    BetweenTools = new(true),
                     Disabled = new(true),
                     Enabled = new(true),
                 },
@@ -172,6 +174,7 @@ public class ModelInfoTest : TestBase
                     Types = new()
                     {
                         Adaptive = new(true),
+                        BetweenTools = new(true),
                         Disabled = new(true),
                         Enabled = new(true),
                     },
@@ -235,6 +238,7 @@ public class ModelInfoTest : TestBase
                     Types = new()
                     {
                         Adaptive = new(true),
+                        BetweenTools = new(true),
                         Disabled = new(true),
                         Enabled = new(true),
                     },
@@ -294,6 +298,7 @@ public class ModelInfoTest : TestBase
                 Types = new()
                 {
                     Adaptive = new(true),
+                    BetweenTools = new(true),
                     Disabled = new(true),
                     Enabled = new(true),
                 },
@@ -364,6 +369,7 @@ public class ModelInfoTest : TestBase
                     Types = new()
                     {
                         Adaptive = new(true),
+                        BetweenTools = new(true),
                         Disabled = new(true),
                         Enabled = new(true),
                     },
@@ -424,6 +430,7 @@ public class ModelInfoTest : TestBase
                     Types = new()
                     {
                         Adaptive = new(true),
+                        BetweenTools = new(true),
                         Disabled = new(true),
                         Enabled = new(true),
                     },

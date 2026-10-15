@@ -54,6 +54,7 @@ public class ModelListPageResponseTest : TestBase
                             Types = new()
                             {
                                 Adaptive = new(true),
+                                BetweenTools = new(true),
                                 Disabled = new(true),
                                 Enabled = new(true),
                             },
@@ -115,6 +116,7 @@ public class ModelListPageResponseTest : TestBase
                         Types = new()
                         {
                             Adaptive = new(true),
+                            BetweenTools = new(true),
                             Disabled = new(true),
                             Enabled = new(true),
                         },
@@ -190,6 +192,7 @@ public class ModelListPageResponseTest : TestBase
                             Types = new()
                             {
                                 Adaptive = new(true),
+                                BetweenTools = new(true),
                                 Disabled = new(true),
                                 Enabled = new(true),
                             },
@@ -265,6 +268,7 @@ public class ModelListPageResponseTest : TestBase
                             Types = new()
                             {
                                 Adaptive = new(true),
+                                BetweenTools = new(true),
                                 Disabled = new(true),
                                 Enabled = new(true),
                             },
@@ -333,6 +337,7 @@ public class ModelListPageResponseTest : TestBase
                         Types = new()
                         {
                             Adaptive = new(true),
+                            BetweenTools = new(true),
                             Disabled = new(true),
                             Enabled = new(true),
                         },
@@ -408,6 +413,7 @@ public class ModelListPageResponseTest : TestBase
                             Types = new()
                             {
                                 Adaptive = new(true),
+                                BetweenTools = new(true),
                                 Disabled = new(true),
                                 Enabled = new(true),
                             },
@@ -477,6 +483,7 @@ public class ModelListPageResponseTest : TestBase
                             Types = new()
                             {
                                 Adaptive = new(true),
+                                BetweenTools = new(true),
                                 Disabled = new(true),
                                 Enabled = new(true),
                             },

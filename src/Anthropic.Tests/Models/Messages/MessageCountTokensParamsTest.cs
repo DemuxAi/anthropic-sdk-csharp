@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Messages = Anthropic.Models.Messages;
 
 namespace Anthropic.Tests.Models.Messages;
@@ -28,6 +29,7 @@ public class MessageCountTokensParamsTest : TestBase
                     },
                 },
             },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
             System = new(
                 [
                     new Messages::TextBlockParam()
@@ -104,6 +106,8 @@ public class MessageCountTokensParamsTest : TestBase
                 },
             },
         };
+        ApiEnum<string, Messages::MessageCountTokensParamsSpeed> expectedSpeed =
+            Messages::MessageCountTokensParamsSpeed.Standard;
         Messages::MessageCountTokensParamsSystem expectedSystem = new(
             [
                 new Messages::TextBlockParam()
@@ -173,6 +177,7 @@ public class MessageCountTokensParamsTest : TestBase
         Assert.Equal(expectedModel, parameters.Model);
         Assert.Equal(expectedCacheControl, parameters.CacheControl);
         Assert.Equal(expectedOutputConfig, parameters.OutputConfig);
+        Assert.Equal(expectedSpeed, parameters.Speed);
         Assert.Equal(expectedSystem, parameters.System);
         Assert.Equal(expectedThinking, parameters.Thinking);
         Assert.Equal(expectedToolChoice, parameters.ToolChoice);
@@ -194,6 +199,7 @@ public class MessageCountTokensParamsTest : TestBase
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
             Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
         };
 
         Assert.Null(parameters.OutputConfig);
@@ -220,6 +226,7 @@ public class MessageCountTokensParamsTest : TestBase
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
             Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
 
             // Null should be interpreted as omitted for these properties
             OutputConfig = null,
@@ -266,6 +273,7 @@ public class MessageCountTokensParamsTest : TestBase
                     },
                 },
             },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
             System = new(
                 [
                     new Messages::TextBlockParam()
@@ -430,6 +438,8 @@ public class MessageCountTokensParamsTest : TestBase
 
         Assert.Null(parameters.CacheControl);
         Assert.False(parameters.RawBodyData.ContainsKey("cache_control"));
+        Assert.Null(parameters.Speed);
+        Assert.False(parameters.RawBodyData.ContainsKey("speed"));
     }
 
     [Fact]
@@ -509,10 +519,13 @@ public class MessageCountTokensParamsTest : TestBase
             WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             CacheControl = null,
+            Speed = null,
         };
 
         Assert.Null(parameters.CacheControl);
         Assert.True(parameters.RawBodyData.ContainsKey("cache_control"));
+        Assert.Null(parameters.Speed);
+        Assert.True(parameters.RawBodyData.ContainsKey("speed"));
     }
 
     [Fact]
@@ -574,6 +587,7 @@ public class MessageCountTokensParamsTest : TestBase
                     },
                 },
             },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
             System = new(
                 [
                     new Messages::TextBlockParam()
@@ -636,6 +650,60 @@ public class MessageCountTokensParamsTest : TestBase
         Messages::MessageCountTokensParams copied = new(parameters);
 
         Assert.Equal(parameters, copied);
+    }
+}
+
+public class MessageCountTokensParamsSpeedTest : TestBase
+{
+    [Theory]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Standard)]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Fast)]
+    public void Validation_Works(Messages::MessageCountTokensParamsSpeed rawValue)
+    {
+        // force implicit conversion because Theory can't do that for us
+        ApiEnum<string, Messages::MessageCountTokensParamsSpeed> value = rawValue;
+        value.Validate();
+    }
+
+    [Fact]
+    public void InvalidEnumValidationThrows_Works()
+    {
+        var value = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(JsonSerializer.SerializeToElement("invalid value"), ModelBase.SerializerOptions);
+
+        Assert.NotNull(value);
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+    }
+
+    [Theory]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Standard)]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Fast)]
+    public void SerializationRoundtrip_Works(Messages::MessageCountTokensParamsSpeed rawValue)
+    {
+        // force implicit conversion because Theory can't do that for us
+        ApiEnum<string, Messages::MessageCountTokensParamsSpeed> value = rawValue;
+
+        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(json, ModelBase.SerializerOptions);
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void InvalidEnumSerializationRoundtrip_Works()
+    {
+        var value = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(JsonSerializer.SerializeToElement("invalid value"), ModelBase.SerializerOptions);
+        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(json, ModelBase.SerializerOptions);
+
+        Assert.Equal(value, deserialized);
     }
 }
 
