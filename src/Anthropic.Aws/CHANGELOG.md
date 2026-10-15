@@ -4,7 +4,9 @@
 
 ### Features
 
-* **client:** add OpenTelemetry tracing. `AnthropicAwsClient` emits its spans from the `com.anthropic.sdk.csharp.aws` activity source. Listen to that source: listening to `com.anthropic.sdk.csharp` alone does not cover it
+* **client:** add native support for OpenTelemetry tracing
+
+  To get the SDK's spans, add the `com.anthropic.sdk.csharp*` source to your tracer provider. To disable, initialize the client with `OpenTelemetry = false` or set `ANTHROPIC_OPEN_TELEMETRY=false`. Learn more in the [documentation](https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk).
 
 ## 0.5.3 (2026-08-27)
 

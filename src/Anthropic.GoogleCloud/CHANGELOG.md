@@ -4,4 +4,6 @@
 
 ### Features
 
-* **client:** add OpenTelemetry tracing. `AnthropicGoogleCloudClient` emits its spans from the `com.anthropic.sdk.csharp.googlecloud` activity source. Listen to that source: listening to `com.anthropic.sdk.csharp` alone does not cover it
+* **client:** add native support for OpenTelemetry tracing
+
+  To get the SDK's spans, add the `com.anthropic.sdk.csharp*` source to your tracer provider. To disable, initialize the client with `OpenTelemetry = false` or set `ANTHROPIC_OPEN_TELEMETRY=false`. Learn more in the [documentation](https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk).
