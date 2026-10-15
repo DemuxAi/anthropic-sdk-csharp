@@ -54,6 +54,11 @@ namespace Anthropic.Helpers;
 /// passed through silently, since its terminal <c>message_delta</c> already reports every
 /// hop.</para>
 ///
+/// <para>A <c>fast</c> request that falls back to an entry with no <c>speed</c> stays
+/// <c>fast</c>. If that fallback request is rejected with HTTP 429 or 529, it is retried once on
+/// the same entry without <c>speed</c>, and that entry's other retries then omit it too. Set the
+/// entry's <c>speed</c> to <c>fast</c> to keep it fast-only.</para>
+///
 /// <para>To keep later requests on the model that accepted, wrap them in a
 /// <see cref="BetaFallbackState.Use"/> scope; requests sharing that state start directly at the
 /// pinned fallback. Reuse one state across whatever scope the pin should cover, typically a
@@ -140,10 +145,8 @@ public sealed class BetaRefusalFallbackHandler : DelegatingHandler
                 .ConfigureAwait(false);
         }
 
-        var response = await base.SendAsync(
-                snapshot.Request(snapshot.InitialIndex),
-                cancellationToken
-            )
+        var response = await snapshot
+            .Send(SendInner, snapshot.InitialIndex, fallbackCreditToken: null, cancellationToken)
             .ConfigureAwait(false);
         // Splicing needs at least one entry left to hop to; otherwise the stream passes through
         // untouched. Only a successful response can end in a refusal; errors get normal handling.
