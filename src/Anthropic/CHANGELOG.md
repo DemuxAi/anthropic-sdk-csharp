@@ -4,6 +4,7 @@
 
 ### Features
 
+* **api:** add between_tools to thinking types in model capabilities
 * **api:** add the speed parameter and usage.speed to Messages
 
 
