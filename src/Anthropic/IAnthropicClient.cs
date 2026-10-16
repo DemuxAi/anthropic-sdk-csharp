@@ -40,6 +40,9 @@ public interface IAnthropicClient : IDisposable
     /// <inheritdoc cref="ClientOptions.Timeout" />
     TimeSpan? Timeout { get; init; }
 
+    /// <inheritdoc cref="ClientOptions.OpenTelemetry" />
+    OpenTelemetryOptions? OpenTelemetry { get; init; }
+
     string? ApiKey { get; init; }
 
     string? AuthToken { get; init; }
@@ -67,6 +70,8 @@ public interface IAnthropicClient : IDisposable
 
     ISkillService Skills { get; }
 
+    IOrganizationService Organization { get; }
+
     IBetaService Beta { get; }
 }
 
@@ -93,6 +98,9 @@ public interface IAnthropicClientWithRawResponse : IDisposable
     /// <inheritdoc cref="ClientOptions.Timeout" />
     TimeSpan? Timeout { get; init; }
 
+    /// <inheritdoc cref="ClientOptions.OpenTelemetry" />
+    OpenTelemetryOptions? OpenTelemetry { get; init; }
+
     string? ApiKey { get; init; }
 
     string? AuthToken { get; init; }
@@ -113,6 +121,8 @@ public interface IAnthropicClientWithRawResponse : IDisposable
     IFileServiceWithRawResponse Files { get; }
 
     ISkillServiceWithRawResponse Skills { get; }
+
+    IOrganizationServiceWithRawResponse Organization { get; }
 
     IBetaServiceWithRawResponse Beta { get; }
 

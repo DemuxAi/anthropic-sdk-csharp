@@ -45,6 +45,7 @@ public record class WorkAckParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -145,14 +146,16 @@ public record class WorkAckParams : ParamsBase
             options.BaseUrl.ToString().TrimEnd('/')
                 + string.Format(
                     "/v1/environments/{0}/work/{1}/ack",
-                    this.EnvironmentID,
-                    this.WorkID
+                    ParamsBase.EncodePathSegment(this.EnvironmentID, nameof(this.EnvironmentID)),
+                    ParamsBase.EncodePathSegment(this.WorkID, nameof(this.WorkID))
                 )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/environments/{environment_id}/work/{work_id}/ack";
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

@@ -19,6 +19,33 @@ public record class SkillDeleteParams : ParamsBase
 {
     public string? SkillID { get; init; }
 
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
+        }
+    }
+
     public SkillDeleteParams() { }
 
 #pragma warning disable CS8618
@@ -98,12 +125,18 @@ public record class SkillDeleteParams : ParamsBase
     public override Uri Url(ClientOptions options)
     {
         return new UriBuilder(
-            options.BaseUrl.ToString().TrimEnd('/') + string.Format("/v1/skills/{0}", this.SkillID)
+            options.BaseUrl.ToString().TrimEnd('/')
+                + string.Format(
+                    "/v1/skills/{0}",
+                    ParamsBase.EncodePathSegment(this.SkillID, nameof(this.SkillID))
+                )
         )
         {
             Query = this.QueryString(options),
         }.Uri;
     }
+
+    internal override string Route => "/v1/skills/{skill_id}";
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

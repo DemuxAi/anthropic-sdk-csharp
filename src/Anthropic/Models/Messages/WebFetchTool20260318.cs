@@ -51,6 +51,7 @@ public sealed record class WebFetchTool20260318 : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("allowed_callers");
                 return;
             }
 
@@ -140,6 +141,7 @@ public sealed record class WebFetchTool20260318 : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("defer_loading");
                 return;
             }
 
@@ -195,6 +197,7 @@ public sealed record class WebFetchTool20260318 : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("response_inclusion");
                 return;
             }
 
@@ -216,11 +219,26 @@ public sealed record class WebFetchTool20260318 : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("strict");
                 return;
             }
 
             this._rawData.Set("strict", value);
         }
+    }
+
+    /// <summary>
+    /// Which sources contribute to the set of URLs the tool may fetch. Omitted means
+    /// every source.
+    /// </summary>
+    public WebFetchUrlSources? UrlSources
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableClass<WebFetchUrlSources>("url_sources");
+        }
+        init { this._rawData.Set("url_sources", value); }
     }
 
     /// <summary>
@@ -239,6 +257,7 @@ public sealed record class WebFetchTool20260318 : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("use_cache");
                 return;
             }
 
@@ -275,6 +294,7 @@ public sealed record class WebFetchTool20260318 : JsonModel
         _ = this.MaxUses;
         this.ResponseInclusion?.Validate();
         _ = this.Strict;
+        this.UrlSources?.Validate();
         _ = this.UseCache;
     }
 

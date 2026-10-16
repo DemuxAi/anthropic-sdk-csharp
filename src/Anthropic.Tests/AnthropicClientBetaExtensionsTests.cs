@@ -19,8 +19,9 @@ public class AnthropicClientBetaExtensionsTests : AnthropicClientExtensionsTests
     protected override IChatClient CreateChatClient(
         AnthropicClient client,
         string? modelId = null,
-        int? defaultMaxOutputTokens = null
-    ) => client.Beta.AsIChatClient(modelId, defaultMaxOutputTokens);
+        int? defaultMaxOutputTokens = null,
+        AnthropicThinkingMode thinkingMode = AnthropicThinkingMode.Adaptive
+    ) => client.Beta.AsIChatClient(modelId, defaultMaxOutputTokens, thinkingMode);
 
     [Fact]
     public void AsIChatClient_ReturnsValidChatClient()
@@ -884,7 +885,21 @@ public class AnthropicClientBetaExtensionsTests : AnthropicClientExtensionsTests
         Assert.Null(aiTool.GetService<BetaToolUnion>("key"));
         Assert.Null(aiTool.GetService<string>());
 
-        Assert.Contains(nameof(BetaWebSearchTool20250305), aiTool.Name);
+        Assert.Equal("web_search", aiTool.Name);
+    }
+
+    [Fact]
+    public void AsAITool_Name_ReturnsCustomToolName()
+    {
+        BetaToolUnion weather = new BetaTool
+        {
+            Name = "get_weather",
+            InputSchema = new InputSchema(),
+        };
+        BetaToolUnion time = new BetaTool { Name = "get_time", InputSchema = new InputSchema() };
+
+        Assert.Equal("get_weather", weather.AsAITool().Name);
+        Assert.Equal("get_time", time.AsAITool().Name);
     }
 
     [Fact]
@@ -1591,8 +1606,9 @@ public class AnthropicClientBetaExtensionsTests : AnthropicClientExtensionsTests
         );
         Assert.NotNull(response);
         Assert.NotNull(capturedBetaHeaders);
-        Assert.Contains("code-execution-2025-08-25", capturedBetaHeaders);
-        Assert.Contains("mcp-client-2025-11-20", capturedBetaHeaders);
+        string[] betas = [.. capturedBetaHeaders.SelectMany(h => h.Split(','))];
+        Assert.Contains("code-execution-2025-08-25", betas);
+        Assert.Contains("mcp-client-2025-11-20", betas);
     }
 
     [Fact]
@@ -1670,10 +1686,11 @@ public class AnthropicClientBetaExtensionsTests : AnthropicClientExtensionsTests
         );
         Assert.NotNull(response);
         Assert.NotNull(capturedBetaHeaders);
-        Assert.Equal(3, capturedBetaHeaders.Count());
-        Assert.Contains("custom-beta-feature", capturedBetaHeaders);
-        Assert.Contains("code-execution-2025-08-25", capturedBetaHeaders);
-        Assert.Contains("mcp-client-2025-11-20", capturedBetaHeaders);
+        string[] betas = [.. capturedBetaHeaders.SelectMany(h => h.Split(','))];
+        Assert.Equal(3, betas.Length);
+        Assert.Contains("custom-beta-feature", betas);
+        Assert.Contains("code-execution-2025-08-25", betas);
+        Assert.Contains("mcp-client-2025-11-20", betas);
     }
 
     [Fact]

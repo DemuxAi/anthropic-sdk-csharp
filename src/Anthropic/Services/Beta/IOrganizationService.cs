@@ -43,6 +43,22 @@ public interface IOrganizationService
 
     IRateLimitService RateLimits { get; }
 
+    IComplianceSettingService ComplianceSettings { get; }
+
+    IAnalyticsService Analytics { get; }
+
+    ISpendLimitService SpendLimits { get; }
+
+    IRbacGroupService RbacGroups { get; }
+
+    IRbacRoleService RbacRoles { get; }
+
+    IPluginService Plugins { get; }
+
+    IPluginMarketplaceService PluginMarketplaces { get; }
+
+    ITelemetryDestinationService TelemetryDestinations { get; }
+
     /// <summary>
     /// Retrieve information about the organization associated with the authenticated
     /// API key.
@@ -81,6 +97,22 @@ public interface IOrganizationServiceWithRawResponse
     IWorkspaceServiceWithRawResponse Workspaces { get; }
 
     IRateLimitServiceWithRawResponse RateLimits { get; }
+
+    IComplianceSettingServiceWithRawResponse ComplianceSettings { get; }
+
+    IAnalyticsServiceWithRawResponse Analytics { get; }
+
+    ISpendLimitServiceWithRawResponse SpendLimits { get; }
+
+    IRbacGroupServiceWithRawResponse RbacGroups { get; }
+
+    IRbacRoleServiceWithRawResponse RbacRoles { get; }
+
+    IPluginServiceWithRawResponse Plugins { get; }
+
+    IPluginMarketplaceServiceWithRawResponse PluginMarketplaces { get; }
+
+    ITelemetryDestinationServiceWithRawResponse TelemetryDestinations { get; }
 
     /// <summary>
     /// Returns a raw HTTP response for <c>get /v1/organizations/me?beta=true</c>, but is otherwise the

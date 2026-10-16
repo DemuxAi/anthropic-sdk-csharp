@@ -7,9 +7,6 @@ using System = System;
 
 namespace Anthropic.Models.Beta.Messages;
 
-/// <summary>
-/// Regular text content.
-/// </summary>
 [JsonConverter(typeof(BetaContentBlockParamConverter))]
 public record class BetaContentBlockParam : ModelBase
 {
@@ -32,31 +29,34 @@ public record class BetaContentBlockParam : ModelBase
     {
         get
         {
-            return Match(
-                text: (x) => x.Type,
-                image: (x) => x.Type,
-                requestDocumentBlock: (x) => x.Type,
-                searchResult: (x) => x.Type,
-                thinking: (x) => x.Type,
-                redactedThinking: (x) => x.Type,
-                toolUse: (x) => x.Type,
-                toolResult: (x) => x.Type,
-                serverToolUse: (x) => x.Type,
-                webSearchToolResult: (x) => x.Type,
-                webFetchToolResult: (x) => x.Type,
-                advisorToolResult: (x) => x.Type,
-                codeExecutionToolResult: (x) => x.Type,
-                bashCodeExecutionToolResult: (x) => x.Type,
-                textEditorCodeExecutionToolResult: (x) => x.Type,
-                toolSearchToolResult: (x) => x.Type,
-                mcpToolUse: (x) => x.Type,
-                requestMcpToolResult: (x) => x.Type,
-                containerUpload: (x) => x.Type,
-                compaction: (x) => x.Type,
-                requestToolAdditionBlock: (x) => x.Type,
-                requestToolRemovalBlock: (x) => x.Type,
-                fallback: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam x => x.Type,
+                BetaImageBlockParam x => x.Type,
+                BetaRequestDocumentBlock x => x.Type,
+                BetaSearchResultBlockParam x => x.Type,
+                BetaThinkingBlockParam x => x.Type,
+                BetaRedactedThinkingBlockParam x => x.Type,
+                BetaToolUseBlockParam x => x.Type,
+                BetaToolResultBlockParam x => x.Type,
+                BetaServerToolUseBlockParam x => x.Type,
+                BetaWebSearchToolResultBlockParam x => x.Type,
+                BetaWebFetchToolResultBlockParam x => x.Type,
+                BetaAdvisorToolResultBlockParam x => x.Type,
+                BetaCodeExecutionToolResultBlockParam x => x.Type,
+                BetaBashCodeExecutionToolResultBlockParam x => x.Type,
+                BetaTextEditorCodeExecutionToolResultBlockParam x => x.Type,
+                BetaToolSearchToolResultBlockParam x => x.Type,
+                BetaMcpToolUseBlockParam x => x.Type,
+                BetaRequestMcpToolResultBlockParam x => x.Type,
+                BetaContainerUploadBlockParam x => x.Type,
+                BetaCompactionBlockParam x => x.Type,
+                BetaRequestToolAdditionBlock x => x.Type,
+                BetaRequestToolRemovalBlock x => x.Type,
+                BetaMcpToolListingBlockParam x => x.Type,
+                BetaFallbackBlockParam x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -64,31 +64,37 @@ public record class BetaContentBlockParam : ModelBase
     {
         get
         {
-            return Match<BetaCacheControlEphemeral?>(
-                text: (x) => x.CacheControl,
-                image: (x) => x.CacheControl,
-                requestDocumentBlock: (x) => x.CacheControl,
-                searchResult: (x) => x.CacheControl,
-                thinking: (_) => null,
-                redactedThinking: (_) => null,
-                toolUse: (x) => x.CacheControl,
-                toolResult: (x) => x.CacheControl,
-                serverToolUse: (x) => x.CacheControl,
-                webSearchToolResult: (x) => x.CacheControl,
-                webFetchToolResult: (x) => x.CacheControl,
-                advisorToolResult: (x) => x.CacheControl,
-                codeExecutionToolResult: (x) => x.CacheControl,
-                bashCodeExecutionToolResult: (x) => x.CacheControl,
-                textEditorCodeExecutionToolResult: (x) => x.CacheControl,
-                toolSearchToolResult: (x) => x.CacheControl,
-                mcpToolUse: (x) => x.CacheControl,
-                requestMcpToolResult: (x) => x.CacheControl,
-                containerUpload: (x) => x.CacheControl,
-                compaction: (x) => x.CacheControl,
-                requestToolAdditionBlock: (x) => x.CacheControl,
-                requestToolRemovalBlock: (x) => x.CacheControl,
-                fallback: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam x => x.CacheControl,
+                BetaImageBlockParam x => x.CacheControl,
+                BetaRequestDocumentBlock x => x.CacheControl,
+                BetaSearchResultBlockParam x => x.CacheControl,
+                BetaThinkingBlockParam _ => null,
+                BetaRedactedThinkingBlockParam _ => null,
+                BetaToolUseBlockParam x => x.CacheControl,
+                BetaToolResultBlockParam x => x.CacheControl,
+                BetaServerToolUseBlockParam x => x.CacheControl,
+                BetaWebSearchToolResultBlockParam x => x.CacheControl,
+                BetaWebFetchToolResultBlockParam x => x.CacheControl,
+                BetaAdvisorToolResultBlockParam x => x.CacheControl,
+                BetaCodeExecutionToolResultBlockParam x => x.CacheControl,
+                BetaBashCodeExecutionToolResultBlockParam x => x.CacheControl,
+                BetaTextEditorCodeExecutionToolResultBlockParam x => x.CacheControl,
+                BetaToolSearchToolResultBlockParam x => x.CacheControl,
+                BetaMcpToolUseBlockParam x => x.CacheControl,
+                BetaRequestMcpToolResultBlockParam x => x.CacheControl,
+                BetaContainerUploadBlockParam x => x.CacheControl,
+                BetaCompactionBlockParam x => x.CacheControl,
+                BetaRequestToolAdditionBlock x => x.CacheControl,
+                BetaRequestToolRemovalBlock x => x.CacheControl,
+                BetaMcpToolListingBlockParam _ => null,
+                BetaFallbackBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<BetaCacheControlEphemeral>(
+                    this.Json,
+                    "cache_control"
+                ),
+            };
         }
     }
 
@@ -96,31 +102,69 @@ public record class BetaContentBlockParam : ModelBase
     {
         get
         {
-            return Match<string?>(
-                text: (_) => null,
-                image: (_) => null,
-                requestDocumentBlock: (x) => x.Title,
-                searchResult: (x) => x.Title,
-                thinking: (_) => null,
-                redactedThinking: (_) => null,
-                toolUse: (_) => null,
-                toolResult: (_) => null,
-                serverToolUse: (_) => null,
-                webSearchToolResult: (_) => null,
-                webFetchToolResult: (_) => null,
-                advisorToolResult: (_) => null,
-                codeExecutionToolResult: (_) => null,
-                bashCodeExecutionToolResult: (_) => null,
-                textEditorCodeExecutionToolResult: (_) => null,
-                toolSearchToolResult: (_) => null,
-                mcpToolUse: (_) => null,
-                requestMcpToolResult: (_) => null,
-                containerUpload: (_) => null,
-                compaction: (_) => null,
-                requestToolAdditionBlock: (_) => null,
-                requestToolRemovalBlock: (_) => null,
-                fallback: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam _ => null,
+                BetaImageBlockParam _ => null,
+                BetaRequestDocumentBlock x => x.Title,
+                BetaSearchResultBlockParam x => x.Title,
+                BetaThinkingBlockParam _ => null,
+                BetaRedactedThinkingBlockParam _ => null,
+                BetaToolUseBlockParam _ => null,
+                BetaToolResultBlockParam _ => null,
+                BetaServerToolUseBlockParam _ => null,
+                BetaWebSearchToolResultBlockParam _ => null,
+                BetaWebFetchToolResultBlockParam _ => null,
+                BetaAdvisorToolResultBlockParam _ => null,
+                BetaCodeExecutionToolResultBlockParam _ => null,
+                BetaBashCodeExecutionToolResultBlockParam _ => null,
+                BetaTextEditorCodeExecutionToolResultBlockParam _ => null,
+                BetaToolSearchToolResultBlockParam _ => null,
+                BetaMcpToolUseBlockParam _ => null,
+                BetaRequestMcpToolResultBlockParam _ => null,
+                BetaContainerUploadBlockParam _ => null,
+                BetaCompactionBlockParam _ => null,
+                BetaRequestToolAdditionBlock _ => null,
+                BetaRequestToolRemovalBlock _ => null,
+                BetaMcpToolListingBlockParam _ => null,
+                BetaFallbackBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "title"),
+            };
+        }
+    }
+
+    public string? Signature
+    {
+        get
+        {
+            return this.Value switch
+            {
+                BetaTextBlockParam _ => null,
+                BetaImageBlockParam _ => null,
+                BetaRequestDocumentBlock _ => null,
+                BetaSearchResultBlockParam _ => null,
+                BetaThinkingBlockParam x => x.Signature,
+                BetaRedactedThinkingBlockParam _ => null,
+                BetaToolUseBlockParam _ => null,
+                BetaToolResultBlockParam _ => null,
+                BetaServerToolUseBlockParam _ => null,
+                BetaWebSearchToolResultBlockParam _ => null,
+                BetaWebFetchToolResultBlockParam _ => null,
+                BetaAdvisorToolResultBlockParam _ => null,
+                BetaCodeExecutionToolResultBlockParam _ => null,
+                BetaBashCodeExecutionToolResultBlockParam _ => null,
+                BetaTextEditorCodeExecutionToolResultBlockParam _ => null,
+                BetaToolSearchToolResultBlockParam _ => null,
+                BetaMcpToolUseBlockParam _ => null,
+                BetaRequestMcpToolResultBlockParam _ => null,
+                BetaContainerUploadBlockParam _ => null,
+                BetaCompactionBlockParam x => x.Signature,
+                BetaRequestToolAdditionBlock _ => null,
+                BetaRequestToolRemovalBlock _ => null,
+                BetaMcpToolListingBlockParam _ => null,
+                BetaFallbackBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "signature"),
+            };
         }
     }
 
@@ -128,31 +172,34 @@ public record class BetaContentBlockParam : ModelBase
     {
         get
         {
-            return Match<string?>(
-                text: (_) => null,
-                image: (_) => null,
-                requestDocumentBlock: (_) => null,
-                searchResult: (_) => null,
-                thinking: (_) => null,
-                redactedThinking: (_) => null,
-                toolUse: (x) => x.ID,
-                toolResult: (_) => null,
-                serverToolUse: (x) => x.ID,
-                webSearchToolResult: (_) => null,
-                webFetchToolResult: (_) => null,
-                advisorToolResult: (_) => null,
-                codeExecutionToolResult: (_) => null,
-                bashCodeExecutionToolResult: (_) => null,
-                textEditorCodeExecutionToolResult: (_) => null,
-                toolSearchToolResult: (_) => null,
-                mcpToolUse: (x) => x.ID,
-                requestMcpToolResult: (_) => null,
-                containerUpload: (_) => null,
-                compaction: (_) => null,
-                requestToolAdditionBlock: (_) => null,
-                requestToolRemovalBlock: (_) => null,
-                fallback: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam _ => null,
+                BetaImageBlockParam _ => null,
+                BetaRequestDocumentBlock _ => null,
+                BetaSearchResultBlockParam _ => null,
+                BetaThinkingBlockParam _ => null,
+                BetaRedactedThinkingBlockParam _ => null,
+                BetaToolUseBlockParam x => x.ID,
+                BetaToolResultBlockParam _ => null,
+                BetaServerToolUseBlockParam x => x.ID,
+                BetaWebSearchToolResultBlockParam _ => null,
+                BetaWebFetchToolResultBlockParam _ => null,
+                BetaAdvisorToolResultBlockParam _ => null,
+                BetaCodeExecutionToolResultBlockParam _ => null,
+                BetaBashCodeExecutionToolResultBlockParam _ => null,
+                BetaTextEditorCodeExecutionToolResultBlockParam _ => null,
+                BetaToolSearchToolResultBlockParam _ => null,
+                BetaMcpToolUseBlockParam x => x.ID,
+                BetaRequestMcpToolResultBlockParam _ => null,
+                BetaContainerUploadBlockParam _ => null,
+                BetaCompactionBlockParam _ => null,
+                BetaRequestToolAdditionBlock _ => null,
+                BetaRequestToolRemovalBlock _ => null,
+                BetaMcpToolListingBlockParam _ => null,
+                BetaFallbackBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "id"),
+            };
         }
     }
 
@@ -160,31 +207,37 @@ public record class BetaContentBlockParam : ModelBase
     {
         get
         {
-            return Match<string?>(
-                text: (_) => null,
-                image: (_) => null,
-                requestDocumentBlock: (_) => null,
-                searchResult: (_) => null,
-                thinking: (_) => null,
-                redactedThinking: (_) => null,
-                toolUse: (x) => x.ToolsetName,
-                toolResult: (x) => x.ToolsetName,
-                serverToolUse: (_) => null,
-                webSearchToolResult: (_) => null,
-                webFetchToolResult: (_) => null,
-                advisorToolResult: (_) => null,
-                codeExecutionToolResult: (_) => null,
-                bashCodeExecutionToolResult: (_) => null,
-                textEditorCodeExecutionToolResult: (_) => null,
-                toolSearchToolResult: (_) => null,
-                mcpToolUse: (_) => null,
-                requestMcpToolResult: (_) => null,
-                containerUpload: (_) => null,
-                compaction: (_) => null,
-                requestToolAdditionBlock: (_) => null,
-                requestToolRemovalBlock: (_) => null,
-                fallback: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam _ => null,
+                BetaImageBlockParam _ => null,
+                BetaRequestDocumentBlock _ => null,
+                BetaSearchResultBlockParam _ => null,
+                BetaThinkingBlockParam _ => null,
+                BetaRedactedThinkingBlockParam _ => null,
+                BetaToolUseBlockParam x => x.ToolsetName,
+                BetaToolResultBlockParam x => x.ToolsetName,
+                BetaServerToolUseBlockParam _ => null,
+                BetaWebSearchToolResultBlockParam _ => null,
+                BetaWebFetchToolResultBlockParam _ => null,
+                BetaAdvisorToolResultBlockParam _ => null,
+                BetaCodeExecutionToolResultBlockParam _ => null,
+                BetaBashCodeExecutionToolResultBlockParam _ => null,
+                BetaTextEditorCodeExecutionToolResultBlockParam _ => null,
+                BetaToolSearchToolResultBlockParam _ => null,
+                BetaMcpToolUseBlockParam _ => null,
+                BetaRequestMcpToolResultBlockParam _ => null,
+                BetaContainerUploadBlockParam _ => null,
+                BetaCompactionBlockParam _ => null,
+                BetaRequestToolAdditionBlock _ => null,
+                BetaRequestToolRemovalBlock _ => null,
+                BetaMcpToolListingBlockParam _ => null,
+                BetaFallbackBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "toolset_name"
+                ),
+            };
         }
     }
 
@@ -192,31 +245,37 @@ public record class BetaContentBlockParam : ModelBase
     {
         get
         {
-            return Match<string?>(
-                text: (_) => null,
-                image: (_) => null,
-                requestDocumentBlock: (_) => null,
-                searchResult: (_) => null,
-                thinking: (_) => null,
-                redactedThinking: (_) => null,
-                toolUse: (_) => null,
-                toolResult: (x) => x.ToolUseID,
-                serverToolUse: (_) => null,
-                webSearchToolResult: (x) => x.ToolUseID,
-                webFetchToolResult: (x) => x.ToolUseID,
-                advisorToolResult: (x) => x.ToolUseID,
-                codeExecutionToolResult: (x) => x.ToolUseID,
-                bashCodeExecutionToolResult: (x) => x.ToolUseID,
-                textEditorCodeExecutionToolResult: (x) => x.ToolUseID,
-                toolSearchToolResult: (x) => x.ToolUseID,
-                mcpToolUse: (_) => null,
-                requestMcpToolResult: (x) => x.ToolUseID,
-                containerUpload: (_) => null,
-                compaction: (_) => null,
-                requestToolAdditionBlock: (_) => null,
-                requestToolRemovalBlock: (_) => null,
-                fallback: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam _ => null,
+                BetaImageBlockParam _ => null,
+                BetaRequestDocumentBlock _ => null,
+                BetaSearchResultBlockParam _ => null,
+                BetaThinkingBlockParam _ => null,
+                BetaRedactedThinkingBlockParam _ => null,
+                BetaToolUseBlockParam _ => null,
+                BetaToolResultBlockParam x => x.ToolUseID,
+                BetaServerToolUseBlockParam _ => null,
+                BetaWebSearchToolResultBlockParam x => x.ToolUseID,
+                BetaWebFetchToolResultBlockParam x => x.ToolUseID,
+                BetaAdvisorToolResultBlockParam x => x.ToolUseID,
+                BetaCodeExecutionToolResultBlockParam x => x.ToolUseID,
+                BetaBashCodeExecutionToolResultBlockParam x => x.ToolUseID,
+                BetaTextEditorCodeExecutionToolResultBlockParam x => x.ToolUseID,
+                BetaToolSearchToolResultBlockParam x => x.ToolUseID,
+                BetaMcpToolUseBlockParam _ => null,
+                BetaRequestMcpToolResultBlockParam x => x.ToolUseID,
+                BetaContainerUploadBlockParam _ => null,
+                BetaCompactionBlockParam _ => null,
+                BetaRequestToolAdditionBlock _ => null,
+                BetaRequestToolRemovalBlock _ => null,
+                BetaMcpToolListingBlockParam _ => null,
+                BetaFallbackBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "tool_use_id"
+                ),
+            };
         }
     }
 
@@ -224,31 +283,34 @@ public record class BetaContentBlockParam : ModelBase
     {
         get
         {
-            return Match<bool?>(
-                text: (_) => null,
-                image: (_) => null,
-                requestDocumentBlock: (_) => null,
-                searchResult: (_) => null,
-                thinking: (_) => null,
-                redactedThinking: (_) => null,
-                toolUse: (_) => null,
-                toolResult: (x) => x.IsError,
-                serverToolUse: (_) => null,
-                webSearchToolResult: (_) => null,
-                webFetchToolResult: (_) => null,
-                advisorToolResult: (_) => null,
-                codeExecutionToolResult: (_) => null,
-                bashCodeExecutionToolResult: (_) => null,
-                textEditorCodeExecutionToolResult: (_) => null,
-                toolSearchToolResult: (_) => null,
-                mcpToolUse: (_) => null,
-                requestMcpToolResult: (x) => x.IsError,
-                containerUpload: (_) => null,
-                compaction: (_) => null,
-                requestToolAdditionBlock: (_) => null,
-                requestToolRemovalBlock: (_) => null,
-                fallback: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam _ => null,
+                BetaImageBlockParam _ => null,
+                BetaRequestDocumentBlock _ => null,
+                BetaSearchResultBlockParam _ => null,
+                BetaThinkingBlockParam _ => null,
+                BetaRedactedThinkingBlockParam _ => null,
+                BetaToolUseBlockParam _ => null,
+                BetaToolResultBlockParam x => x.IsError,
+                BetaServerToolUseBlockParam _ => null,
+                BetaWebSearchToolResultBlockParam _ => null,
+                BetaWebFetchToolResultBlockParam _ => null,
+                BetaAdvisorToolResultBlockParam _ => null,
+                BetaCodeExecutionToolResultBlockParam _ => null,
+                BetaBashCodeExecutionToolResultBlockParam _ => null,
+                BetaTextEditorCodeExecutionToolResultBlockParam _ => null,
+                BetaToolSearchToolResultBlockParam _ => null,
+                BetaMcpToolUseBlockParam _ => null,
+                BetaRequestMcpToolResultBlockParam x => x.IsError,
+                BetaContainerUploadBlockParam _ => null,
+                BetaCompactionBlockParam _ => null,
+                BetaRequestToolAdditionBlock _ => null,
+                BetaRequestToolRemovalBlock _ => null,
+                BetaMcpToolListingBlockParam _ => null,
+                BetaFallbackBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<bool>(this.Json, "is_error"),
+            };
         }
     }
 
@@ -400,6 +462,12 @@ public record class BetaContentBlockParam : ModelBase
     }
 
     public BetaContentBlockParam(BetaRequestToolRemovalBlock value, JsonElement? element = null)
+    {
+        this.Value = value;
+        this._element = element;
+    }
+
+    public BetaContentBlockParam(BetaMcpToolListingBlockParam value, JsonElement? element = null)
     {
         this.Value = value;
         this._element = element;
@@ -902,6 +970,27 @@ public record class BetaContentBlockParam : ModelBase
 
     /// <summary>
     /// Returns true and sets the <c>out</c> parameter if the instance was constructed with a variant of
+    /// type <see cref="BetaMcpToolListingBlockParam"/>.
+    ///
+    /// <para>Consider using <see cref="Switch"/> or <see cref="Match"/> if you need to handle every variant.</para>
+    ///
+    /// <example>
+    /// <code>
+    /// if (instance.TryPickMcpToolListing(out var value)) {
+    ///     // `value` is of type `BetaMcpToolListingBlockParam`
+    ///     Console.WriteLine(value);
+    /// }
+    /// </code>
+    /// </example>
+    /// </summary>
+    public bool TryPickMcpToolListing([NotNullWhen(true)] out BetaMcpToolListingBlockParam? value)
+    {
+        value = this.Value as BetaMcpToolListingBlockParam;
+        return value != null;
+    }
+
+    /// <summary>
+    /// Returns true and sets the <c>out</c> parameter if the instance was constructed with a variant of
     /// type <see cref="BetaFallbackBlockParam"/>.
     ///
     /// <para>Consider using <see cref="Switch"/> or <see cref="Match"/> if you need to handle every variant.</para>
@@ -957,6 +1046,7 @@ public record class BetaContentBlockParam : ModelBase
     ///     (BetaCompactionBlockParam value) =&gt; {...},
     ///     (BetaRequestToolAdditionBlock value) =&gt; {...},
     ///     (BetaRequestToolRemovalBlock value) =&gt; {...},
+    ///     (BetaMcpToolListingBlockParam value) =&gt; {...},
     ///     (BetaFallbackBlockParam value) =&gt; {...}
     /// );
     /// </code>
@@ -985,6 +1075,7 @@ public record class BetaContentBlockParam : ModelBase
         System::Action<BetaCompactionBlockParam> compaction,
         System::Action<BetaRequestToolAdditionBlock> requestToolAdditionBlock,
         System::Action<BetaRequestToolRemovalBlock> requestToolRemovalBlock,
+        System::Action<BetaMcpToolListingBlockParam> mcpToolListing,
         System::Action<BetaFallbackBlockParam> fallback
     )
     {
@@ -1056,6 +1147,9 @@ public record class BetaContentBlockParam : ModelBase
             case BetaRequestToolRemovalBlock value:
                 requestToolRemovalBlock(value);
                 break;
+            case BetaMcpToolListingBlockParam value:
+                mcpToolListing(value);
+                break;
             case BetaFallbackBlockParam value:
                 fallback(value);
                 break;
@@ -1103,6 +1197,7 @@ public record class BetaContentBlockParam : ModelBase
     ///     (BetaCompactionBlockParam value) =&gt; {...},
     ///     (BetaRequestToolAdditionBlock value) =&gt; {...},
     ///     (BetaRequestToolRemovalBlock value) =&gt; {...},
+    ///     (BetaMcpToolListingBlockParam value) =&gt; {...},
     ///     (BetaFallbackBlockParam value) =&gt; {...}
     /// );
     /// </code>
@@ -1134,6 +1229,7 @@ public record class BetaContentBlockParam : ModelBase
         System::Func<BetaCompactionBlockParam, T> compaction,
         System::Func<BetaRequestToolAdditionBlock, T> requestToolAdditionBlock,
         System::Func<BetaRequestToolRemovalBlock, T> requestToolRemovalBlock,
+        System::Func<BetaMcpToolListingBlockParam, T> mcpToolListing,
         System::Func<BetaFallbackBlockParam, T> fallback
     )
     {
@@ -1162,6 +1258,7 @@ public record class BetaContentBlockParam : ModelBase
             BetaCompactionBlockParam value => compaction(value),
             BetaRequestToolAdditionBlock value => requestToolAdditionBlock(value),
             BetaRequestToolRemovalBlock value => requestToolRemovalBlock(value),
+            BetaMcpToolListingBlockParam value => mcpToolListing(value),
             BetaFallbackBlockParam value => fallback(value),
             _ => throw new AnthropicInvalidDataException(
                 "Data did not match any variant of BetaContentBlockParam"
@@ -1239,6 +1336,9 @@ public record class BetaContentBlockParam : ModelBase
     public static implicit operator BetaContentBlockParam(BetaRequestToolRemovalBlock value) =>
         new(value);
 
+    public static implicit operator BetaContentBlockParam(BetaMcpToolListingBlockParam value) =>
+        new(value);
+
     public static implicit operator BetaContentBlockParam(BetaFallbackBlockParam value) =>
         new(value);
 
@@ -1283,6 +1383,7 @@ public record class BetaContentBlockParam : ModelBase
             (compaction) => compaction.Validate(),
             (requestToolAdditionBlock) => requestToolAdditionBlock.Validate(),
             (requestToolRemovalBlock) => requestToolRemovalBlock.Validate(),
+            (mcpToolListing) => mcpToolListing.Validate(),
             (fallback) => fallback.Validate()
         );
     }
@@ -1329,7 +1430,8 @@ public record class BetaContentBlockParam : ModelBase
             BetaCompactionBlockParam _ => 19,
             BetaRequestToolAdditionBlock _ => 20,
             BetaRequestToolRemovalBlock _ => 21,
-            BetaFallbackBlockParam _ => 22,
+            BetaMcpToolListingBlockParam _ => 22,
+            BetaFallbackBlockParam _ => 23,
             _ => -1,
         };
     }
@@ -1787,6 +1889,26 @@ sealed class BetaContentBlockParamConverter : JsonConverter<BetaContentBlockPara
                 try
                 {
                     var deserialized = JsonSerializer.Deserialize<BetaRequestToolRemovalBlock>(
+                        element,
+                        options
+                    );
+                    if (deserialized != null)
+                    {
+                        return new(deserialized, element);
+                    }
+                }
+                catch (JsonException)
+                {
+                    // ignore
+                }
+
+                return new(element);
+            }
+            case "mcp_tool_listing":
+            {
+                try
+                {
+                    var deserialized = JsonSerializer.Deserialize<BetaMcpToolListingBlockParam>(
                         element,
                         options
                     );

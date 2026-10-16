@@ -22,9 +22,22 @@ public class BatchServiceTest : TestBase
                         Params = new()
                         {
                             MaxTokens = 1024,
-                            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-                            Model = Messages::Model.ClaudeOpus5,
+                            Messages =
+                            [
+                                new()
+                                {
+                                    Content = "Hello, world",
+                                    Role = Role.User,
+                                    ClearAt = ClearAt.NextUserMessage,
+                                    OutputConfig = new()
+                                    {
+                                        Effort = BetaSystemMessageOutputConfigEffort.Low,
+                                    },
+                                },
+                            ],
+                            Model = Messages::Model.ClaudeOpus5_5,
                             CacheControl = new() { Ttl = Ttl.Ttl5m },
+                            Compaction = new() { Instructions = "instructions" },
                             Container = new BetaContainerParams()
                             {
                                 ID = "id",
@@ -117,6 +130,11 @@ public class BatchServiceTest : TestBase
                             Temperature = 1,
                             Thinking = new BetaThinkingConfigAdaptive()
                             {
+                                BlockBinding = new()
+                                {
+                                    PrefixMismatchBehavior =
+                                        BetaThinkingPrefixMismatchBehavior.Error,
+                                },
                                 Display = Display.Summarized,
                             },
                             ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },

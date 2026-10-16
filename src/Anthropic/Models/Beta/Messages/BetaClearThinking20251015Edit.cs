@@ -39,6 +39,7 @@ public sealed record class BetaClearThinking20251015Edit : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("keep");
                 return;
             }
 
@@ -132,11 +133,16 @@ public record class Keep : ModelBase
     {
         get
         {
-            return Match<JsonElement?>(
-                betaThinkingTurns: (x) => x.Type,
-                betaAllThinkingTurns: (x) => x.Type,
-                all: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaThinkingTurns x => x.Type,
+                BetaAllThinkingTurns x => x.Type,
+                All _ => null,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<JsonElement>(
+                    this.Json,
+                    "type"
+                ),
+            };
         }
     }
 

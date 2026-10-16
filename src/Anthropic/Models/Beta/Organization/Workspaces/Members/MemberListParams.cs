@@ -34,6 +34,7 @@ public record class MemberListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("after_id");
                 return;
             }
 
@@ -56,6 +57,7 @@ public record class MemberListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("before_id");
                 return;
             }
 
@@ -79,6 +81,7 @@ public record class MemberListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("limit");
                 return;
             }
 
@@ -167,12 +170,19 @@ public record class MemberListParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/workspaces/{0}/members", this.WorkspaceID)
+                + string.Format(
+                    "/v1/organizations/workspaces/{0}/members",
+                    ParamsBase.EncodePathSegment(this.WorkspaceID, nameof(this.WorkspaceID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/workspaces/{workspace_id}/members";
+
+    internal override IReadOnlyList<string> QueryParams => ["after_id", "before_id", "limit"];
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

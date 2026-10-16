@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Messages = Anthropic.Models.Messages;
 
 namespace Anthropic.Tests.Models.Messages;
@@ -15,7 +16,7 @@ public class MessageCountTokensParamsTest : TestBase
         var parameters = new Messages::MessageCountTokensParams
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             OutputConfig = new()
             {
@@ -28,6 +29,7 @@ public class MessageCountTokensParamsTest : TestBase
                     },
                 },
             },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
             System = new(
                 [
                     new Messages::TextBlockParam()
@@ -84,13 +86,14 @@ public class MessageCountTokensParamsTest : TestBase
                 },
             ],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         List<Messages::MessageParam> expectedMessages =
         [
             new() { Content = "Hello, world", Role = Messages::Role.User },
         ];
-        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5;
+        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5_5;
         Messages::CacheControlEphemeral expectedCacheControl = new() { Ttl = Messages::Ttl.Ttl5m };
         Messages::OutputConfig expectedOutputConfig = new()
         {
@@ -103,6 +106,8 @@ public class MessageCountTokensParamsTest : TestBase
                 },
             },
         };
+        ApiEnum<string, Messages::MessageCountTokensParamsSpeed> expectedSpeed =
+            Messages::MessageCountTokensParamsSpeed.Standard;
         Messages::MessageCountTokensParamsSystem expectedSystem = new(
             [
                 new Messages::TextBlockParam()
@@ -162,6 +167,7 @@ public class MessageCountTokensParamsTest : TestBase
             },
         ];
         string expectedUserProfileID = "anthropic-user-profile-id";
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedMessages.Count, parameters.Messages.Count);
         for (int i = 0; i < expectedMessages.Count; i++)
@@ -171,6 +177,7 @@ public class MessageCountTokensParamsTest : TestBase
         Assert.Equal(expectedModel, parameters.Model);
         Assert.Equal(expectedCacheControl, parameters.CacheControl);
         Assert.Equal(expectedOutputConfig, parameters.OutputConfig);
+        Assert.Equal(expectedSpeed, parameters.Speed);
         Assert.Equal(expectedSystem, parameters.System);
         Assert.Equal(expectedThinking, parameters.Thinking);
         Assert.Equal(expectedToolChoice, parameters.ToolChoice);
@@ -181,6 +188,7 @@ public class MessageCountTokensParamsTest : TestBase
             Assert.Equal(expectedTools[i], parameters.Tools[i]);
         }
         Assert.Equal(expectedUserProfileID, parameters.UserProfileID);
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -189,8 +197,9 @@ public class MessageCountTokensParamsTest : TestBase
         var parameters = new Messages::MessageCountTokensParams
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
         };
 
         Assert.Null(parameters.OutputConfig);
@@ -205,6 +214,8 @@ public class MessageCountTokensParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("tools"));
         Assert.Null(parameters.UserProfileID);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -213,8 +224,9 @@ public class MessageCountTokensParamsTest : TestBase
         var parameters = new Messages::MessageCountTokensParams
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
 
             // Null should be interpreted as omitted for these properties
             OutputConfig = null,
@@ -223,6 +235,7 @@ public class MessageCountTokensParamsTest : TestBase
             ToolChoice = null,
             Tools = null,
             UserProfileID = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.OutputConfig);
@@ -237,6 +250,113 @@ public class MessageCountTokensParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("tools"));
         Assert.Null(parameters.UserProfileID);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new Messages::MessageCountTokensParams
+        {
+            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
+            Model = Messages::Model.ClaudeOpus5_5,
+            CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            OutputConfig = new()
+            {
+                Effort = Messages::Effort.Low,
+                Format = new()
+                {
+                    Schema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                },
+            },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
+            System = new(
+                [
+                    new Messages::TextBlockParam()
+                    {
+                        Text = "Today's date is 2024-06-01.",
+                        CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Citations =
+                        [
+                            new Messages::CitationCharLocationParam()
+                            {
+                                CitedText = "The grass is green. The sky is blue.",
+                                DocumentIndex = 0,
+                                DocumentTitle = "x",
+                                EndCharIndex = 0,
+                                StartCharIndex = 0,
+                            },
+                        ],
+                    },
+                ]
+            ),
+            Thinking = new Messages::ThinkingConfigAdaptive()
+            {
+                Display = Messages::Display.Summarized,
+            },
+            ToolChoice = new Messages::ToolChoiceAuto() { DisableParallelToolUse = true },
+            Tools =
+            [
+                new Messages::Tool()
+                {
+                    InputSchema = new()
+                    {
+                        Properties = new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("bar") },
+                            { "unit", JsonSerializer.SerializeToElement("bar") },
+                        },
+                        Required = ["location"],
+                    },
+                    Name = "name",
+                    AllowedCallers = [Messages::ToolAllowedCaller.Direct],
+                    CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                    DeferLoading = true,
+                    Description = "Get the current weather in a given location",
+                    EagerInputStreaming = true,
+                    InputExamples =
+                    [
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "foo", JsonSerializer.SerializeToElement("bar") },
+                        },
+                    ],
+                    Strict = true,
+                    Type = Messages::Type.Custom,
+                },
+            ],
+            UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            OutputConfig = null,
+            System = null,
+            Thinking = null,
+            ToolChoice = null,
+            Tools = null,
+            UserProfileID = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.OutputConfig);
+        Assert.False(parameters.RawBodyData.ContainsKey("output_config"));
+        Assert.Null(parameters.System);
+        Assert.False(parameters.RawBodyData.ContainsKey("system"));
+        Assert.Null(parameters.Thinking);
+        Assert.False(parameters.RawBodyData.ContainsKey("thinking"));
+        Assert.Null(parameters.ToolChoice);
+        Assert.False(parameters.RawBodyData.ContainsKey("tool_choice"));
+        Assert.Null(parameters.Tools);
+        Assert.False(parameters.RawBodyData.ContainsKey("tools"));
+        Assert.Null(parameters.UserProfileID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -245,7 +365,7 @@ public class MessageCountTokensParamsTest : TestBase
         var parameters = new Messages::MessageCountTokensParams
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             OutputConfig = new()
             {
                 Effort = Messages::Effort.Low,
@@ -313,10 +433,13 @@ public class MessageCountTokensParamsTest : TestBase
                 },
             ],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.CacheControl);
         Assert.False(parameters.RawBodyData.ContainsKey("cache_control"));
+        Assert.Null(parameters.Speed);
+        Assert.False(parameters.RawBodyData.ContainsKey("speed"));
     }
 
     [Fact]
@@ -325,7 +448,7 @@ public class MessageCountTokensParamsTest : TestBase
         var parameters = new Messages::MessageCountTokensParams
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             OutputConfig = new()
             {
                 Effort = Messages::Effort.Low,
@@ -393,12 +516,16 @@ public class MessageCountTokensParamsTest : TestBase
                 },
             ],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             CacheControl = null,
+            Speed = null,
         };
 
         Assert.Null(parameters.CacheControl);
         Assert.True(parameters.RawBodyData.ContainsKey("cache_control"));
+        Assert.Null(parameters.Speed);
+        Assert.True(parameters.RawBodyData.ContainsKey("speed"));
     }
 
     [Fact]
@@ -407,7 +534,7 @@ public class MessageCountTokensParamsTest : TestBase
         Messages::MessageCountTokensParams parameters = new()
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
         };
 
         var url = parameters.Url(new() { ApiKey = "my-anthropic-api-key" });
@@ -424,8 +551,9 @@ public class MessageCountTokensParamsTest : TestBase
         Messages::MessageCountTokensParams parameters = new()
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
@@ -433,6 +561,10 @@ public class MessageCountTokensParamsTest : TestBase
         Assert.Equal(
             ["anthropic-user-profile-id"],
             requestMessage.Headers.GetValues("anthropic-user-profile-id")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -442,7 +574,7 @@ public class MessageCountTokensParamsTest : TestBase
         var parameters = new Messages::MessageCountTokensParams
         {
             Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
             OutputConfig = new()
             {
@@ -455,6 +587,7 @@ public class MessageCountTokensParamsTest : TestBase
                     },
                 },
             },
+            Speed = Messages::MessageCountTokensParamsSpeed.Standard,
             System = new(
                 [
                     new Messages::TextBlockParam()
@@ -511,11 +644,66 @@ public class MessageCountTokensParamsTest : TestBase
                 },
             ],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Messages::MessageCountTokensParams copied = new(parameters);
 
         Assert.Equal(parameters, copied);
+    }
+}
+
+public class MessageCountTokensParamsSpeedTest : TestBase
+{
+    [Theory]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Standard)]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Fast)]
+    public void Validation_Works(Messages::MessageCountTokensParamsSpeed rawValue)
+    {
+        // force implicit conversion because Theory can't do that for us
+        ApiEnum<string, Messages::MessageCountTokensParamsSpeed> value = rawValue;
+        value.Validate();
+    }
+
+    [Fact]
+    public void InvalidEnumValidationThrows_Works()
+    {
+        var value = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(JsonSerializer.SerializeToElement("invalid value"), ModelBase.SerializerOptions);
+
+        Assert.NotNull(value);
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+    }
+
+    [Theory]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Standard)]
+    [InlineData(Messages::MessageCountTokensParamsSpeed.Fast)]
+    public void SerializationRoundtrip_Works(Messages::MessageCountTokensParamsSpeed rawValue)
+    {
+        // force implicit conversion because Theory can't do that for us
+        ApiEnum<string, Messages::MessageCountTokensParamsSpeed> value = rawValue;
+
+        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(json, ModelBase.SerializerOptions);
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void InvalidEnumSerializationRoundtrip_Works()
+    {
+        var value = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(JsonSerializer.SerializeToElement("invalid value"), ModelBase.SerializerOptions);
+        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<
+            ApiEnum<string, Messages::MessageCountTokensParamsSpeed>
+        >(json, ModelBase.SerializerOptions);
+
+        Assert.Equal(value, deserialized);
     }
 }
 

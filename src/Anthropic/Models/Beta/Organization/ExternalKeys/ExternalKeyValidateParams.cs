@@ -105,12 +105,17 @@ public record class ExternalKeyValidateParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/external_keys/{0}/validate", this.ExternalKeyID)
+                + string.Format(
+                    "/v1/organizations/external_keys/{0}/validate",
+                    ParamsBase.EncodePathSegment(this.ExternalKeyID, nameof(this.ExternalKeyID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/external_keys/{external_key_id}/validate";
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

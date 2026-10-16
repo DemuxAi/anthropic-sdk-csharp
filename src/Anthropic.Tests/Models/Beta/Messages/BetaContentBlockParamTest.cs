@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 using Messages = Anthropic.Models.Messages;
 
@@ -321,6 +322,15 @@ public class BetaContentBlockParamTest : TestBase
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Content = "content",
             EncryptedContent = "encrypted_content",
+            Signature = "signature",
+            ToolChanges =
+            [
+                new BetaRequestToolAdditionBlock()
+                {
+                    Tool = new BetaToolChangeToolReference("name"),
+                    CacheControl = new() { Ttl = Ttl.Ttl5m },
+                },
+            ],
         };
         value.Validate();
     }
@@ -348,12 +358,34 @@ public class BetaContentBlockParamTest : TestBase
     }
 
     [Fact]
+    public void McpToolListingValidationWorks()
+    {
+        BetaContentBlockParam value = new BetaMcpToolListingBlockParam()
+        {
+            McpServerName = "x",
+            Tools =
+            [
+                new()
+                {
+                    InputSchema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Name = "x",
+                    Description = "description",
+                },
+            ],
+        };
+        value.Validate();
+    }
+
+    [Fact]
     public void FallbackValidationWorks()
     {
         BetaContentBlockParam value = new BetaFallbackBlockParam()
         {
-            From = new(Messages::Model.ClaudeSonnet5),
-            To = new(Messages::Model.ClaudeSonnet5),
+            From = new(Messages::Model.ClaudeHaiku5_5),
+            To = new(Messages::Model.ClaudeHaiku5_5),
             Trigger = JsonSerializer.Deserialize<JsonElement>("{}"),
         };
         value.Validate();
@@ -786,6 +818,15 @@ public class BetaContentBlockParamTest : TestBase
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Content = "content",
             EncryptedContent = "encrypted_content",
+            Signature = "signature",
+            ToolChanges =
+            [
+                new BetaRequestToolAdditionBlock()
+                {
+                    Tool = new BetaToolChangeToolReference("name"),
+                    CacheControl = new() { Ttl = Ttl.Ttl5m },
+                },
+            ],
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<BetaContentBlockParam>(
@@ -831,12 +872,40 @@ public class BetaContentBlockParamTest : TestBase
     }
 
     [Fact]
+    public void McpToolListingSerializationRoundtripWorks()
+    {
+        BetaContentBlockParam value = new BetaMcpToolListingBlockParam()
+        {
+            McpServerName = "x",
+            Tools =
+            [
+                new()
+                {
+                    InputSchema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Name = "x",
+                    Description = "description",
+                },
+            ],
+        };
+        string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<BetaContentBlockParam>(
+            element,
+            ModelBase.SerializerOptions
+        );
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
     public void FallbackSerializationRoundtripWorks()
     {
         BetaContentBlockParam value = new BetaFallbackBlockParam()
         {
-            From = new(Messages::Model.ClaudeSonnet5),
-            To = new(Messages::Model.ClaudeSonnet5),
+            From = new(Messages::Model.ClaudeHaiku5_5),
+            To = new(Messages::Model.ClaudeHaiku5_5),
             Trigger = JsonSerializer.Deserialize<JsonElement>("{}"),
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -846,5 +915,97 @@ public class BetaContentBlockParamTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaContentBlockParam value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "text",
+                  "cache_control": {
+                    "type": "ephemeral",
+                    "ttl": "5m"
+                  },
+                  "title": "x",
+                  "signature": "signature",
+                  "id": "id",
+                  "toolset_name": "toolset_name",
+                  "tool_use_id": "tool_use_id",
+                  "is_error": true
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("text");
+        BetaCacheControlEphemeral expectedCacheControl = new() { Ttl = Ttl.Ttl5m };
+        string expectedTitle = "x";
+        string expectedSignature = "signature";
+        string expectedID = "id";
+        string expectedToolsetName = "toolset_name";
+        string expectedToolUseID = "tool_use_id";
+        bool expectedIsError = true;
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedCacheControl, value.CacheControl);
+        Assert.Equal(expectedTitle, value.Title);
+        Assert.Equal(expectedSignature, value.Signature);
+        Assert.Equal(expectedID, value.ID);
+        Assert.Equal(expectedToolsetName, value.ToolsetName);
+        Assert.Equal(expectedToolUseID, value.ToolUseID);
+        Assert.Equal(expectedIsError, value.IsError);
+
+        BetaContentBlockParam emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.CacheControl);
+        Assert.Null(emptyValue.Title);
+        Assert.Null(emptyValue.Signature);
+        Assert.Null(emptyValue.ID);
+        Assert.Null(emptyValue.ToolsetName);
+        Assert.Null(emptyValue.ToolUseID);
+        Assert.Null(emptyValue.IsError);
+
+        BetaContentBlockParam mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "cache_control": [
+                    "invalid"
+                  ],
+                  "title": [
+                    "invalid"
+                  ],
+                  "signature": [
+                    "invalid"
+                  ],
+                  "id": [
+                    "invalid"
+                  ],
+                  "toolset_name": [
+                    "invalid"
+                  ],
+                  "tool_use_id": [
+                    "invalid"
+                  ],
+                  "is_error": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.CacheControl);
+        Assert.Null(mismatchedValue.Title);
+        Assert.Null(mismatchedValue.Signature);
+        Assert.Null(mismatchedValue.ID);
+        Assert.Null(mismatchedValue.ToolsetName);
+        Assert.Null(mismatchedValue.ToolUseID);
+        Assert.Null(mismatchedValue.IsError);
     }
 }

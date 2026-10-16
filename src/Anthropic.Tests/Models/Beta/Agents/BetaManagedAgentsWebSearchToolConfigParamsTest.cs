@@ -264,6 +264,41 @@ public class BetaManagedAgentsWebSearchToolConfigParamsTest : TestBase
     }
 
     [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaManagedAgentsWebSearchToolConfigParams
+        {
+            AllowedDomains = ["string"],
+            BlockedDomains = ["string"],
+            Enabled = true,
+            PermissionPolicy = new BetaManagedAgentsAlwaysAllowPolicy(
+                BetaManagedAgentsAlwaysAllowPolicyType.AlwaysAllow
+            ),
+            Type = BetaManagedAgentsWebSearchToolConfigParamsType.WebSearch,
+            UserLocation = new()
+            {
+                City = "x",
+                Country = "country",
+                Region = "x",
+                Timezone = "x",
+            },
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            AllowedDomains = null,
+            BlockedDomains = null,
+            Type = null,
+        };
+
+        Assert.Null(model.AllowedDomains);
+        Assert.False(model.RawData.ContainsKey("allowed_domains"));
+        Assert.Null(model.BlockedDomains);
+        Assert.False(model.RawData.ContainsKey("blocked_domains"));
+        Assert.Null(model.Type);
+        Assert.False(model.RawData.ContainsKey("type"));
+    }
+
+    [Fact]
     public void OptionalNonNullablePropertiesSetToNullValidation_Works()
     {
         var model = new BetaManagedAgentsWebSearchToolConfigParams
@@ -407,6 +442,14 @@ public class BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicyTest : Te
     }
 
     [Fact]
+    public void BetaManagedAgentsAutoValidationWorks()
+    {
+        BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicy value =
+            new BetaManagedAgentsAutoPolicy();
+        value.Validate();
+    }
+
+    [Fact]
     public void BetaManagedAgentsAlwaysAllowSerializationRoundtripWorks()
     {
         BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicy value =
@@ -428,6 +471,21 @@ public class BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicyTest : Te
     {
         BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicy value =
             new BetaManagedAgentsAlwaysAskPolicy(BetaManagedAgentsAlwaysAskPolicyType.AlwaysAsk);
+        string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized =
+            JsonSerializer.Deserialize<BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicy>(
+                element,
+                ModelBase.SerializerOptions
+            );
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void BetaManagedAgentsAutoSerializationRoundtripWorks()
+    {
+        BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicy value =
+            new BetaManagedAgentsAutoPolicy();
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized =
             JsonSerializer.Deserialize<BetaManagedAgentsWebSearchToolConfigParamsPermissionPolicy>(

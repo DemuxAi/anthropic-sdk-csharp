@@ -26,9 +26,22 @@ public class BatchCreateParamsTest : TestBase
                     Params = new()
                     {
                         MaxTokens = 1024,
-                        Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = ModelsMessages::Model.ClaudeOpus5,
+                        Messages =
+                        [
+                            new()
+                            {
+                                Content = "Hello, world",
+                                Role = Messages::Role.User,
+                                ClearAt = Messages::ClearAt.NextUserMessage,
+                                OutputConfig = new()
+                                {
+                                    Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                                },
+                            },
+                        ],
+                        Model = ModelsMessages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Compaction = new() { Instructions = "instructions" },
                         Container = new Messages::BetaContainerParams()
                         {
                             ID = "id",
@@ -121,6 +134,11 @@ public class BatchCreateParamsTest : TestBase
                         Temperature = 1,
                         Thinking = new Messages::BetaThinkingConfigAdaptive()
                         {
+                            BlockBinding = new()
+                            {
+                                PrefixMismatchBehavior =
+                                    Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                            },
                             Display = Messages::Display.Summarized,
                         },
                         ToolChoice = new Messages::BetaToolChoiceAuto()
@@ -164,6 +182,7 @@ public class BatchCreateParamsTest : TestBase
             ],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         List<Request> expectedRequests =
@@ -174,9 +193,22 @@ public class BatchCreateParamsTest : TestBase
                 Params = new()
                 {
                     MaxTokens = 1024,
-                    Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                    Model = ModelsMessages::Model.ClaudeOpus5,
+                    Messages =
+                    [
+                        new()
+                        {
+                            Content = "Hello, world",
+                            Role = Messages::Role.User,
+                            ClearAt = Messages::ClearAt.NextUserMessage,
+                            OutputConfig = new()
+                            {
+                                Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                            },
+                        },
+                    ],
+                    Model = ModelsMessages::Model.ClaudeOpus5_5,
                     CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                    Compaction = new() { Instructions = "instructions" },
                     Container = new Messages::BetaContainerParams()
                     {
                         ID = "id",
@@ -265,6 +297,11 @@ public class BatchCreateParamsTest : TestBase
                     Temperature = 1,
                     Thinking = new Messages::BetaThinkingConfigAdaptive()
                     {
+                        BlockBinding = new()
+                        {
+                            PrefixMismatchBehavior =
+                                Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                        },
                         Display = Messages::Display.Summarized,
                     },
                     ToolChoice = new Messages::BetaToolChoiceAuto()
@@ -311,6 +348,7 @@ public class BatchCreateParamsTest : TestBase
             AnthropicBeta.MessageBatches2024_09_24,
         ];
         string expectedUserProfileID = "anthropic-user-profile-id";
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedRequests.Count, parameters.Requests.Count);
         for (int i = 0; i < expectedRequests.Count; i++)
@@ -324,6 +362,7 @@ public class BatchCreateParamsTest : TestBase
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
         Assert.Equal(expectedUserProfileID, parameters.UserProfileID);
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -339,9 +378,22 @@ public class BatchCreateParamsTest : TestBase
                     Params = new()
                     {
                         MaxTokens = 1024,
-                        Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = ModelsMessages::Model.ClaudeOpus5,
+                        Messages =
+                        [
+                            new()
+                            {
+                                Content = "Hello, world",
+                                Role = Messages::Role.User,
+                                ClearAt = Messages::ClearAt.NextUserMessage,
+                                OutputConfig = new()
+                                {
+                                    Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                                },
+                            },
+                        ],
+                        Model = ModelsMessages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Compaction = new() { Instructions = "instructions" },
                         Container = new Messages::BetaContainerParams()
                         {
                             ID = "id",
@@ -434,6 +486,11 @@ public class BatchCreateParamsTest : TestBase
                         Temperature = 1,
                         Thinking = new Messages::BetaThinkingConfigAdaptive()
                         {
+                            BlockBinding = new()
+                            {
+                                PrefixMismatchBehavior =
+                                    Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                            },
                             Display = Messages::Display.Summarized,
                         },
                         ToolChoice = new Messages::BetaToolChoiceAuto()
@@ -481,6 +538,8 @@ public class BatchCreateParamsTest : TestBase
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
         Assert.Null(parameters.UserProfileID);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -496,9 +555,22 @@ public class BatchCreateParamsTest : TestBase
                     Params = new()
                     {
                         MaxTokens = 1024,
-                        Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = ModelsMessages::Model.ClaudeOpus5,
+                        Messages =
+                        [
+                            new()
+                            {
+                                Content = "Hello, world",
+                                Role = Messages::Role.User,
+                                ClearAt = Messages::ClearAt.NextUserMessage,
+                                OutputConfig = new()
+                                {
+                                    Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                                },
+                            },
+                        ],
+                        Model = ModelsMessages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Compaction = new() { Instructions = "instructions" },
                         Container = new Messages::BetaContainerParams()
                         {
                             ID = "id",
@@ -591,6 +663,11 @@ public class BatchCreateParamsTest : TestBase
                         Temperature = 1,
                         Thinking = new Messages::BetaThinkingConfigAdaptive()
                         {
+                            BlockBinding = new()
+                            {
+                                PrefixMismatchBehavior =
+                                    Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                            },
                             Display = Messages::Display.Summarized,
                         },
                         ToolChoice = new Messages::BetaToolChoiceAuto()
@@ -636,18 +713,21 @@ public class BatchCreateParamsTest : TestBase
             // Null should be interpreted as omitted for these properties
             Betas = null,
             UserProfileID = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
         Assert.Null(parameters.UserProfileID);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
-    public void Url_Works()
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
     {
-        BatchCreateParams parameters = new()
+        var parameters = new BatchCreateParams
         {
             Requests =
             [
@@ -657,9 +737,22 @@ public class BatchCreateParamsTest : TestBase
                     Params = new()
                     {
                         MaxTokens = 1024,
-                        Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = ModelsMessages::Model.ClaudeOpus5,
+                        Messages =
+                        [
+                            new()
+                            {
+                                Content = "Hello, world",
+                                Role = Messages::Role.User,
+                                ClearAt = Messages::ClearAt.NextUserMessage,
+                                OutputConfig = new()
+                                {
+                                    Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                                },
+                            },
+                        ],
+                        Model = ModelsMessages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Compaction = new() { Instructions = "instructions" },
                         Container = new Messages::BetaContainerParams()
                         {
                             ID = "id",
@@ -752,6 +845,197 @@ public class BatchCreateParamsTest : TestBase
                         Temperature = 1,
                         Thinking = new Messages::BetaThinkingConfigAdaptive()
                         {
+                            BlockBinding = new()
+                            {
+                                PrefixMismatchBehavior =
+                                    Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                            },
+                            Display = Messages::Display.Summarized,
+                        },
+                        ToolChoice = new Messages::BetaToolChoiceAuto()
+                        {
+                            DisableParallelToolUse = true,
+                        },
+                        Tools =
+                        [
+                            new Messages::BetaTool()
+                            {
+                                InputSchema = new()
+                                {
+                                    Properties = new Dictionary<string, JsonElement>()
+                                    {
+                                        { "location", JsonSerializer.SerializeToElement("bar") },
+                                        { "unit", JsonSerializer.SerializeToElement("bar") },
+                                    },
+                                    Required = ["location"],
+                                },
+                                Name = "name",
+                                AllowedCallers = [Messages::BetaToolAllowedCaller.Direct],
+                                CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                                DeferLoading = true,
+                                Description = "Get the current weather in a given location",
+                                EagerInputStreaming = true,
+                                InputExamples =
+                                [
+                                    new Dictionary<string, JsonElement>()
+                                    {
+                                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                                    },
+                                ],
+                                Strict = true,
+                                Type = Messages::BetaToolType.Custom,
+                            },
+                        ],
+                        TopK = 5,
+                        TopP = 0.7,
+                    },
+                },
+            ],
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Betas = null,
+            UserProfileID = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.UserProfileID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void Url_Works()
+    {
+        BatchCreateParams parameters = new()
+        {
+            Requests =
+            [
+                new()
+                {
+                    CustomID = "my-custom-id-1",
+                    Params = new()
+                    {
+                        MaxTokens = 1024,
+                        Messages =
+                        [
+                            new()
+                            {
+                                Content = "Hello, world",
+                                Role = Messages::Role.User,
+                                ClearAt = Messages::ClearAt.NextUserMessage,
+                                OutputConfig = new()
+                                {
+                                    Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                                },
+                            },
+                        ],
+                        Model = ModelsMessages::Model.ClaudeOpus5_5,
+                        CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Compaction = new() { Instructions = "instructions" },
+                        Container = new Messages::BetaContainerParams()
+                        {
+                            ID = "id",
+                            Skills =
+                            [
+                                new()
+                                {
+                                    SkillID = "pdf",
+                                    Type = Messages::BetaSkillParamsType.Anthropic,
+                                    Version = "latest",
+                                },
+                            ],
+                        },
+                        ContextManagement = new()
+                        {
+                            Edits =
+                            [
+                                new Messages::BetaClearToolUses20250919Edit()
+                                {
+                                    ClearAtLeast = new(0),
+                                    ClearToolInputs = true,
+                                    ExcludeTools = ["string"],
+                                    Keep = new(0),
+                                    Trigger = new Messages::BetaInputTokensTrigger(1),
+                                },
+                            ],
+                        },
+                        Diagnostics = new() { PreviousMessageID = "previous_message_id" },
+                        FallbackCreditToken = "x",
+                        Fallbacks = new Messages::Default(),
+                        InferenceGeo = "inference_geo",
+                        McpServers =
+                        [
+                            new()
+                            {
+                                Name = "name",
+                                Url = "url",
+                                AuthorizationToken = "authorization_token",
+                                ToolConfiguration = new()
+                                {
+                                    AllowedTools = ["string"],
+                                    Enabled = true,
+                                },
+                            },
+                        ],
+                        Metadata = new() { UserID = "13803d75-b4b5-4c3e-b2a2-6f21399b021b" },
+                        OutputConfig = new()
+                        {
+                            Effort = Messages::Effort.Low,
+                            Format = new()
+                            {
+                                Schema = new Dictionary<string, JsonElement>()
+                                {
+                                    { "foo", JsonSerializer.SerializeToElement("bar") },
+                                },
+                            },
+                            TaskBudget = new() { Total = 1024, Remaining = 0 },
+                        },
+                        OutputFormat = new()
+                        {
+                            Schema = new Dictionary<string, JsonElement>()
+                            {
+                                { "foo", JsonSerializer.SerializeToElement("bar") },
+                            },
+                        },
+                        ServiceTier = ServiceTier.Auto,
+                        Speed = Speed.Standard,
+                        StopSequences = ["string"],
+                        Stream = false,
+                        System = new(
+                            [
+                                new Messages::BetaTextBlockParam()
+                                {
+                                    Text = "Today's date is 2024-06-01.",
+                                    CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                                    Citations =
+                                    [
+                                        new Messages::BetaCitationCharLocationParam()
+                                        {
+                                            CitedText = "The grass is green. The sky is blue.",
+                                            DocumentIndex = 0,
+                                            DocumentTitle = "x",
+                                            EndCharIndex = 0,
+                                            StartCharIndex = 0,
+                                        },
+                                    ],
+                                },
+                            ]
+                        ),
+                        Temperature = 1,
+                        Thinking = new Messages::BetaThinkingConfigAdaptive()
+                        {
+                            BlockBinding = new()
+                            {
+                                PrefixMismatchBehavior =
+                                    Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                            },
                             Display = Messages::Display.Summarized,
                         },
                         ToolChoice = new Messages::BetaToolChoiceAuto()
@@ -819,9 +1103,22 @@ public class BatchCreateParamsTest : TestBase
                     Params = new()
                     {
                         MaxTokens = 1024,
-                        Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = ModelsMessages::Model.ClaudeOpus5,
+                        Messages =
+                        [
+                            new()
+                            {
+                                Content = "Hello, world",
+                                Role = Messages::Role.User,
+                                ClearAt = Messages::ClearAt.NextUserMessage,
+                                OutputConfig = new()
+                                {
+                                    Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                                },
+                            },
+                        ],
+                        Model = ModelsMessages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Compaction = new() { Instructions = "instructions" },
                         Container = new Messages::BetaContainerParams()
                         {
                             ID = "id",
@@ -914,6 +1211,11 @@ public class BatchCreateParamsTest : TestBase
                         Temperature = 1,
                         Thinking = new Messages::BetaThinkingConfigAdaptive()
                         {
+                            BlockBinding = new()
+                            {
+                                PrefixMismatchBehavior =
+                                    Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                            },
                             Display = Messages::Display.Summarized,
                         },
                         ToolChoice = new Messages::BetaToolChoiceAuto()
@@ -957,17 +1259,22 @@ public class BatchCreateParamsTest : TestBase
             ],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["message-batches-2024-09-24", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,message-batches-2024-09-24"],
             requestMessage.Headers.GetValues("anthropic-beta")
         );
         Assert.Equal(
             ["anthropic-user-profile-id"],
             requestMessage.Headers.GetValues("anthropic-user-profile-id")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -984,9 +1291,22 @@ public class BatchCreateParamsTest : TestBase
                     Params = new()
                     {
                         MaxTokens = 1024,
-                        Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                        Model = ModelsMessages::Model.ClaudeOpus5,
+                        Messages =
+                        [
+                            new()
+                            {
+                                Content = "Hello, world",
+                                Role = Messages::Role.User,
+                                ClearAt = Messages::ClearAt.NextUserMessage,
+                                OutputConfig = new()
+                                {
+                                    Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                                },
+                            },
+                        ],
+                        Model = ModelsMessages::Model.ClaudeOpus5_5,
                         CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Compaction = new() { Instructions = "instructions" },
                         Container = new Messages::BetaContainerParams()
                         {
                             ID = "id",
@@ -1079,6 +1399,11 @@ public class BatchCreateParamsTest : TestBase
                         Temperature = 1,
                         Thinking = new Messages::BetaThinkingConfigAdaptive()
                         {
+                            BlockBinding = new()
+                            {
+                                PrefixMismatchBehavior =
+                                    Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                            },
                             Display = Messages::Display.Summarized,
                         },
                         ToolChoice = new Messages::BetaToolChoiceAuto()
@@ -1122,6 +1447,7 @@ public class BatchCreateParamsTest : TestBase
             ],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         BatchCreateParams copied = new(parameters);
@@ -1141,9 +1467,22 @@ public class RequestTest : TestBase
             Params = new()
             {
                 MaxTokens = 1024,
-                Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = ModelsMessages::Model.ClaudeOpus5,
+                Messages =
+                [
+                    new()
+                    {
+                        Content = "Hello, world",
+                        Role = Messages::Role.User,
+                        ClearAt = Messages::ClearAt.NextUserMessage,
+                        OutputConfig = new()
+                        {
+                            Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                        },
+                    },
+                ],
+                Model = ModelsMessages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                Compaction = new() { Instructions = "instructions" },
                 Container = new Messages::BetaContainerParams()
                 {
                     ID = "id",
@@ -1232,6 +1571,10 @@ public class RequestTest : TestBase
                 Temperature = 1,
                 Thinking = new Messages::BetaThinkingConfigAdaptive()
                 {
+                    BlockBinding = new()
+                    {
+                        PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                    },
                     Display = Messages::Display.Summarized,
                 },
                 ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -1274,9 +1617,22 @@ public class RequestTest : TestBase
         Params expectedParams = new()
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -1365,6 +1721,10 @@ public class RequestTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -1415,9 +1775,22 @@ public class RequestTest : TestBase
             Params = new()
             {
                 MaxTokens = 1024,
-                Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = ModelsMessages::Model.ClaudeOpus5,
+                Messages =
+                [
+                    new()
+                    {
+                        Content = "Hello, world",
+                        Role = Messages::Role.User,
+                        ClearAt = Messages::ClearAt.NextUserMessage,
+                        OutputConfig = new()
+                        {
+                            Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                        },
+                    },
+                ],
+                Model = ModelsMessages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                Compaction = new() { Instructions = "instructions" },
                 Container = new Messages::BetaContainerParams()
                 {
                     ID = "id",
@@ -1506,6 +1879,10 @@ public class RequestTest : TestBase
                 Temperature = 1,
                 Thinking = new Messages::BetaThinkingConfigAdaptive()
                 {
+                    BlockBinding = new()
+                    {
+                        PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                    },
                     Display = Messages::Display.Summarized,
                 },
                 ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -1559,9 +1936,22 @@ public class RequestTest : TestBase
             Params = new()
             {
                 MaxTokens = 1024,
-                Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = ModelsMessages::Model.ClaudeOpus5,
+                Messages =
+                [
+                    new()
+                    {
+                        Content = "Hello, world",
+                        Role = Messages::Role.User,
+                        ClearAt = Messages::ClearAt.NextUserMessage,
+                        OutputConfig = new()
+                        {
+                            Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                        },
+                    },
+                ],
+                Model = ModelsMessages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                Compaction = new() { Instructions = "instructions" },
                 Container = new Messages::BetaContainerParams()
                 {
                     ID = "id",
@@ -1650,6 +2040,10 @@ public class RequestTest : TestBase
                 Temperature = 1,
                 Thinking = new Messages::BetaThinkingConfigAdaptive()
                 {
+                    BlockBinding = new()
+                    {
+                        PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                    },
                     Display = Messages::Display.Summarized,
                 },
                 ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -1699,9 +2093,22 @@ public class RequestTest : TestBase
         Params expectedParams = new()
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -1790,6 +2197,10 @@ public class RequestTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -1840,9 +2251,22 @@ public class RequestTest : TestBase
             Params = new()
             {
                 MaxTokens = 1024,
-                Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = ModelsMessages::Model.ClaudeOpus5,
+                Messages =
+                [
+                    new()
+                    {
+                        Content = "Hello, world",
+                        Role = Messages::Role.User,
+                        ClearAt = Messages::ClearAt.NextUserMessage,
+                        OutputConfig = new()
+                        {
+                            Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                        },
+                    },
+                ],
+                Model = ModelsMessages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                Compaction = new() { Instructions = "instructions" },
                 Container = new Messages::BetaContainerParams()
                 {
                     ID = "id",
@@ -1931,6 +2355,10 @@ public class RequestTest : TestBase
                 Temperature = 1,
                 Thinking = new Messages::BetaThinkingConfigAdaptive()
                 {
+                    BlockBinding = new()
+                    {
+                        PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                    },
                     Display = Messages::Display.Summarized,
                 },
                 ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -1981,9 +2409,22 @@ public class RequestTest : TestBase
             Params = new()
             {
                 MaxTokens = 1024,
-                Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-                Model = ModelsMessages::Model.ClaudeOpus5,
+                Messages =
+                [
+                    new()
+                    {
+                        Content = "Hello, world",
+                        Role = Messages::Role.User,
+                        ClearAt = Messages::ClearAt.NextUserMessage,
+                        OutputConfig = new()
+                        {
+                            Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                        },
+                    },
+                ],
+                Model = ModelsMessages::Model.ClaudeOpus5_5,
                 CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                Compaction = new() { Instructions = "instructions" },
                 Container = new Messages::BetaContainerParams()
                 {
                     ID = "id",
@@ -2072,6 +2513,10 @@ public class RequestTest : TestBase
                 Temperature = 1,
                 Thinking = new Messages::BetaThinkingConfigAdaptive()
                 {
+                    BlockBinding = new()
+                    {
+                        PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                    },
                     Display = Messages::Display.Summarized,
                 },
                 ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -2124,9 +2569,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -2215,6 +2673,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -2255,13 +2717,20 @@ public class ParamsTest : TestBase
         long expectedMaxTokens = 1024;
         List<Messages::BetaMessageParam> expectedMessages =
         [
-            new() { Content = "Hello, world", Role = Messages::Role.User },
+            new()
+            {
+                Content = "Hello, world",
+                Role = Messages::Role.User,
+                ClearAt = Messages::ClearAt.NextUserMessage,
+                OutputConfig = new() { Effort = Messages::BetaSystemMessageOutputConfigEffort.Low },
+            },
         ];
-        ApiEnum<string, ModelsMessages::Model> expectedModel = ModelsMessages::Model.ClaudeOpus5;
+        ApiEnum<string, ModelsMessages::Model> expectedModel = ModelsMessages::Model.ClaudeOpus5_5;
         Messages::BetaCacheControlEphemeral expectedCacheControl = new()
         {
             Ttl = Messages::Ttl.Ttl5m,
         };
+        Messages::BetaCompactionConfig expectedCompaction = new() { Instructions = "instructions" };
         Container expectedContainer = new Messages::BetaContainerParams()
         {
             ID = "id",
@@ -2355,7 +2824,14 @@ public class ParamsTest : TestBase
         );
         double expectedTemperature = 1;
         Messages::BetaThinkingConfigParam expectedThinking =
-            new Messages::BetaThinkingConfigAdaptive() { Display = Messages::Display.Summarized };
+            new Messages::BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Messages::Display.Summarized,
+            };
         Messages::BetaToolChoice expectedToolChoice = new Messages::BetaToolChoiceAuto()
         {
             DisableParallelToolUse = true,
@@ -2401,6 +2877,7 @@ public class ParamsTest : TestBase
         }
         Assert.Equal(expectedModel, model.Model);
         Assert.Equal(expectedCacheControl, model.CacheControl);
+        Assert.Equal(expectedCompaction, model.Compaction);
         Assert.Equal(expectedContainer, model.Container);
         Assert.Equal(expectedContextManagement, model.ContextManagement);
         Assert.Equal(expectedDiagnostics, model.Diagnostics);
@@ -2445,9 +2922,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -2536,6 +3026,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -2585,9 +3079,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -2676,6 +3183,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -2720,13 +3231,20 @@ public class ParamsTest : TestBase
         long expectedMaxTokens = 1024;
         List<Messages::BetaMessageParam> expectedMessages =
         [
-            new() { Content = "Hello, world", Role = Messages::Role.User },
+            new()
+            {
+                Content = "Hello, world",
+                Role = Messages::Role.User,
+                ClearAt = Messages::ClearAt.NextUserMessage,
+                OutputConfig = new() { Effort = Messages::BetaSystemMessageOutputConfigEffort.Low },
+            },
         ];
-        ApiEnum<string, ModelsMessages::Model> expectedModel = ModelsMessages::Model.ClaudeOpus5;
+        ApiEnum<string, ModelsMessages::Model> expectedModel = ModelsMessages::Model.ClaudeOpus5_5;
         Messages::BetaCacheControlEphemeral expectedCacheControl = new()
         {
             Ttl = Messages::Ttl.Ttl5m,
         };
+        Messages::BetaCompactionConfig expectedCompaction = new() { Instructions = "instructions" };
         Container expectedContainer = new Messages::BetaContainerParams()
         {
             ID = "id",
@@ -2820,7 +3338,14 @@ public class ParamsTest : TestBase
         );
         double expectedTemperature = 1;
         Messages::BetaThinkingConfigParam expectedThinking =
-            new Messages::BetaThinkingConfigAdaptive() { Display = Messages::Display.Summarized };
+            new Messages::BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Messages::Display.Summarized,
+            };
         Messages::BetaToolChoice expectedToolChoice = new Messages::BetaToolChoiceAuto()
         {
             DisableParallelToolUse = true,
@@ -2866,6 +3391,7 @@ public class ParamsTest : TestBase
         }
         Assert.Equal(expectedModel, deserialized.Model);
         Assert.Equal(expectedCacheControl, deserialized.CacheControl);
+        Assert.Equal(expectedCompaction, deserialized.Compaction);
         Assert.Equal(expectedContainer, deserialized.Container);
         Assert.Equal(expectedContextManagement, deserialized.ContextManagement);
         Assert.Equal(expectedDiagnostics, deserialized.Diagnostics);
@@ -2910,9 +3436,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -3001,6 +3540,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -3047,9 +3590,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -3125,9 +3681,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -3178,9 +3747,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -3266,14 +3848,222 @@ public class ParamsTest : TestBase
     }
 
     [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new Params
+        {
+            MaxTokens = 1024,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
+            CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
+            Container = new Messages::BetaContainerParams()
+            {
+                ID = "id",
+                Skills =
+                [
+                    new()
+                    {
+                        SkillID = "pdf",
+                        Type = Messages::BetaSkillParamsType.Anthropic,
+                        Version = "latest",
+                    },
+                ],
+            },
+            ContextManagement = new()
+            {
+                Edits =
+                [
+                    new Messages::BetaClearToolUses20250919Edit()
+                    {
+                        ClearAtLeast = new(0),
+                        ClearToolInputs = true,
+                        ExcludeTools = ["string"],
+                        Keep = new(0),
+                        Trigger = new Messages::BetaInputTokensTrigger(1),
+                    },
+                ],
+            },
+            Diagnostics = new() { PreviousMessageID = "previous_message_id" },
+            FallbackCreditToken = "x",
+            Fallbacks = new Messages::Default(),
+            InferenceGeo = "inference_geo",
+            McpServers =
+            [
+                new()
+                {
+                    Name = "name",
+                    Url = "url",
+                    AuthorizationToken = "authorization_token",
+                    ToolConfiguration = new() { AllowedTools = ["string"], Enabled = true },
+                },
+            ],
+            Metadata = new() { UserID = "13803d75-b4b5-4c3e-b2a2-6f21399b021b" },
+            OutputConfig = new()
+            {
+                Effort = Messages::Effort.Low,
+                Format = new()
+                {
+                    Schema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                },
+                TaskBudget = new() { Total = 1024, Remaining = 0 },
+            },
+            OutputFormat = new()
+            {
+                Schema = new Dictionary<string, JsonElement>()
+                {
+                    { "foo", JsonSerializer.SerializeToElement("bar") },
+                },
+            },
+            ServiceTier = ServiceTier.Auto,
+            Speed = Speed.Standard,
+            StopSequences = ["string"],
+            Stream = false,
+            System = new(
+                [
+                    new Messages::BetaTextBlockParam()
+                    {
+                        Text = "Today's date is 2024-06-01.",
+                        CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                        Citations =
+                        [
+                            new Messages::BetaCitationCharLocationParam()
+                            {
+                                CitedText = "The grass is green. The sky is blue.",
+                                DocumentIndex = 0,
+                                DocumentTitle = "x",
+                                EndCharIndex = 0,
+                                StartCharIndex = 0,
+                            },
+                        ],
+                    },
+                ]
+            ),
+            Temperature = 1,
+            Thinking = new Messages::BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Messages::Display.Summarized,
+            },
+            ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
+            Tools =
+            [
+                new Messages::BetaTool()
+                {
+                    InputSchema = new()
+                    {
+                        Properties = new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("bar") },
+                            { "unit", JsonSerializer.SerializeToElement("bar") },
+                        },
+                        Required = ["location"],
+                    },
+                    Name = "name",
+                    AllowedCallers = [Messages::BetaToolAllowedCaller.Direct],
+                    CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+                    DeferLoading = true,
+                    Description = "Get the current weather in a given location",
+                    EagerInputStreaming = true,
+                    InputExamples =
+                    [
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "foo", JsonSerializer.SerializeToElement("bar") },
+                        },
+                    ],
+                    Strict = true,
+                    Type = Messages::BetaToolType.Custom,
+                },
+            ],
+            TopK = 5,
+            TopP = 0.7,
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            McpServers = null,
+            Metadata = null,
+            OutputConfig = null,
+            ServiceTier = null,
+            StopSequences = null,
+            Stream = null,
+            System = null,
+            Temperature = null,
+            Thinking = null,
+            ToolChoice = null,
+            Tools = null,
+            TopK = null,
+            TopP = null,
+        };
+
+        Assert.Null(model.McpServers);
+        Assert.False(model.RawData.ContainsKey("mcp_servers"));
+        Assert.Null(model.Metadata);
+        Assert.False(model.RawData.ContainsKey("metadata"));
+        Assert.Null(model.OutputConfig);
+        Assert.False(model.RawData.ContainsKey("output_config"));
+        Assert.Null(model.ServiceTier);
+        Assert.False(model.RawData.ContainsKey("service_tier"));
+        Assert.Null(model.StopSequences);
+        Assert.False(model.RawData.ContainsKey("stop_sequences"));
+        Assert.Null(model.Stream);
+        Assert.False(model.RawData.ContainsKey("stream"));
+        Assert.Null(model.System);
+        Assert.False(model.RawData.ContainsKey("system"));
+        Assert.Null(model.Temperature);
+        Assert.False(model.RawData.ContainsKey("temperature"));
+        Assert.Null(model.Thinking);
+        Assert.False(model.RawData.ContainsKey("thinking"));
+        Assert.Null(model.ToolChoice);
+        Assert.False(model.RawData.ContainsKey("tool_choice"));
+        Assert.Null(model.Tools);
+        Assert.False(model.RawData.ContainsKey("tools"));
+        Assert.Null(model.TopK);
+        Assert.False(model.RawData.ContainsKey("top_k"));
+        Assert.Null(model.TopP);
+        Assert.False(model.RawData.ContainsKey("top_p"));
+    }
+
+    [Fact]
     public void OptionalNonNullablePropertiesSetToNullValidation_Works()
     {
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -3339,8 +4129,20 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             McpServers =
             [
                 new()
@@ -3390,6 +4192,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -3429,6 +4235,8 @@ public class ParamsTest : TestBase
 
         Assert.Null(model.CacheControl);
         Assert.False(model.RawData.ContainsKey("cache_control"));
+        Assert.Null(model.Compaction);
+        Assert.False(model.RawData.ContainsKey("compaction"));
         Assert.Null(model.Container);
         Assert.False(model.RawData.ContainsKey("container"));
         Assert.Null(model.ContextManagement);
@@ -3453,8 +4261,20 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             McpServers =
             [
                 new()
@@ -3504,6 +4324,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -3550,8 +4374,20 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             McpServers =
             [
                 new()
@@ -3601,6 +4437,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -3638,6 +4478,7 @@ public class ParamsTest : TestBase
             TopP = 0.7,
 
             CacheControl = null,
+            Compaction = null,
             Container = null,
             ContextManagement = null,
             Diagnostics = null,
@@ -3650,6 +4491,8 @@ public class ParamsTest : TestBase
 
         Assert.Null(model.CacheControl);
         Assert.True(model.RawData.ContainsKey("cache_control"));
+        Assert.Null(model.Compaction);
+        Assert.True(model.RawData.ContainsKey("compaction"));
         Assert.Null(model.Container);
         Assert.True(model.RawData.ContainsKey("container"));
         Assert.Null(model.ContextManagement);
@@ -3674,8 +4517,20 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             McpServers =
             [
                 new()
@@ -3725,6 +4580,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },
@@ -3762,6 +4621,7 @@ public class ParamsTest : TestBase
             TopP = 0.7,
 
             CacheControl = null,
+            Compaction = null,
             Container = null,
             ContextManagement = null,
             Diagnostics = null,
@@ -3781,9 +4641,22 @@ public class ParamsTest : TestBase
         var model = new Params
         {
             MaxTokens = 1024,
-            Messages = [new() { Content = "Hello, world", Role = Messages::Role.User }],
-            Model = ModelsMessages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Messages::Role.User,
+                    ClearAt = Messages::ClearAt.NextUserMessage,
+                    OutputConfig = new()
+                    {
+                        Effort = Messages::BetaSystemMessageOutputConfigEffort.Low,
+                    },
+                },
+            ],
+            Model = ModelsMessages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Messages::Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             Container = new Messages::BetaContainerParams()
             {
                 ID = "id",
@@ -3872,6 +4745,10 @@ public class ParamsTest : TestBase
             Temperature = 1,
             Thinking = new Messages::BetaThinkingConfigAdaptive()
             {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = Messages::BetaThinkingPrefixMismatchBehavior.Error,
+                },
                 Display = Messages::Display.Summarized,
             },
             ToolChoice = new Messages::BetaToolChoiceAuto() { DisableParallelToolUse = true },

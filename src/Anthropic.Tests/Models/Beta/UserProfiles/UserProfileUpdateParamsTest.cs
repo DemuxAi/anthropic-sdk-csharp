@@ -19,28 +19,53 @@ public class UserProfileUpdateParamsTest : TestBase
             UserProfileID = "uprof_011CZkZCu8hGbp5mYRQgUmz9",
             AccessType = UserProfileUpdateParamsAccessType.Application,
             ExternalID = "user_12345",
+            ExternalUserDetails = new()
+            {
+                AccountStatus = BetaUserProfileExternalUserDetailsParamsAccountStatus.Active,
+                Country = "country",
+                EmailHash = "x",
+                EntityType = BetaUserProfileExternalUserDetailsParamsEntityType.Individual,
+                NameHash = "x",
+                OnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                ReferenceID = "x",
+            },
+            ExternalUserOnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Name = "x",
-            Relationship = UserProfileUpdateParamsRelationship.External,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedUserProfileID = "uprof_011CZkZCu8hGbp5mYRQgUmz9";
         ApiEnum<string, UserProfileUpdateParamsAccessType> expectedAccessType =
             UserProfileUpdateParamsAccessType.Application;
         string expectedExternalID = "user_12345";
+        BetaUserProfileExternalUserDetailsParams expectedExternalUserDetails = new()
+        {
+            AccountStatus = BetaUserProfileExternalUserDetailsParamsAccountStatus.Active,
+            Country = "country",
+            EmailHash = "x",
+            EntityType = BetaUserProfileExternalUserDetailsParamsEntityType.Individual,
+            NameHash = "x",
+            OnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            ReferenceID = "x",
+        };
+        DateTimeOffset expectedExternalUserOnboardedAt = DateTimeOffset.Parse(
+            "2019-12-27T18:11:19.117Z"
+        );
         Dictionary<string, string> expectedMetadata = new() { { "foo", "string" } };
         string expectedName = "x";
-        ApiEnum<string, UserProfileUpdateParamsRelationship> expectedRelationship =
-            UserProfileUpdateParamsRelationship.External;
         List<ApiEnum<string, AnthropicBeta>> expectedBetas =
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedUserProfileID, parameters.UserProfileID);
         Assert.Equal(expectedAccessType, parameters.AccessType);
         Assert.Equal(expectedExternalID, parameters.ExternalID);
+        Assert.Equal(expectedExternalUserDetails, parameters.ExternalUserDetails);
+        Assert.Equal(expectedExternalUserOnboardedAt, parameters.ExternalUserOnboardedAt);
         Assert.NotNull(parameters.Metadata);
         Assert.Equal(expectedMetadata.Count, parameters.Metadata.Count);
         foreach (var item in expectedMetadata)
@@ -50,13 +75,13 @@ public class UserProfileUpdateParamsTest : TestBase
             Assert.Equal(value, parameters.Metadata[item.Key]);
         }
         Assert.Equal(expectedName, parameters.Name);
-        Assert.Equal(expectedRelationship, parameters.Relationship);
         Assert.NotNull(parameters.Betas);
         Assert.Equal(expectedBetas.Count, parameters.Betas.Count);
         for (int i = 0; i < expectedBetas.Count; i++)
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -68,13 +93,18 @@ public class UserProfileUpdateParamsTest : TestBase
             AccessType = UserProfileUpdateParamsAccessType.Application,
             ExternalID = "user_12345",
             Name = "x",
-            Relationship = UserProfileUpdateParamsRelationship.External,
         };
 
+        Assert.Null(parameters.ExternalUserDetails);
+        Assert.False(parameters.RawBodyData.ContainsKey("external_user_details"));
+        Assert.Null(parameters.ExternalUserOnboardedAt);
+        Assert.False(parameters.RawBodyData.ContainsKey("external_user_onboarded_at"));
         Assert.Null(parameters.Metadata);
         Assert.False(parameters.RawBodyData.ContainsKey("metadata"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -86,17 +116,70 @@ public class UserProfileUpdateParamsTest : TestBase
             AccessType = UserProfileUpdateParamsAccessType.Application,
             ExternalID = "user_12345",
             Name = "x",
-            Relationship = UserProfileUpdateParamsRelationship.External,
 
             // Null should be interpreted as omitted for these properties
+            ExternalUserDetails = null,
+            ExternalUserOnboardedAt = null,
             Metadata = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
+        Assert.Null(parameters.ExternalUserDetails);
+        Assert.False(parameters.RawBodyData.ContainsKey("external_user_details"));
+        Assert.Null(parameters.ExternalUserOnboardedAt);
+        Assert.False(parameters.RawBodyData.ContainsKey("external_user_onboarded_at"));
         Assert.Null(parameters.Metadata);
         Assert.False(parameters.RawBodyData.ContainsKey("metadata"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new UserProfileUpdateParams
+        {
+            UserProfileID = "uprof_011CZkZCu8hGbp5mYRQgUmz9",
+            AccessType = UserProfileUpdateParamsAccessType.Application,
+            ExternalID = "user_12345",
+            ExternalUserDetails = new()
+            {
+                AccountStatus = BetaUserProfileExternalUserDetailsParamsAccountStatus.Active,
+                Country = "country",
+                EmailHash = "x",
+                EntityType = BetaUserProfileExternalUserDetailsParamsEntityType.Individual,
+                NameHash = "x",
+                OnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                ReferenceID = "x",
+            },
+            ExternalUserOnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            Metadata = new Dictionary<string, string>() { { "foo", "string" } },
+            Name = "x",
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            ExternalUserDetails = null,
+            ExternalUserOnboardedAt = null,
+            Metadata = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.ExternalUserDetails);
+        Assert.False(parameters.RawBodyData.ContainsKey("external_user_details"));
+        Assert.Null(parameters.ExternalUserOnboardedAt);
+        Assert.False(parameters.RawBodyData.ContainsKey("external_user_onboarded_at"));
+        Assert.Null(parameters.Metadata);
+        Assert.False(parameters.RawBodyData.ContainsKey("metadata"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -105,8 +188,20 @@ public class UserProfileUpdateParamsTest : TestBase
         var parameters = new UserProfileUpdateParams
         {
             UserProfileID = "uprof_011CZkZCu8hGbp5mYRQgUmz9",
+            ExternalUserDetails = new()
+            {
+                AccountStatus = BetaUserProfileExternalUserDetailsParamsAccountStatus.Active,
+                Country = "country",
+                EmailHash = "x",
+                EntityType = BetaUserProfileExternalUserDetailsParamsEntityType.Individual,
+                NameHash = "x",
+                OnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                ReferenceID = "x",
+            },
+            ExternalUserOnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.AccessType);
@@ -115,8 +210,6 @@ public class UserProfileUpdateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("external_id"));
         Assert.Null(parameters.Name);
         Assert.False(parameters.RawBodyData.ContainsKey("name"));
-        Assert.Null(parameters.Relationship);
-        Assert.False(parameters.RawBodyData.ContainsKey("relationship"));
     }
 
     [Fact]
@@ -125,13 +218,24 @@ public class UserProfileUpdateParamsTest : TestBase
         var parameters = new UserProfileUpdateParams
         {
             UserProfileID = "uprof_011CZkZCu8hGbp5mYRQgUmz9",
+            ExternalUserDetails = new()
+            {
+                AccountStatus = BetaUserProfileExternalUserDetailsParamsAccountStatus.Active,
+                Country = "country",
+                EmailHash = "x",
+                EntityType = BetaUserProfileExternalUserDetailsParamsEntityType.Individual,
+                NameHash = "x",
+                OnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                ReferenceID = "x",
+            },
+            ExternalUserOnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             AccessType = null,
             ExternalID = null,
             Name = null,
-            Relationship = null,
         };
 
         Assert.Null(parameters.AccessType);
@@ -140,8 +244,6 @@ public class UserProfileUpdateParamsTest : TestBase
         Assert.True(parameters.RawBodyData.ContainsKey("external_id"));
         Assert.Null(parameters.Name);
         Assert.True(parameters.RawBodyData.ContainsKey("name"));
-        Assert.Null(parameters.Relationship);
-        Assert.True(parameters.RawBodyData.ContainsKey("relationship"));
     }
 
     [Fact]
@@ -172,13 +274,18 @@ public class UserProfileUpdateParamsTest : TestBase
         {
             UserProfileID = "uprof_011CZkZCu8hGbp5mYRQgUmz9",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["user-profiles-2026-08-18", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,user-profiles-2026-08-18"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -190,10 +297,21 @@ public class UserProfileUpdateParamsTest : TestBase
             UserProfileID = "uprof_011CZkZCu8hGbp5mYRQgUmz9",
             AccessType = UserProfileUpdateParamsAccessType.Application,
             ExternalID = "user_12345",
+            ExternalUserDetails = new()
+            {
+                AccountStatus = BetaUserProfileExternalUserDetailsParamsAccountStatus.Active,
+                Country = "country",
+                EmailHash = "x",
+                EntityType = BetaUserProfileExternalUserDetailsParamsEntityType.Individual,
+                NameHash = "x",
+                OnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                ReferenceID = "x",
+            },
+            ExternalUserOnboardedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Name = "x",
-            Relationship = UserProfileUpdateParamsRelationship.External,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         UserProfileUpdateParams copied = new(parameters);
@@ -252,62 +370,6 @@ public class UserProfileUpdateParamsAccessTypeTest : TestBase
         string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<
             ApiEnum<string, UserProfileUpdateParamsAccessType>
-        >(json, ModelBase.SerializerOptions);
-
-        Assert.Equal(value, deserialized);
-    }
-}
-
-public class UserProfileUpdateParamsRelationshipTest : TestBase
-{
-    [Theory]
-    [InlineData(UserProfileUpdateParamsRelationship.External)]
-    [InlineData(UserProfileUpdateParamsRelationship.Resold)]
-    [InlineData(UserProfileUpdateParamsRelationship.Internal)]
-    public void Validation_Works(UserProfileUpdateParamsRelationship rawValue)
-    {
-        // force implicit conversion because Theory can't do that for us
-        ApiEnum<string, UserProfileUpdateParamsRelationship> value = rawValue;
-        value.Validate();
-    }
-
-    [Fact]
-    public void InvalidEnumValidationThrows_Works()
-    {
-        var value = JsonSerializer.Deserialize<
-            ApiEnum<string, UserProfileUpdateParamsRelationship>
-        >(JsonSerializer.SerializeToElement("invalid value"), ModelBase.SerializerOptions);
-
-        Assert.NotNull(value);
-        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
-    }
-
-    [Theory]
-    [InlineData(UserProfileUpdateParamsRelationship.External)]
-    [InlineData(UserProfileUpdateParamsRelationship.Resold)]
-    [InlineData(UserProfileUpdateParamsRelationship.Internal)]
-    public void SerializationRoundtrip_Works(UserProfileUpdateParamsRelationship rawValue)
-    {
-        // force implicit conversion because Theory can't do that for us
-        ApiEnum<string, UserProfileUpdateParamsRelationship> value = rawValue;
-
-        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
-        var deserialized = JsonSerializer.Deserialize<
-            ApiEnum<string, UserProfileUpdateParamsRelationship>
-        >(json, ModelBase.SerializerOptions);
-
-        Assert.Equal(value, deserialized);
-    }
-
-    [Fact]
-    public void InvalidEnumSerializationRoundtrip_Works()
-    {
-        var value = JsonSerializer.Deserialize<
-            ApiEnum<string, UserProfileUpdateParamsRelationship>
-        >(JsonSerializer.SerializeToElement("invalid value"), ModelBase.SerializerOptions);
-        string json = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
-        var deserialized = JsonSerializer.Deserialize<
-            ApiEnum<string, UserProfileUpdateParamsRelationship>
         >(json, ModelBase.SerializerOptions);
 
         Assert.Equal(value, deserialized);

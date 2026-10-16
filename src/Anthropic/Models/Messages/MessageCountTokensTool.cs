@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -7,9 +8,6 @@ using System = System;
 
 namespace Anthropic.Models.Messages;
 
-/// <summary>
-/// Code execution tool with REPL state persistence (daemon mode + gVisor checkpoint).
-/// </summary>
 [JsonConverter(typeof(MessageCountTokensToolConverter))]
 public record class MessageCountTokensTool : ModelBase
 {
@@ -32,29 +30,34 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<CacheControlEphemeral?>(
-                tool: (x) => x.CacheControl,
-                toolBash20250124: (x) => x.CacheControl,
-                codeExecutionTool20250522: (x) => x.CacheControl,
-                codeExecutionTool20250825: (x) => x.CacheControl,
-                codeExecutionTool20260120: (x) => x.CacheControl,
-                codeExecutionTool20260521: (x) => x.CacheControl,
-                browserToolset20260801: (x) => x.CacheControl,
-                memoryTool20250818: (x) => x.CacheControl,
-                computerToolset20260801: (x) => x.CacheControl,
-                toolTextEditor20250124: (x) => x.CacheControl,
-                toolTextEditor20250429: (x) => x.CacheControl,
-                toolTextEditor20250728: (x) => x.CacheControl,
-                webSearchTool20250305: (x) => x.CacheControl,
-                webFetchTool20250910: (x) => x.CacheControl,
-                webSearchTool20260209: (x) => x.CacheControl,
-                webFetchTool20260209: (x) => x.CacheControl,
-                webFetchTool20260309: (x) => x.CacheControl,
-                webSearchTool20260318: (x) => x.CacheControl,
-                webFetchTool20260318: (x) => x.CacheControl,
-                toolSearchToolBm25_20251119: (x) => x.CacheControl,
-                toolSearchToolRegex20251119: (x) => x.CacheControl
-            );
+            return this.Value switch
+            {
+                Tool x => x.CacheControl,
+                ToolBash20250124 x => x.CacheControl,
+                CodeExecutionTool20250522 x => x.CacheControl,
+                CodeExecutionTool20250825 x => x.CacheControl,
+                CodeExecutionTool20260120 x => x.CacheControl,
+                CodeExecutionTool20260521 x => x.CacheControl,
+                BrowserToolset20260801 x => x.CacheControl,
+                MemoryTool20250818 x => x.CacheControl,
+                ComputerToolset20260801 x => x.CacheControl,
+                ToolTextEditor20250124 x => x.CacheControl,
+                ToolTextEditor20250429 x => x.CacheControl,
+                ToolTextEditor20250728 x => x.CacheControl,
+                WebSearchTool20250305 x => x.CacheControl,
+                WebFetchTool20250910 x => x.CacheControl,
+                WebSearchTool20260209 x => x.CacheControl,
+                WebFetchTool20260209 x => x.CacheControl,
+                WebFetchTool20260309 x => x.CacheControl,
+                WebSearchTool20260318 x => x.CacheControl,
+                WebFetchTool20260318 x => x.CacheControl,
+                ToolSearchToolBm25_20251119 x => x.CacheControl,
+                ToolSearchToolRegex20251119 x => x.CacheControl,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<CacheControlEphemeral>(
+                    this.Json,
+                    "cache_control"
+                ),
+            };
         }
     }
 
@@ -62,29 +65,34 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<bool?>(
-                tool: (x) => x.DeferLoading,
-                toolBash20250124: (x) => x.DeferLoading,
-                codeExecutionTool20250522: (x) => x.DeferLoading,
-                codeExecutionTool20250825: (x) => x.DeferLoading,
-                codeExecutionTool20260120: (x) => x.DeferLoading,
-                codeExecutionTool20260521: (x) => x.DeferLoading,
-                browserToolset20260801: (_) => null,
-                memoryTool20250818: (x) => x.DeferLoading,
-                computerToolset20260801: (_) => null,
-                toolTextEditor20250124: (x) => x.DeferLoading,
-                toolTextEditor20250429: (x) => x.DeferLoading,
-                toolTextEditor20250728: (x) => x.DeferLoading,
-                webSearchTool20250305: (x) => x.DeferLoading,
-                webFetchTool20250910: (x) => x.DeferLoading,
-                webSearchTool20260209: (x) => x.DeferLoading,
-                webFetchTool20260209: (x) => x.DeferLoading,
-                webFetchTool20260309: (x) => x.DeferLoading,
-                webSearchTool20260318: (x) => x.DeferLoading,
-                webFetchTool20260318: (x) => x.DeferLoading,
-                toolSearchToolBm25_20251119: (x) => x.DeferLoading,
-                toolSearchToolRegex20251119: (x) => x.DeferLoading
-            );
+            return this.Value switch
+            {
+                Tool x => x.DeferLoading,
+                ToolBash20250124 x => x.DeferLoading,
+                CodeExecutionTool20250522 x => x.DeferLoading,
+                CodeExecutionTool20250825 x => x.DeferLoading,
+                CodeExecutionTool20260120 x => x.DeferLoading,
+                CodeExecutionTool20260521 x => x.DeferLoading,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 x => x.DeferLoading,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 x => x.DeferLoading,
+                ToolTextEditor20250429 x => x.DeferLoading,
+                ToolTextEditor20250728 x => x.DeferLoading,
+                WebSearchTool20250305 x => x.DeferLoading,
+                WebFetchTool20250910 x => x.DeferLoading,
+                WebSearchTool20260209 x => x.DeferLoading,
+                WebFetchTool20260209 x => x.DeferLoading,
+                WebFetchTool20260309 x => x.DeferLoading,
+                WebSearchTool20260318 x => x.DeferLoading,
+                WebFetchTool20260318 x => x.DeferLoading,
+                ToolSearchToolBm25_20251119 x => x.DeferLoading,
+                ToolSearchToolRegex20251119 x => x.DeferLoading,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<bool>(
+                    this.Json,
+                    "defer_loading"
+                ),
+            };
         }
     }
 
@@ -92,29 +100,101 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<bool?>(
-                tool: (x) => x.Strict,
-                toolBash20250124: (x) => x.Strict,
-                codeExecutionTool20250522: (x) => x.Strict,
-                codeExecutionTool20250825: (x) => x.Strict,
-                codeExecutionTool20260120: (x) => x.Strict,
-                codeExecutionTool20260521: (x) => x.Strict,
-                browserToolset20260801: (_) => null,
-                memoryTool20250818: (x) => x.Strict,
-                computerToolset20260801: (_) => null,
-                toolTextEditor20250124: (x) => x.Strict,
-                toolTextEditor20250429: (x) => x.Strict,
-                toolTextEditor20250728: (x) => x.Strict,
-                webSearchTool20250305: (x) => x.Strict,
-                webFetchTool20250910: (x) => x.Strict,
-                webSearchTool20260209: (x) => x.Strict,
-                webFetchTool20260209: (x) => x.Strict,
-                webFetchTool20260309: (x) => x.Strict,
-                webSearchTool20260318: (x) => x.Strict,
-                webFetchTool20260318: (x) => x.Strict,
-                toolSearchToolBm25_20251119: (x) => x.Strict,
-                toolSearchToolRegex20251119: (x) => x.Strict
-            );
+            return this.Value switch
+            {
+                Tool x => x.Strict,
+                ToolBash20250124 x => x.Strict,
+                CodeExecutionTool20250522 x => x.Strict,
+                CodeExecutionTool20250825 x => x.Strict,
+                CodeExecutionTool20260120 x => x.Strict,
+                CodeExecutionTool20260521 x => x.Strict,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 x => x.Strict,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 x => x.Strict,
+                ToolTextEditor20250429 x => x.Strict,
+                ToolTextEditor20250728 x => x.Strict,
+                WebSearchTool20250305 x => x.Strict,
+                WebFetchTool20250910 x => x.Strict,
+                WebSearchTool20260209 x => x.Strict,
+                WebFetchTool20260209 x => x.Strict,
+                WebFetchTool20260309 x => x.Strict,
+                WebSearchTool20260318 x => x.Strict,
+                WebFetchTool20260318 x => x.Strict,
+                ToolSearchToolBm25_20251119 x => x.Strict,
+                ToolSearchToolRegex20251119 x => x.Strict,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<bool>(this.Json, "strict"),
+            };
+        }
+    }
+
+    public IReadOnlyList<string>? AllowedDomains
+    {
+        get
+        {
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 x => x.AllowedDomains,
+                WebFetchTool20250910 x => x.AllowedDomains,
+                WebSearchTool20260209 x => x.AllowedDomains,
+                WebFetchTool20260209 x => x.AllowedDomains,
+                WebFetchTool20260309 x => x.AllowedDomains,
+                WebSearchTool20260318 x => x.AllowedDomains,
+                WebFetchTool20260318 x => x.AllowedDomains,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<IReadOnlyList<string>>(
+                    this.Json,
+                    "allowed_domains"
+                ),
+            };
+        }
+    }
+
+    public IReadOnlyList<string>? BlockedDomains
+    {
+        get
+        {
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 x => x.BlockedDomains,
+                WebFetchTool20250910 x => x.BlockedDomains,
+                WebSearchTool20260209 x => x.BlockedDomains,
+                WebFetchTool20260209 x => x.BlockedDomains,
+                WebFetchTool20260309 x => x.BlockedDomains,
+                WebSearchTool20260318 x => x.BlockedDomains,
+                WebFetchTool20260318 x => x.BlockedDomains,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<IReadOnlyList<string>>(
+                    this.Json,
+                    "blocked_domains"
+                ),
+            };
         }
     }
 
@@ -122,29 +202,31 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<long?>(
-                tool: (_) => null,
-                toolBash20250124: (_) => null,
-                codeExecutionTool20250522: (_) => null,
-                codeExecutionTool20250825: (_) => null,
-                codeExecutionTool20260120: (_) => null,
-                codeExecutionTool20260521: (_) => null,
-                browserToolset20260801: (_) => null,
-                memoryTool20250818: (_) => null,
-                computerToolset20260801: (_) => null,
-                toolTextEditor20250124: (_) => null,
-                toolTextEditor20250429: (_) => null,
-                toolTextEditor20250728: (_) => null,
-                webSearchTool20250305: (x) => x.MaxUses,
-                webFetchTool20250910: (x) => x.MaxUses,
-                webSearchTool20260209: (x) => x.MaxUses,
-                webFetchTool20260209: (x) => x.MaxUses,
-                webFetchTool20260309: (x) => x.MaxUses,
-                webSearchTool20260318: (x) => x.MaxUses,
-                webFetchTool20260318: (x) => x.MaxUses,
-                toolSearchToolBm25_20251119: (_) => null,
-                toolSearchToolRegex20251119: (_) => null
-            );
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 x => x.MaxUses,
+                WebFetchTool20250910 x => x.MaxUses,
+                WebSearchTool20260209 x => x.MaxUses,
+                WebFetchTool20260209 x => x.MaxUses,
+                WebFetchTool20260309 x => x.MaxUses,
+                WebSearchTool20260318 x => x.MaxUses,
+                WebFetchTool20260318 x => x.MaxUses,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<long>(this.Json, "max_uses"),
+            };
         }
     }
 
@@ -152,29 +234,34 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<UserLocation?>(
-                tool: (_) => null,
-                toolBash20250124: (_) => null,
-                codeExecutionTool20250522: (_) => null,
-                codeExecutionTool20250825: (_) => null,
-                codeExecutionTool20260120: (_) => null,
-                codeExecutionTool20260521: (_) => null,
-                browserToolset20260801: (_) => null,
-                memoryTool20250818: (_) => null,
-                computerToolset20260801: (_) => null,
-                toolTextEditor20250124: (_) => null,
-                toolTextEditor20250429: (_) => null,
-                toolTextEditor20250728: (_) => null,
-                webSearchTool20250305: (x) => x.UserLocation,
-                webFetchTool20250910: (_) => null,
-                webSearchTool20260209: (x) => x.UserLocation,
-                webFetchTool20260209: (_) => null,
-                webFetchTool20260309: (_) => null,
-                webSearchTool20260318: (x) => x.UserLocation,
-                webFetchTool20260318: (_) => null,
-                toolSearchToolBm25_20251119: (_) => null,
-                toolSearchToolRegex20251119: (_) => null
-            );
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 x => x.UserLocation,
+                WebFetchTool20250910 _ => null,
+                WebSearchTool20260209 x => x.UserLocation,
+                WebFetchTool20260209 _ => null,
+                WebFetchTool20260309 _ => null,
+                WebSearchTool20260318 x => x.UserLocation,
+                WebFetchTool20260318 _ => null,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<UserLocation>(
+                    this.Json,
+                    "user_location"
+                ),
+            };
         }
     }
 
@@ -182,29 +269,34 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<CitationsConfigParam?>(
-                tool: (_) => null,
-                toolBash20250124: (_) => null,
-                codeExecutionTool20250522: (_) => null,
-                codeExecutionTool20250825: (_) => null,
-                codeExecutionTool20260120: (_) => null,
-                codeExecutionTool20260521: (_) => null,
-                browserToolset20260801: (_) => null,
-                memoryTool20250818: (_) => null,
-                computerToolset20260801: (_) => null,
-                toolTextEditor20250124: (_) => null,
-                toolTextEditor20250429: (_) => null,
-                toolTextEditor20250728: (_) => null,
-                webSearchTool20250305: (_) => null,
-                webFetchTool20250910: (x) => x.Citations,
-                webSearchTool20260209: (_) => null,
-                webFetchTool20260209: (x) => x.Citations,
-                webFetchTool20260309: (x) => x.Citations,
-                webSearchTool20260318: (_) => null,
-                webFetchTool20260318: (x) => x.Citations,
-                toolSearchToolBm25_20251119: (_) => null,
-                toolSearchToolRegex20251119: (_) => null
-            );
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 _ => null,
+                WebFetchTool20250910 x => x.Citations,
+                WebSearchTool20260209 _ => null,
+                WebFetchTool20260209 x => x.Citations,
+                WebFetchTool20260309 x => x.Citations,
+                WebSearchTool20260318 _ => null,
+                WebFetchTool20260318 x => x.Citations,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<CitationsConfigParam>(
+                    this.Json,
+                    "citations"
+                ),
+            };
         }
     }
 
@@ -212,29 +304,69 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<long?>(
-                tool: (_) => null,
-                toolBash20250124: (_) => null,
-                codeExecutionTool20250522: (_) => null,
-                codeExecutionTool20250825: (_) => null,
-                codeExecutionTool20260120: (_) => null,
-                codeExecutionTool20260521: (_) => null,
-                browserToolset20260801: (_) => null,
-                memoryTool20250818: (_) => null,
-                computerToolset20260801: (_) => null,
-                toolTextEditor20250124: (_) => null,
-                toolTextEditor20250429: (_) => null,
-                toolTextEditor20250728: (_) => null,
-                webSearchTool20250305: (_) => null,
-                webFetchTool20250910: (x) => x.MaxContentTokens,
-                webSearchTool20260209: (_) => null,
-                webFetchTool20260209: (x) => x.MaxContentTokens,
-                webFetchTool20260309: (x) => x.MaxContentTokens,
-                webSearchTool20260318: (_) => null,
-                webFetchTool20260318: (x) => x.MaxContentTokens,
-                toolSearchToolBm25_20251119: (_) => null,
-                toolSearchToolRegex20251119: (_) => null
-            );
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 _ => null,
+                WebFetchTool20250910 x => x.MaxContentTokens,
+                WebSearchTool20260209 _ => null,
+                WebFetchTool20260209 x => x.MaxContentTokens,
+                WebFetchTool20260309 x => x.MaxContentTokens,
+                WebSearchTool20260318 _ => null,
+                WebFetchTool20260318 x => x.MaxContentTokens,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<long>(
+                    this.Json,
+                    "max_content_tokens"
+                ),
+            };
+        }
+    }
+
+    public WebFetchUrlSources? UrlSources
+    {
+        get
+        {
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 _ => null,
+                WebFetchTool20250910 x => x.UrlSources,
+                WebSearchTool20260209 _ => null,
+                WebFetchTool20260209 x => x.UrlSources,
+                WebFetchTool20260309 x => x.UrlSources,
+                WebSearchTool20260318 _ => null,
+                WebFetchTool20260318 x => x.UrlSources,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<WebFetchUrlSources>(
+                    this.Json,
+                    "url_sources"
+                ),
+            };
         }
     }
 
@@ -242,29 +374,31 @@ public record class MessageCountTokensTool : ModelBase
     {
         get
         {
-            return Match<bool?>(
-                tool: (_) => null,
-                toolBash20250124: (_) => null,
-                codeExecutionTool20250522: (_) => null,
-                codeExecutionTool20250825: (_) => null,
-                codeExecutionTool20260120: (_) => null,
-                codeExecutionTool20260521: (_) => null,
-                browserToolset20260801: (_) => null,
-                memoryTool20250818: (_) => null,
-                computerToolset20260801: (_) => null,
-                toolTextEditor20250124: (_) => null,
-                toolTextEditor20250429: (_) => null,
-                toolTextEditor20250728: (_) => null,
-                webSearchTool20250305: (_) => null,
-                webFetchTool20250910: (_) => null,
-                webSearchTool20260209: (_) => null,
-                webFetchTool20260209: (_) => null,
-                webFetchTool20260309: (x) => x.UseCache,
-                webSearchTool20260318: (_) => null,
-                webFetchTool20260318: (x) => x.UseCache,
-                toolSearchToolBm25_20251119: (_) => null,
-                toolSearchToolRegex20251119: (_) => null
-            );
+            return this.Value switch
+            {
+                Tool _ => null,
+                ToolBash20250124 _ => null,
+                CodeExecutionTool20250522 _ => null,
+                CodeExecutionTool20250825 _ => null,
+                CodeExecutionTool20260120 _ => null,
+                CodeExecutionTool20260521 _ => null,
+                BrowserToolset20260801 _ => null,
+                MemoryTool20250818 _ => null,
+                ComputerToolset20260801 _ => null,
+                ToolTextEditor20250124 _ => null,
+                ToolTextEditor20250429 _ => null,
+                ToolTextEditor20250728 _ => null,
+                WebSearchTool20250305 _ => null,
+                WebFetchTool20250910 _ => null,
+                WebSearchTool20260209 _ => null,
+                WebFetchTool20260209 _ => null,
+                WebFetchTool20260309 x => x.UseCache,
+                WebSearchTool20260318 _ => null,
+                WebFetchTool20260318 x => x.UseCache,
+                ToolSearchToolBm25_20251119 _ => null,
+                ToolSearchToolRegex20251119 _ => null,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<bool>(this.Json, "use_cache"),
+            };
         }
     }
 

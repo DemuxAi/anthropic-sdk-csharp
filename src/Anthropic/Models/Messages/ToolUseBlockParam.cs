@@ -71,9 +71,6 @@ public sealed record class ToolUseBlockParam : JsonModel
         init { this._rawData.Set("cache_control", value); }
     }
 
-    /// <summary>
-    /// Tool invocation directly from the model.
-    /// </summary>
     public ToolUseBlockParamCaller? Caller
     {
         get
@@ -85,6 +82,7 @@ public sealed record class ToolUseBlockParam : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("caller");
                 return;
             }
 
@@ -162,9 +160,6 @@ class ToolUseBlockParamFromRaw : IFromRawJson<ToolUseBlockParam>
         ToolUseBlockParam.FromRawUnchecked(rawData);
 }
 
-/// <summary>
-/// Tool invocation directly from the model.
-/// </summary>
 [JsonConverter(typeof(ToolUseBlockParamCallerConverter))]
 public record class ToolUseBlockParamCaller : ModelBase
 {
@@ -187,11 +182,13 @@ public record class ToolUseBlockParamCaller : ModelBase
     {
         get
         {
-            return Match(
-                direct: (x) => x.Type,
-                serverTool: (x) => x.Type,
-                serverToolCaller20260120: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                DirectCaller x => x.Type,
+                ServerToolCaller x => x.Type,
+                ServerToolCaller20260120 x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -199,11 +196,13 @@ public record class ToolUseBlockParamCaller : ModelBase
     {
         get
         {
-            return Match<string?>(
-                direct: (_) => null,
-                serverTool: (x) => x.ToolID,
-                serverToolCaller20260120: (x) => x.ToolID
-            );
+            return this.Value switch
+            {
+                DirectCaller _ => null,
+                ServerToolCaller x => x.ToolID,
+                ServerToolCaller20260120 x => x.ToolID,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "tool_id"),
+            };
         }
     }
 

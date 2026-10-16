@@ -91,6 +91,19 @@ public class BetaClearThinking20251015EditTest : TestBase
     }
 
     [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaClearThinking20251015Edit { Keep = new All() } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Keep = null,
+        };
+
+        Assert.Null(model.Keep);
+        Assert.False(model.RawData.ContainsKey("keep"));
+    }
+
+    [Fact]
     public void OptionalNonNullablePropertiesSetToNullValidation_Works()
     {
         var model = new BetaClearThinking20251015Edit
@@ -164,6 +177,30 @@ public class KeepTest : TestBase
         var deserialized = JsonSerializer.Deserialize<Keep>(element, ModelBase.SerializerOptions);
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Keep value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "thinking_turns"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("thinking_turns");
+
+        Assert.NotNull(value.Type);
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type.Value));
+
+        Keep emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Null(emptyValue.Type);
     }
 }
 

@@ -44,6 +44,7 @@ public record class ServiceAccountListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("limit");
                 return;
             }
 
@@ -80,6 +81,7 @@ public record class ServiceAccountListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -173,13 +175,18 @@ public record class ServiceAccountListParams : ParamsBase
             options.BaseUrl.ToString().TrimEnd('/')
                 + string.Format(
                     "/v1/organizations/workspaces/{0}/service_accounts",
-                    this.WorkspaceID
+                    ParamsBase.EncodePathSegment(this.WorkspaceID, nameof(this.WorkspaceID))
                 )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route =>
+        "/v1/organizations/workspaces/{workspace_id}/service_accounts";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "page"];
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

@@ -35,8 +35,8 @@ public sealed record class BetaManagedAgentsUserCustomToolResultEvent : JsonMode
     }
 
     /// <summary>
-    /// The id of the `agent.custom_tool_use` event this result corresponds to, which
-    /// can be found in the last `session.status_idle` [event's](https://platform.claude.com/docs/en/api/beta/sessions/events/list#beta_managed_agents_session_requires_action.event_ids)
+    /// The id of the `agent.custom_tool_use` event this result corresponds to. It
+    /// is also listed in the last `session.status_idle` [event's](https://platform.claude.com/docs/en/api/beta/sessions/events/list#beta_managed_agents_session_requires_action.event_ids)
     /// `stop_reason.event_ids` field.
     /// </summary>
     public required string CustomToolUseID
@@ -77,6 +77,7 @@ public sealed record class BetaManagedAgentsUserCustomToolResultEvent : JsonMode
         {
             if (value == null)
             {
+                this._rawData.Remove("content");
                 return;
             }
 
@@ -101,7 +102,7 @@ public sealed record class BetaManagedAgentsUserCustomToolResultEvent : JsonMode
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// Timestamp when this result was processed.
     /// </summary>
     public System::DateTimeOffset? ProcessedAt
     {
@@ -114,8 +115,8 @@ public sealed record class BetaManagedAgentsUserCustomToolResultEvent : JsonMode
     }
 
     /// <summary>
-    /// Routes this result to a subagent thread. Copy from the `agent.custom_tool_use`
-    /// event's `session_thread_id`.
+    /// Set by the server to the subagent thread this result was routed to. Omitted
+    /// when it was routed to the primary thread.
     /// </summary>
     public string? SessionThreadID
     {
@@ -254,12 +255,14 @@ public record class BetaManagedAgentsUserCustomToolResultEventContent : ModelBas
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsTextBlock: (_) => null,
-                betaManagedAgentsImageBlock: (_) => null,
-                betaManagedAgentsDocumentBlock: (x) => x.Title,
-                betaManagedAgentsSearchResultBlock: (x) => x.Title
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsTextBlock _ => null,
+                BetaManagedAgentsImageBlock _ => null,
+                BetaManagedAgentsDocumentBlock x => x.Title,
+                BetaManagedAgentsSearchResultBlock x => x.Title,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "title"),
+            };
         }
     }
 

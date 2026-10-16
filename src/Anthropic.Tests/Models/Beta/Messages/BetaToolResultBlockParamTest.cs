@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 
 namespace Anthropic.Tests.Models.Beta.Messages;
@@ -141,6 +142,29 @@ public class BetaToolResultBlockParamTest : TestBase
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             ToolsetName = "toolset_name",
 
+            // Null should be interpreted as omitted for these properties
+            Content = null,
+            IsError = null,
+        };
+
+        Assert.Null(model.Content);
+        Assert.False(model.RawData.ContainsKey("content"));
+        Assert.Null(model.IsError);
+        Assert.False(model.RawData.ContainsKey("is_error"));
+    }
+
+    [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaToolResultBlockParam
+        {
+            ToolUseID = "tool_use_id",
+            CacheControl = new() { Ttl = Ttl.Ttl5m },
+            Content = "string",
+            IsError = true,
+            ToolsetName = "toolset_name",
+        } with
+        {
             // Null should be interpreted as omitted for these properties
             Content = null,
             IsError = null,
@@ -586,5 +610,57 @@ public class BlockTest : TestBase
         var deserialized = JsonSerializer.Deserialize<Block>(element, ModelBase.SerializerOptions);
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Block value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "text",
+                  "cache_control": {
+                    "type": "ephemeral",
+                    "ttl": "5m"
+                  },
+                  "title": "title"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("text");
+        BetaCacheControlEphemeral expectedCacheControl = new() { Ttl = Ttl.Ttl5m };
+        string expectedTitle = "title";
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedCacheControl, value.CacheControl);
+        Assert.Equal(expectedTitle, value.Title);
+
+        Block emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.CacheControl);
+        Assert.Null(emptyValue.Title);
+
+        Block mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "cache_control": [
+                    "invalid"
+                  ],
+                  "title": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.CacheControl);
+        Assert.Null(mismatchedValue.Title);
     }
 }

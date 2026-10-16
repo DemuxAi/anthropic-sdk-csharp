@@ -54,7 +54,11 @@ public sealed record class BetaUsage : JsonModel
     }
 
     /// <summary>
-    /// Outcome of the ``fallback_credit_token`` presented on this request.
+    /// Outcome of the `fallback_credit_token` presented on this request.
+    ///
+    /// <para>Present on every response to a non-batch request that carried a `fallback_credit_token`,
+    /// in either redemption mode; absent otherwise (batch items accept and ignore
+    /// the token and carry no outcome object).</para>
     /// </summary>
     public required BetaFallbackCreditUsage? FallbackCredit
     {
@@ -98,10 +102,9 @@ public sealed record class BetaUsage : JsonModel
     /// <para>Each entry represents one sampling iteration, with its own input/output
     /// token counts and cache statistics, discriminated by `type`. For `message`
     /// entries (model sampling iterations, such as the turns of a server-side tool
-    /// use loop), this allows you to: - Determine which iterations exceeded long
-    /// context thresholds (&gt;=200k tokens) - Calculate the context window size
-    /// from the last `message` entry - Understand token accumulation across server-side
-    /// tool use loops</para>
+    /// use loop), this allows you to: - Calculate the context window size from the
+    /// last `message` entry - Understand token accumulation across server-side tool
+    /// use loops</para>
     ///
     /// <para>A `compaction` entry reports the token usage of the compaction operation
     /// itself — the server-side request that summarizes the context being closed
@@ -193,9 +196,7 @@ public sealed record class BetaUsage : JsonModel
     }
 
     /// <summary>
-    /// Inference speed mode. `fast` provides significantly faster output token generation
-    /// at premium pricing. Not all models support `fast`; invalid combinations are
-    /// rejected at create time.
+    /// The inference speed mode used for this request.
     /// </summary>
     public required ApiEnum<string, BetaUsageSpeed>? Speed
     {
@@ -262,9 +263,6 @@ class BetaUsageFromRaw : IFromRawJson<BetaUsage>
         BetaUsage.FromRawUnchecked(rawData);
 }
 
-/// <summary>
-/// Token usage for a sampling iteration.
-/// </summary>
 [JsonConverter(typeof(BetaUsageIterationConverter))]
 public record class BetaUsageIteration : ModelBase
 {
@@ -287,12 +285,17 @@ public record class BetaUsageIteration : ModelBase
     {
         get
         {
-            return Match<BetaCacheCreation?>(
-                betaMessageIterationUsage: (x) => x.CacheCreation,
-                betaCompactionIterationUsage: (x) => x.CacheCreation,
-                betaAdvisorMessageIterationUsage: (x) => x.CacheCreation,
-                betaFallbackMessageIterationUsage: (x) => x.CacheCreation
-            );
+            return this.Value switch
+            {
+                BetaMessageIterationUsage x => x.CacheCreation,
+                BetaCompactionIterationUsage x => x.CacheCreation,
+                BetaAdvisorMessageIterationUsage x => x.CacheCreation,
+                BetaFallbackMessageIterationUsage x => x.CacheCreation,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<BetaCacheCreation>(
+                    this.Json,
+                    "cache_creation"
+                ),
+            };
         }
     }
 
@@ -300,12 +303,17 @@ public record class BetaUsageIteration : ModelBase
     {
         get
         {
-            return Match(
-                betaMessageIterationUsage: (x) => x.CacheCreationInputTokens,
-                betaCompactionIterationUsage: (x) => x.CacheCreationInputTokens,
-                betaAdvisorMessageIterationUsage: (x) => x.CacheCreationInputTokens,
-                betaFallbackMessageIterationUsage: (x) => x.CacheCreationInputTokens
-            );
+            return this.Value switch
+            {
+                BetaMessageIterationUsage x => x.CacheCreationInputTokens,
+                BetaCompactionIterationUsage x => x.CacheCreationInputTokens,
+                BetaAdvisorMessageIterationUsage x => x.CacheCreationInputTokens,
+                BetaFallbackMessageIterationUsage x => x.CacheCreationInputTokens,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<long>(
+                    this.Json,
+                    "cache_creation_input_tokens"
+                ),
+            };
         }
     }
 
@@ -313,12 +321,17 @@ public record class BetaUsageIteration : ModelBase
     {
         get
         {
-            return Match(
-                betaMessageIterationUsage: (x) => x.CacheReadInputTokens,
-                betaCompactionIterationUsage: (x) => x.CacheReadInputTokens,
-                betaAdvisorMessageIterationUsage: (x) => x.CacheReadInputTokens,
-                betaFallbackMessageIterationUsage: (x) => x.CacheReadInputTokens
-            );
+            return this.Value switch
+            {
+                BetaMessageIterationUsage x => x.CacheReadInputTokens,
+                BetaCompactionIterationUsage x => x.CacheReadInputTokens,
+                BetaAdvisorMessageIterationUsage x => x.CacheReadInputTokens,
+                BetaFallbackMessageIterationUsage x => x.CacheReadInputTokens,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<long>(
+                    this.Json,
+                    "cache_read_input_tokens"
+                ),
+            };
         }
     }
 
@@ -326,12 +339,17 @@ public record class BetaUsageIteration : ModelBase
     {
         get
         {
-            return Match(
-                betaMessageIterationUsage: (x) => x.InputTokens,
-                betaCompactionIterationUsage: (x) => x.InputTokens,
-                betaAdvisorMessageIterationUsage: (x) => x.InputTokens,
-                betaFallbackMessageIterationUsage: (x) => x.InputTokens
-            );
+            return this.Value switch
+            {
+                BetaMessageIterationUsage x => x.InputTokens,
+                BetaCompactionIterationUsage x => x.InputTokens,
+                BetaAdvisorMessageIterationUsage x => x.InputTokens,
+                BetaFallbackMessageIterationUsage x => x.InputTokens,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<long>(
+                    this.Json,
+                    "input_tokens"
+                ),
+            };
         }
     }
 
@@ -339,12 +357,17 @@ public record class BetaUsageIteration : ModelBase
     {
         get
         {
-            return Match<ApiEnum<string, Model>?>(
-                betaMessageIterationUsage: (x) => x.Model,
-                betaCompactionIterationUsage: (_) => null,
-                betaAdvisorMessageIterationUsage: (x) => x.Model,
-                betaFallbackMessageIterationUsage: (x) => x.Model
-            );
+            return this.Value switch
+            {
+                BetaMessageIterationUsage x => x.Model,
+                BetaCompactionIterationUsage _ => null,
+                BetaAdvisorMessageIterationUsage x => x.Model,
+                BetaFallbackMessageIterationUsage x => x.Model,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<ApiEnum<string, Model>>(
+                    this.Json,
+                    "model"
+                ),
+            };
         }
     }
 
@@ -352,12 +375,17 @@ public record class BetaUsageIteration : ModelBase
     {
         get
         {
-            return Match(
-                betaMessageIterationUsage: (x) => x.OutputTokens,
-                betaCompactionIterationUsage: (x) => x.OutputTokens,
-                betaAdvisorMessageIterationUsage: (x) => x.OutputTokens,
-                betaFallbackMessageIterationUsage: (x) => x.OutputTokens
-            );
+            return this.Value switch
+            {
+                BetaMessageIterationUsage x => x.OutputTokens,
+                BetaCompactionIterationUsage x => x.OutputTokens,
+                BetaAdvisorMessageIterationUsage x => x.OutputTokens,
+                BetaFallbackMessageIterationUsage x => x.OutputTokens,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<long>(
+                    this.Json,
+                    "output_tokens"
+                ),
+            };
         }
     }
 
@@ -365,12 +393,14 @@ public record class BetaUsageIteration : ModelBase
     {
         get
         {
-            return Match(
-                betaMessageIterationUsage: (x) => x.Type,
-                betaCompactionIterationUsage: (x) => x.Type,
-                betaAdvisorMessageIterationUsage: (x) => x.Type,
-                betaFallbackMessageIterationUsage: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaMessageIterationUsage x => x.Type,
+                BetaCompactionIterationUsage x => x.Type,
+                BetaAdvisorMessageIterationUsage x => x.Type,
+                BetaFallbackMessageIterationUsage x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -824,9 +854,7 @@ sealed class BetaUsageServiceTierConverter : JsonConverter<BetaUsageServiceTier>
 }
 
 /// <summary>
-/// Inference speed mode. `fast` provides significantly faster output token generation
-/// at premium pricing. Not all models support `fast`; invalid combinations are rejected
-/// at create time.
+/// The inference speed mode used for this request.
 /// </summary>
 [JsonConverter(typeof(BetaUsageSpeedConverter))]
 public enum BetaUsageSpeed

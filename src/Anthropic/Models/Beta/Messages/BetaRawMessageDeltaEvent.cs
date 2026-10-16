@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -75,6 +76,46 @@ public sealed record class BetaRawMessageDeltaEvent : JsonModel
         init { this._rawData.Set("usage", value); }
     }
 
+    /// <summary>
+    /// Changes the API made to the request's input before showing it to the model,
+    /// and blocks that failed a binding check but were left unchanged: one entry
+    /// per block, in request order. Two entry types today. `thinking_dropped` —
+    /// a `thinking`, `redacted_thinking` or `connector_text` block from the request's
+    /// `messages` that was removed from the prompt instead of being shown to the
+    /// model because it failed a binding check. `thinking_mismatch_allowed` — a
+    /// `thinking` or `redacted_thinking` block that failed the conversation check
+    /// (the conversation before it differs from the one it was created in, or it
+    /// carries no record of one on a model that requires it) and was shown to the
+    /// model all the same, because that check is not enforced for this request.
+    /// More entry types may be added over time; ignore types you do not recognize.
+    ///
+    /// <para>Requires `anthropic-beta: thinking-binding-controls-2026-08-01`. Present
+    /// on every such response from a model that supports extended thinking, as `[]`
+    /// when there is no entry to report; without the beta, blocks are removed or
+    /// left in place all the same but nothing is reported. Removed blocks contribute
+    /// nothing to `usage.input_tokens`; blocks left in place count as sent. When
+    /// streaming, the array is final in `message_start`; the final `message_delta`
+    /// event carries it only when a server-side model fallback happened mid-stream,
+    /// in which case it holds the serving model's entries and replaces the one in `message_start`.</para>
+    /// </summary>
+    public IReadOnlyList<BetaInputTransformation>? InputTransformations
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableStruct<ImmutableArray<BetaInputTransformation>>(
+                "input_transformations"
+            );
+        }
+        init
+        {
+            this._rawData.Set<ImmutableArray<BetaInputTransformation>?>(
+                "input_transformations",
+                value == null ? null : ImmutableArray.ToImmutableArray(value)
+            );
+        }
+    }
+
     /// <inheritdoc/>
     public override void Validate()
     {
@@ -85,6 +126,10 @@ public sealed record class BetaRawMessageDeltaEvent : JsonModel
             throw new AnthropicInvalidDataException("Invalid value given for constant");
         }
         this.Usage.Validate();
+        foreach (var item in this.InputTransformations ?? [])
+        {
+            item.Validate();
+        }
     }
 
     public BetaRawMessageDeltaEvent()
@@ -134,7 +179,9 @@ class BetaRawMessageDeltaEventFromRaw : IFromRawJson<BetaRawMessageDeltaEvent>
 public sealed record class Delta : JsonModel
 {
     /// <summary>
-    /// Information about the container used in the request (for the code execution tool)
+    /// Information about the container used in this request.
+    ///
+    /// <para>This will be non-null if a container tool (e.g. code execution) was used.</para>
     /// </summary>
     public required BetaContainer? Container
     {
@@ -147,7 +194,9 @@ public sealed record class Delta : JsonModel
     }
 
     /// <summary>
-    /// Structured information about a refusal.
+    /// Structured information about why model output stopped.
+    ///
+    /// <para>This is `null` when the `stop_reason` has no additional detail to report.</para>
     /// </summary>
     public required BetaRefusalStopDetails? StopDetails
     {

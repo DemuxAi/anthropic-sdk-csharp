@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 
 namespace Anthropic.Tests.Models.Beta.Messages;
@@ -152,6 +153,29 @@ public class BetaClearToolUses20250919EditTest : TestBase
             ClearToolInputs = true,
             ExcludeTools = ["string"],
 
+            // Null should be interpreted as omitted for these properties
+            Keep = null,
+            Trigger = null,
+        };
+
+        Assert.Null(model.Keep);
+        Assert.False(model.RawData.ContainsKey("keep"));
+        Assert.Null(model.Trigger);
+        Assert.False(model.RawData.ContainsKey("trigger"));
+    }
+
+    [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaClearToolUses20250919Edit
+        {
+            ClearAtLeast = new(0),
+            ClearToolInputs = true,
+            ExcludeTools = ["string"],
+            Keep = new(0),
+            Trigger = new BetaInputTokensTrigger(1),
+        } with
+        {
             // Null should be interpreted as omitted for these properties
             Keep = null,
             Trigger = null,
@@ -347,5 +371,46 @@ public class TriggerTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Trigger value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "input_tokens",
+                  "value": 1
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("input_tokens");
+        long expectedValueValue = 1;
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedValueValue, value.ValueValue);
+
+        Trigger emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.ValueValue);
+
+        Trigger mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "value": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Throws<AnthropicInvalidDataException>(() => mismatchedValue.ValueValue);
     }
 }

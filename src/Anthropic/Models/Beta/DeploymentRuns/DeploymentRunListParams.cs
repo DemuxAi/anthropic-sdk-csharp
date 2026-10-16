@@ -33,6 +33,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("created_at[gt]");
                 return;
             }
 
@@ -54,6 +55,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("created_at[gte]");
                 return;
             }
 
@@ -75,6 +77,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("created_at[lt]");
                 return;
             }
 
@@ -96,6 +99,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("created_at[lte]");
                 return;
             }
 
@@ -105,7 +109,7 @@ public record class DeploymentRunListParams : ParamsBase
 
     /// <summary>
     /// Filter to a specific deployment. Omit to list across all deployments in the
-    /// workspace. Filtering by a non-existent deployment_id returns 200 with empty data.
+    /// workspace. Filtering by a non-existent `deployment_id` returns 200 with empty data.
     /// </summary>
     public string? DeploymentID
     {
@@ -118,6 +122,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("deployment_id");
                 return;
             }
 
@@ -126,8 +131,8 @@ public record class DeploymentRunListParams : ParamsBase
     }
 
     /// <summary>
-    /// Filter: true for runs with non-null error, false for runs with non-null session_id.
-    /// Omit for all.
+    /// Filter: true for runs with non-null `error`, false for runs with non-null
+    /// `session_id`. Omit for all.
     /// </summary>
     public bool? HasError
     {
@@ -140,6 +145,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("has_error");
                 return;
             }
 
@@ -161,6 +167,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("limit");
                 return;
             }
 
@@ -169,7 +176,7 @@ public record class DeploymentRunListParams : ParamsBase
     }
 
     /// <summary>
-    /// Opaque pagination cursor. Pass next_page from the previous response. Invalid
+    /// Opaque pagination cursor. Pass `next_page` from the previous response. Invalid
     /// or expired cursors return 400.
     /// </summary>
     public string? Page
@@ -183,6 +190,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("page");
                 return;
             }
 
@@ -206,6 +214,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("trigger_type");
                 return;
             }
 
@@ -214,7 +223,8 @@ public record class DeploymentRunListParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `managed-agents-2026-04-01` in
+    /// this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -229,6 +239,7 @@ public record class DeploymentRunListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -236,6 +247,33 @@ public record class DeploymentRunListParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -314,6 +352,21 @@ public record class DeploymentRunListParams : ParamsBase
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/deployment_runs";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        [
+            "created_at[gt]",
+            "created_at[gte]",
+            "created_at[lt]",
+            "created_at[lte]",
+            "deployment_id",
+            "has_error",
+            "limit",
+            "page",
+            "trigger_type",
+        ];
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

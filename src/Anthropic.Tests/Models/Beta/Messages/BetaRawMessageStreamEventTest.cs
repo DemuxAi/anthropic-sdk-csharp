@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Messages;
 using Messages = Anthropic.Models.Beta.Messages;
 
@@ -57,10 +58,8 @@ public class BetaRawMessageStreamEventTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -81,9 +80,7 @@ public class BetaRawMessageStreamEventTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -98,7 +95,7 @@ public class BetaRawMessageStreamEventTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -108,6 +105,15 @@ public class BetaRawMessageStreamEventTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             }
         );
         value.Validate();
@@ -159,9 +165,7 @@ public class BetaRawMessageStreamEventTest : TestBase
             {
                 CacheCreationInputTokens = 2051,
                 CacheReadInputTokens = 2051,
-                FallbackCredit = new(
-                    new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                ),
+                FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                 InputTokens = 2095,
                 Iterations =
                 [
@@ -175,7 +179,7 @@ public class BetaRawMessageStreamEventTest : TestBase
                         CacheCreationInputTokens = 0,
                         CacheReadInputTokens = 0,
                         InputTokens = 0,
-                        Model = Model.ClaudeSonnet5,
+                        Model = Model.ClaudeHaiku5_5,
                         OutputTokens = 0,
                     },
                 ],
@@ -183,6 +187,15 @@ public class BetaRawMessageStreamEventTest : TestBase
                 OutputTokensDetails = new(0),
                 ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
             },
+            InputTransformations =
+            [
+                new Messages::BetaThinkingDroppedInputTransformation()
+                {
+                    Path = "path",
+                    Reason =
+                        Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                },
+            ],
         };
         value.Validate();
     }
@@ -287,10 +300,8 @@ public class BetaRawMessageStreamEventTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -311,9 +322,7 @@ public class BetaRawMessageStreamEventTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -328,7 +337,7 @@ public class BetaRawMessageStreamEventTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -338,6 +347,15 @@ public class BetaRawMessageStreamEventTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             }
         );
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -395,9 +413,7 @@ public class BetaRawMessageStreamEventTest : TestBase
             {
                 CacheCreationInputTokens = 2051,
                 CacheReadInputTokens = 2051,
-                FallbackCredit = new(
-                    new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                ),
+                FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                 InputTokens = 2095,
                 Iterations =
                 [
@@ -411,7 +427,7 @@ public class BetaRawMessageStreamEventTest : TestBase
                         CacheCreationInputTokens = 0,
                         CacheReadInputTokens = 0,
                         InputTokens = 0,
-                        Model = Model.ClaudeSonnet5,
+                        Model = Model.ClaudeHaiku5_5,
                         OutputTokens = 0,
                     },
                 ],
@@ -419,6 +435,15 @@ public class BetaRawMessageStreamEventTest : TestBase
                 OutputTokensDetails = new(0),
                 ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
             },
+            InputTransformations =
+            [
+                new Messages::BetaThinkingDroppedInputTransformation()
+                {
+                    Path = "path",
+                    Reason =
+                        Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                },
+            ],
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<Messages::BetaRawMessageStreamEvent>(
@@ -502,5 +527,48 @@ public class BetaRawMessageStreamEventTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Messages::BetaRawMessageStreamEvent value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "message_start",
+                  "index": 0
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("message_start");
+        long expectedIndex = 0;
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedIndex, value.Index);
+
+        Messages::BetaRawMessageStreamEvent emptyValue = new(
+            JsonSerializer.Deserialize<JsonElement>("{}")
+        );
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.Index);
+
+        Messages::BetaRawMessageStreamEvent mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "index": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.Index);
     }
 }

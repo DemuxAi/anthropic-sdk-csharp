@@ -29,6 +29,7 @@ public class DreamCreateParamsTest : TestBase
                 BetaOutputBehaviorCreateNewType.CreateNew
             ),
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         List<BetaDreamInput> expectedInputs =
@@ -48,6 +49,7 @@ public class DreamCreateParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedInputs.Count, parameters.Inputs.Count);
         for (int i = 0; i < expectedInputs.Count; i++)
@@ -63,6 +65,7 @@ public class DreamCreateParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -86,6 +89,8 @@ public class DreamCreateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("output_behavior"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -107,12 +112,51 @@ public class DreamCreateParamsTest : TestBase
             // Null should be interpreted as omitted for these properties
             OutputBehavior = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.OutputBehavior);
         Assert.False(parameters.RawBodyData.ContainsKey("output_behavior"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new DreamCreateParams
+        {
+            Inputs =
+            [
+                new BetaDreamMemoryStoreInput()
+                {
+                    MemoryStoreID = "x",
+                    Type = BetaDreamMemoryStoreInputType.MemoryStore,
+                },
+            ],
+            Model = "string",
+            Instructions = "x",
+            OutputBehavior = new BetaOutputBehaviorCreateNew(
+                BetaOutputBehaviorCreateNewType.CreateNew
+            ),
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            OutputBehavior = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.OutputBehavior);
+        Assert.False(parameters.RawBodyData.ContainsKey("output_behavior"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -133,6 +177,7 @@ public class DreamCreateParamsTest : TestBase
                 BetaOutputBehaviorCreateNewType.CreateNew
             ),
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.Instructions);
@@ -157,6 +202,7 @@ public class DreamCreateParamsTest : TestBase
                 BetaOutputBehaviorCreateNewType.CreateNew
             ),
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             Instructions = null,
         };
@@ -204,13 +250,18 @@ public class DreamCreateParamsTest : TestBase
             ],
             Model = "string",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["dreaming-2026-04-21", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,dreaming-2026-04-21"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -233,6 +284,7 @@ public class DreamCreateParamsTest : TestBase
                 BetaOutputBehaviorCreateNewType.CreateNew
             ),
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         DreamCreateParams copied = new(parameters);

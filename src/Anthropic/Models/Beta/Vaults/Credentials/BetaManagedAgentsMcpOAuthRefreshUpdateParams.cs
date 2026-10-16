@@ -46,9 +46,6 @@ public sealed record class BetaManagedAgentsMcpOAuthRefreshUpdateParams : JsonMo
         init { this._rawData.Set("scope", value); }
     }
 
-    /// <summary>
-    /// Updated HTTP Basic authentication parameters for the token endpoint.
-    /// </summary>
     public BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAuth? TokenEndpointAuth
     {
         get
@@ -62,6 +59,7 @@ public sealed record class BetaManagedAgentsMcpOAuthRefreshUpdateParams : JsonMo
         {
             if (value == null)
             {
+                this._rawData.Remove("token_endpoint_auth");
                 return;
             }
 
@@ -120,9 +118,6 @@ class BetaManagedAgentsMcpOAuthRefreshUpdateParamsFromRaw
     ) => BetaManagedAgentsMcpOAuthRefreshUpdateParams.FromRawUnchecked(rawData);
 }
 
-/// <summary>
-/// Updated HTTP Basic authentication parameters for the token endpoint.
-/// </summary>
 [JsonConverter(typeof(BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAuthConverter))]
 public record class BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAuth : ModelBase
 {
@@ -145,10 +140,15 @@ public record class BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAut
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsTokenEndpointAuthBasicUpdateParam: (x) => x.ClientSecret,
-                betaManagedAgentsTokenEndpointAuthPostUpdateParam: (x) => x.ClientSecret
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsTokenEndpointAuthBasicUpdateParam x => x.ClientSecret,
+                BetaManagedAgentsTokenEndpointAuthPostUpdateParam x => x.ClientSecret,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "client_secret"
+                ),
+            };
         }
     }
 

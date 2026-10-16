@@ -22,7 +22,8 @@ public abstract class AnthropicClientExtensionsTestsBase
     protected abstract IChatClient CreateChatClient(
         AnthropicClient client,
         string? modelId = null,
-        int? defaultMaxOutputTokens = null
+        int? defaultMaxOutputTokens = null,
+        AnthropicThinkingMode thinkingMode = AnthropicThinkingMode.Adaptive
     );
 
     protected static AnthropicClient CreateAnthropicClient(VerbatimHttpHandler handler)
@@ -37,8 +38,15 @@ public abstract class AnthropicClientExtensionsTestsBase
     protected IChatClient CreateChatClient(
         VerbatimHttpHandler handler,
         string? modelId = null,
-        int? defaultMaxOutputTokens = null
-    ) => CreateChatClient(CreateAnthropicClient(handler), modelId, defaultMaxOutputTokens);
+        int? defaultMaxOutputTokens = null,
+        AnthropicThinkingMode thinkingMode = AnthropicThinkingMode.Adaptive
+    ) =>
+        CreateChatClient(
+            CreateAnthropicClient(handler),
+            modelId,
+            defaultMaxOutputTokens,
+            thinkingMode
+        );
 
     [Theory]
     [InlineData(null)]
@@ -1949,6 +1957,195 @@ public abstract class AnthropicClientExtensionsTestsBase
         {
             Tools = [weatherFunction],
             ToolMode = ChatToolMode.RequireAny,
+        };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "Tell me the weather",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    [Fact]
+    public async Task GetResponseAsync_WithToolModeRequireSpecific()
+    {
+        VerbatimHttpHandler handler = new(
+            expectedRequest: """
+            {
+                "model": "claude-haiku-4-5",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "Tell me the weather"
+                    }]
+                }],
+                "max_tokens": 1024,
+                "tool_choice": {
+                    "type": "tool",
+                    "name": "get_location"
+                },
+                "tools": [{
+                    "name": "get_weather",
+                    "description": "Get weather",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "location": { "type": "string", "description": "The location" }
+                        },
+                        "required": ["location"],
+                        "additionalProperties": false
+                    }
+                }, {
+                    "name": "get_location",
+                    "description": "Get location",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": false
+                    }
+                }]
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_toolmode_04",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-haiku-4-5",
+                "content": [{
+                    "type": "tool_use",
+                    "id": "toolu_abc",
+                    "name": "get_weather",
+                    "input": {"location": "Paris"},
+                    "caller": {"type": "direct"}
+                }],
+                "stop_reason": "tool_use",
+                "usage": {
+                    "input_tokens": 20,
+                    "output_tokens": 10
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+
+        var weatherFunction = AIFunctionFactory.CreateDeclaration(
+            "get_weather",
+            "Get weather",
+            JsonElement.Parse(
+                """
+                {
+                    "type": "object",
+                    "properties": {
+                        "location": { "type": "string", "description": "The location" }
+                    },
+                    "required": ["location"]
+                }
+                """
+            )
+        );
+        var locationFunction = AIFunctionFactory.CreateDeclaration(
+            "get_location",
+            "Get location",
+            JsonElement.Parse("""{ "type": "object", "properties": {} }""")
+        );
+
+        ChatOptions options = new()
+        {
+            Tools = [weatherFunction, locationFunction],
+            ToolMode = ChatToolMode.RequireSpecific("get_location"),
+        };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "Tell me the weather",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    [Fact]
+    public async Task GetResponseAsync_WithToolModeRequireSpecificAndParallelToolCallsDisabled()
+    {
+        VerbatimHttpHandler handler = new(
+            expectedRequest: """
+            {
+                "model": "claude-haiku-4-5",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "Tell me the weather"
+                    }]
+                }],
+                "max_tokens": 1024,
+                "tool_choice": {
+                    "type": "tool",
+                    "name": "get_weather",
+                    "disable_parallel_tool_use": true
+                },
+                "tools": [{
+                    "name": "get_weather",
+                    "description": "Get weather",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "location": { "type": "string", "description": "The location" }
+                        },
+                        "required": ["location"],
+                        "additionalProperties": false
+                    }
+                }]
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_toolmode_05",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-haiku-4-5",
+                "content": [{
+                    "type": "tool_use",
+                    "id": "toolu_abc",
+                    "name": "get_weather",
+                    "input": {"location": "Paris"},
+                    "caller": {"type": "direct"}
+                }],
+                "stop_reason": "tool_use",
+                "usage": {
+                    "input_tokens": 20,
+                    "output_tokens": 10
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+
+        var weatherFunction = AIFunctionFactory.CreateDeclaration(
+            "get_weather",
+            "Get weather",
+            JsonElement.Parse(
+                """
+                {
+                    "type": "object",
+                    "properties": {
+                        "location": { "type": "string", "description": "The location" }
+                    },
+                    "required": ["location"]
+                }
+                """
+            )
+        );
+
+        ChatOptions options = new()
+        {
+            Tools = [weatherFunction],
+            ToolMode = ChatToolMode.RequireSpecific("get_weather"),
+            AllowMultipleToolCalls = false,
         };
 
         ChatResponse response = await chatClient.GetResponseAsync(
@@ -3941,11 +4138,12 @@ public abstract class AnthropicClientExtensionsTestsBase
     }
 
     [Theory]
-    [InlineData(ReasoningEffort.Low, 1024)]
-    [InlineData(ReasoningEffort.Medium, 8192)]
-    [InlineData(ReasoningEffort.High, 16384)]
-    [InlineData(ReasoningEffort.ExtraHigh, 32768)]
+    [InlineData("claude-haiku-4-5", ReasoningEffort.Low, 1024)]
+    [InlineData("claude-haiku-4-5", ReasoningEffort.Medium, 8192)]
+    [InlineData("claude-haiku-4-5", ReasoningEffort.High, 16384)]
+    [InlineData("claude-haiku-4-5", ReasoningEffort.ExtraHigh, 32768)]
     public async Task GetResponseAsync_WithReasoningEffort_SetsThinkingEnabled(
+        string model,
         ReasoningEffort effort,
         int expectedBudgetTokens
     )
@@ -3953,7 +4151,7 @@ public abstract class AnthropicClientExtensionsTestsBase
         VerbatimHttpHandler handler = new(
             expectedRequest: $$"""
             {
-                "model": "claude-haiku-4-5",
+                "model": "{{model}}",
                 "messages": [{
                     "role": "user",
                     "content": [{
@@ -3968,12 +4166,12 @@ public abstract class AnthropicClientExtensionsTestsBase
                 }
             }
             """,
-            actualResponse: """
+            actualResponse: $$"""
             {
                 "id": "msg_reasoning_01",
                 "type": "message",
                 "role": "assistant",
-                "model": "claude-haiku-4-5",
+                "model": "{{model}}",
                 "content": [{
                     "type": "text",
                     "text": "Here is my response"
@@ -3987,7 +4185,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            model,
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new()
         {
@@ -4003,8 +4205,280 @@ public abstract class AnthropicClientExtensionsTestsBase
         Assert.NotNull(response);
     }
 
-    [Fact]
-    public async Task GetResponseAsync_WithReasoningEffortNone_SetsThinkingDisabled()
+    [Theory]
+    [InlineData("claude-opus-4-8", ReasoningEffort.Low, "low", 2048, null, null)]
+    [InlineData("claude-opus-4-8", ReasoningEffort.Medium, "medium", 9216, null, null)]
+    [InlineData("claude-opus-4-8", ReasoningEffort.High, "high", 17408, null, null)]
+    [InlineData("claude-opus-4-8", ReasoningEffort.ExtraHigh, "xhigh", 33792, null, null)]
+    // An explicit limit is passed through as-is: adaptive thinking has no budget to clamp.
+    [InlineData("claude-opus-4-8", ReasoningEffort.High, "high", 5000, 5000, null)]
+    // The 1024-token minimum is a budget_tokens rule, so it doesn't apply here either.
+    [InlineData("claude-opus-4-8", ReasoningEffort.Medium, "medium", 1024, 1024, null)]
+    [InlineData("claude-opus-4-8", ReasoningEffort.High, "high", 500, 500, null)]
+    // A client default that already covers the headroom is left alone rather than added to.
+    [InlineData("claude-opus-4-8", ReasoningEffort.ExtraHigh, "xhigh", 64000, null, 64000)]
+    public async Task GetResponseAsync_WithReasoningEffort_SetsAdaptiveThinking(
+        string model,
+        ReasoningEffort effort,
+        string expectedEffort,
+        int expectedMaxTokens,
+        int? maxOutputTokens,
+        int? defaultMaxOutputTokens
+    )
+    {
+        // Adaptive thinking takes the effort in output_config rather than as a budget, and a default
+        // max_tokens gets the same headroom the budget mapping reserves.
+        VerbatimHttpHandler handler = new(
+            expectedRequest: $$"""
+            {
+                "model": "{{model}}",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "Think carefully"
+                    }]
+                }],
+                "max_tokens": {{expectedMaxTokens}},
+                "output_config": {
+                    "effort": "{{expectedEffort}}"
+                },
+                "thinking": {
+                    "type": "adaptive"
+                }
+            }
+            """,
+            actualResponse: $$"""
+            {
+                "id": "msg_adaptive_01",
+                "type": "message",
+                "role": "assistant",
+                "model": "{{model}}",
+                "content": [{
+                    "type": "text",
+                    "text": "Here is my response"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 20
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, model, defaultMaxOutputTokens);
+
+        ChatOptions options = new()
+        {
+            MaxOutputTokens = maxOutputTokens,
+            Reasoning = new() { Effort = effort },
+        };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "Think carefully",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(ReasoningOutput.None, "omitted")]
+    [InlineData(ReasoningOutput.Summary, "summarized")]
+    [InlineData(ReasoningOutput.Full, "summarized")]
+    public async Task GetResponseAsync_WithReasoningWithoutEffort_SetsAdaptiveThinkingAtDefaultEffort(
+        ReasoningOutput? output,
+        string? expectedDisplay
+    )
+    {
+        // Reasoning with no Effort asks for thinking at the model's default effort, which on
+        // models where thinking is off by default is the only way to turn it on without picking
+        // an effort. There is no effort to send and no budget to make room for.
+        string thinking = expectedDisplay is null
+            ? """{ "type": "adaptive" }"""
+            : $$"""{ "type": "adaptive", "display": "{{expectedDisplay}}" }""";
+        VerbatimHttpHandler handler = new(
+            expectedRequest: $$"""
+            {
+                "model": "claude-opus-4-8",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "Think carefully"
+                    }]
+                }],
+                "max_tokens": 1024,
+                "thinking": {{thinking}}
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_adaptive_default_01",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-opus-4-8",
+                "content": [{
+                    "type": "text",
+                    "text": "Response"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 15
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, "claude-opus-4-8");
+
+        ChatOptions options = new() { Reasoning = new() { Output = output } };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "Think carefully",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    [Theory]
+    // Extended thinking has no budget to send when there is no effort to derive it from.
+    [InlineData("claude-haiku-4-5", null, null, AnthropicThinkingMode.Extended)]
+    // An explicit limit with no room for the 1024-token budget minimum skips extended thinking
+    // (see _SkipsThinkingWhenExplicitMaxTokensTooSmall).
+    [InlineData("claude-haiku-4-5", ReasoningEffort.Medium, 1024, AnthropicThinkingMode.Extended)]
+    public async Task GetResponseAsync_WithReasoning_SendsNoThinkingWhenNoneIsCalledFor(
+        string model,
+        ReasoningEffort? effort,
+        int? maxOutputTokens,
+        AnthropicThinkingMode thinkingMode
+    )
+    {
+        VerbatimHttpHandler handler = new(
+            expectedRequest: $$"""
+            {
+                "model": "{{model}}",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "Think carefully"
+                    }]
+                }],
+                "max_tokens": 1024
+            }
+            """,
+            actualResponse: $$"""
+            {
+                "id": "msg_adaptive_02",
+                "type": "message",
+                "role": "assistant",
+                "model": "{{model}}",
+                "content": [{
+                    "type": "text",
+                    "text": "Response"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 15
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, model, thinkingMode: thinkingMode);
+
+        ChatOptions options = new()
+        {
+            MaxOutputTokens = maxOutputTokens,
+            Reasoning = new() { Effort = effort, Output = ReasoningOutput.Full },
+        };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "Think carefully",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    [Theory]
+    // Current models default to omitting thinking text, so asking for it opts back in.
+    [InlineData(ReasoningOutput.None, "omitted")]
+    [InlineData(ReasoningOutput.Summary, "summarized")]
+    [InlineData(ReasoningOutput.Full, "summarized")]
+    public async Task GetResponseAsync_WithReasoningOutput_SetsAdaptiveThinkingDisplay(
+        ReasoningOutput output,
+        string expectedDisplay
+    )
+    {
+        VerbatimHttpHandler handler = new(
+            expectedRequest: $$"""
+            {
+                "model": "claude-opus-4-8",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "Think carefully"
+                    }]
+                }],
+                "max_tokens": 17408,
+                "output_config": {
+                    "effort": "high"
+                },
+                "thinking": {
+                    "type": "adaptive",
+                    "display": "{{expectedDisplay}}"
+                }
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_adaptive_05",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-opus-4-8",
+                "content": [{
+                    "type": "text",
+                    "text": "Response"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 15
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, "claude-opus-4-8");
+
+        ChatOptions options = new()
+        {
+            Reasoning = new() { Effort = ReasoningEffort.High, Output = output },
+        };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "Think carefully",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    [Theory]
+    // Disabled is sent the same way in either thinking mode.
+    [InlineData(AnthropicThinkingMode.Adaptive)]
+    [InlineData(AnthropicThinkingMode.Extended)]
+    public async Task GetResponseAsync_WithReasoningEffortNone_SetsThinkingDisabled(
+        AnthropicThinkingMode thinkingMode
+    )
     {
         VerbatimHttpHandler handler = new(
             expectedRequest: """
@@ -4042,7 +4516,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: thinkingMode
+        );
 
         ChatOptions options = new() { Reasoning = new() { Effort = ReasoningEffort.None } };
 
@@ -4096,7 +4574,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new()
         {
@@ -4150,7 +4632,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new()
         {
@@ -4208,7 +4694,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new() { Reasoning = new() { Effort = ReasoningEffort.Medium } };
 
@@ -4262,7 +4752,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new() { Reasoning = new() { Effort = ReasoningEffort.Low } };
 
@@ -4316,7 +4810,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new()
         {
@@ -4377,7 +4875,8 @@ public abstract class AnthropicClientExtensionsTestsBase
         IChatClient chatClient = CreateChatClient(
             handler,
             "claude-haiku-4-5",
-            defaultMaxOutputTokens: 5000
+            defaultMaxOutputTokens: 5000,
+            thinkingMode: AnthropicThinkingMode.Extended
         );
 
         ChatOptions options = new() { Reasoning = new() { Effort = ReasoningEffort.Low } };
@@ -4435,7 +4934,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new()
         {
@@ -4496,7 +4999,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new()
         {
@@ -4559,7 +5066,11 @@ public abstract class AnthropicClientExtensionsTestsBase
             """
         );
 
-        IChatClient chatClient = CreateChatClient(handler, "claude-haiku-4-5");
+        IChatClient chatClient = CreateChatClient(
+            handler,
+            "claude-haiku-4-5",
+            thinkingMode: AnthropicThinkingMode.Extended
+        );
 
         ChatOptions options = new()
         {
@@ -4715,7 +5226,252 @@ public abstract class AnthropicClientExtensionsTestsBase
             new(ChatRole.User, "Previous question"),
             new(
                 ChatRole.Assistant,
-                [new TextReasoningContent(string.Empty) { ProtectedData = "encrypted_data_xyz" }]
+                [
+                    new TextReasoningContent(string.Empty)
+                    {
+                        ProtectedData = "encrypted_data_xyz",
+                        RawRepresentation = new RedactedThinkingBlock
+                        {
+                            Data = "encrypted_data_xyz",
+                        },
+                    },
+                ]
+            ),
+            new(ChatRole.User, "Follow up question"),
+        ];
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            messages,
+            new(),
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GetResponseAsync_RedactedThinkingStaysRedactedAfterHistoryIsSerialized(
+        bool streaming
+    )
+    {
+        // RawRepresentation isn't serialized, so once a history has been persisted the client
+        // relies on the marker it stamps on redacted content. Without it, the redacted data would
+        // go back as a thinking block's signature.
+        VerbatimHttpHandler firstHandler = new(
+            expectedRequest: "",
+            actualResponse: streaming
+                ? """
+                event: message_start
+                data: {"type":"message_start","message":{"id":"msg_redacted_persist_01","type":"message","role":"assistant","model":"claude-opus-4-8","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":10,"output_tokens":0}}}
+
+                event: content_block_start
+                data: {"type":"content_block_start","index":0,"content_block":{"type":"redacted_thinking","data":"encrypted_data_xyz"}}
+
+                event: content_block_stop
+                data: {"type":"content_block_stop","index":0}
+
+                event: message_delta
+                data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"output_tokens":5}}
+
+                event: message_stop
+                data: {"type":"message_stop"}
+
+                """
+                : """
+                {
+                    "id": "msg_redacted_persist_01",
+                    "type": "message",
+                    "role": "assistant",
+                    "model": "claude-opus-4-8",
+                    "content": [{
+                        "type": "redacted_thinking",
+                        "data": "encrypted_data_xyz"
+                    }],
+                    "stop_reason": "end_turn",
+                    "usage": {
+                        "input_tokens": 10,
+                        "output_tokens": 5
+                    }
+                }
+                """
+        );
+
+        IChatClient firstClient = CreateChatClient(firstHandler, "claude-opus-4-8");
+        ChatResponse first = streaming
+            ? await firstClient
+                .GetStreamingResponseAsync(
+                    "Previous question",
+                    new(),
+                    TestContext.Current.CancellationToken
+                )
+                .ToChatResponseAsync(TestContext.Current.CancellationToken)
+            : await firstClient.GetResponseAsync(
+                "Previous question",
+                new(),
+                TestContext.Current.CancellationToken
+            );
+
+        var messageTypeInfo = AIJsonUtilities.DefaultOptions.GetTypeInfo(typeof(ChatMessage));
+        List<ChatMessage> history =
+        [
+            new(ChatRole.User, "Previous question"),
+            .. first.Messages.Select(message =>
+                (ChatMessage)
+                    JsonSerializer.Deserialize(
+                        JsonSerializer.Serialize(message, messageTypeInfo),
+                        messageTypeInfo
+                    )!
+            ),
+            new(ChatRole.User, "Follow up question"),
+        ];
+        TextReasoningContent restored = Assert.Single(
+            history[1].Contents.OfType<TextReasoningContent>()
+        );
+        Assert.Null(restored.RawRepresentation);
+
+        VerbatimHttpHandler secondHandler = new(
+            expectedRequest: """
+            {
+                "model": "claude-opus-4-8",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [{
+                            "type": "text",
+                            "text": "Previous question"
+                        }]
+                    },
+                    {
+                        "role": "assistant",
+                        "content": [{
+                            "type": "redacted_thinking",
+                            "data": "encrypted_data_xyz"
+                        }]
+                    },
+                    {
+                        "role": "user",
+                        "content": [{
+                            "type": "text",
+                            "text": "Follow up question"
+                        }]
+                    }
+                ],
+                "max_tokens": 1024
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_redacted_persist_02",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-opus-4-8",
+                "content": [{
+                    "type": "text",
+                    "text": "Response"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 30,
+                    "output_tokens": 10
+                }
+            }
+            """
+        );
+
+        ChatResponse response = await CreateChatClient(secondHandler, "claude-opus-4-8")
+            .GetResponseAsync(history, new(), TestContext.Current.CancellationToken);
+        Assert.NotNull(response);
+    }
+
+    [Fact]
+    public async Task GetResponseAsync_SendsOmittedDisplayReasoningBackAsThinkingBlock()
+    {
+        // A thinking block whose display was omitted comes back with empty text and a signature,
+        // and has to be returned as a thinking block for the signature to be honoured. By the time
+        // it is sent back it may have lost its RawRepresentation (streaming coalesces updates;
+        // chat history gets serialized), so empty text plus ProtectedData alone must round-trip.
+        VerbatimHttpHandler handler = new(
+            expectedRequest: """
+            {
+                "model": "claude-opus-4-8",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [{
+                            "type": "text",
+                            "text": "Previous question"
+                        }]
+                    },
+                    {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "type": "thinking",
+                                "thinking": "",
+                                "signature": "sig_from_stream"
+                            },
+                            {
+                                "type": "thinking",
+                                "thinking": "",
+                                "signature": "sig_from_block"
+                            },
+                            {
+                                "type": "text",
+                                "text": "Previous answer"
+                            }
+                        ]
+                    },
+                    {
+                        "role": "user",
+                        "content": [{
+                            "type": "text",
+                            "text": "Follow up question"
+                        }]
+                    }
+                ],
+                "max_tokens": 1024
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_omitted_sent_01",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-opus-4-8",
+                "content": [{
+                    "type": "text",
+                    "text": "Response"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 30,
+                    "output_tokens": 10
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, "claude-opus-4-8");
+
+        List<ChatMessage> messages =
+        [
+            new(ChatRole.User, "Previous question"),
+            new(
+                ChatRole.Assistant,
+                [
+                    new TextReasoningContent(string.Empty) { ProtectedData = "sig_from_stream" },
+                    new TextReasoningContent(string.Empty)
+                    {
+                        ProtectedData = "sig_from_block",
+                        RawRepresentation = new ThinkingBlock
+                        {
+                            Thinking = string.Empty,
+                            Signature = "sig_from_block",
+                        },
+                    },
+                    new TextContent("Previous answer"),
+                ]
             ),
             new(ChatRole.User, "Follow up question"),
         ];
@@ -7975,6 +8731,267 @@ public abstract class AnthropicClientExtensionsTestsBase
                 "usage": {
                     "input_tokens": 25,
                     "output_tokens": 10
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, "claude-sonnet-4-5-20250929");
+
+        ChatOptions options = new()
+        {
+            ResponseFormat = ChatResponseFormat.ForJsonSchema(
+                JsonElement.Parse(inputSchema),
+                "test_schema"
+            ),
+        };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "test",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    /// <summary>
+    /// Validates that a union type ("type": ["string","null"], the shape System.Text.Json emits
+    /// for Nullable&lt;T&gt; and for a nullable reference type) keeps the keywords of every member
+    /// it names. Tests:
+    /// <list type="bullet">
+    /// <item>Supported string format preserved on ["string", "null"], as on "string"</item>
+    /// <item>Unsupported string format → description on ["string", "null"], as on "string"</item>
+    /// <item>properties/required preserved on ["object", "null"], as on "object"</item>
+    /// <item>Array minItems handling applies to ["array", "null"], as to "array"</item>
+    /// </list>
+    /// </summary>
+    [Fact]
+    public async Task GetResponseAsync_ResponseFormatSchema_UnionTypeKeepsTypeSpecificKeywords()
+    {
+        string inputSchema = """
+            {
+                "type": "object",
+                "properties": {
+                    "startsOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "endsOn": {
+                        "type": ["string", "null"],
+                        "description": "An end date, or null.",
+                        "format": "date"
+                    },
+                    "phone": {
+                        "type": ["string", "null"],
+                        "format": "phone"
+                    },
+                    "tags": {
+                        "type": ["array", "null"],
+                        "items": { "type": "string" },
+                        "minItems": 3
+                    },
+                    "nested": {
+                        "type": ["object", "null"],
+                        "properties": {
+                            "id": { "type": "string" }
+                        },
+                        "required": ["id"]
+                    }
+                },
+                "required": ["startsOn", "endsOn", "phone", "tags", "nested"]
+            }
+            """;
+
+        VerbatimHttpHandler handler = new(
+            expectedRequest: """
+            {
+                "max_tokens": 1024,
+                "model": "claude-sonnet-4-5-20250929",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "test"
+                    }]
+                }],
+                "output_config": {
+                    "format": {
+                        "type": "json_schema",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "startsOn": {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                "endsOn": {
+                                    "type": ["string", "null"],
+                                    "description": "An end date, or null.",
+                                    "format": "date"
+                                },
+                                "phone": {
+                                    "type": ["string", "null"],
+                                    "description": "{format: \"phone\"}"
+                                },
+                                "tags": {
+                                    "type": ["array", "null"],
+                                    "items": { "type": "string" },
+                                    "description": "{minItems: 3}"
+                                },
+                                "nested": {
+                                    "type": ["object", "null"],
+                                    "properties": {
+                                        "id": { "type": "string" }
+                                    },
+                                    "required": ["id"],
+                                    "additionalProperties": false
+                                }
+                            },
+                            "required": ["startsOn", "endsOn", "phone", "tags", "nested"],
+                            "additionalProperties": false
+                        }
+                    }
+                }
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_union_type_01",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-sonnet-4-5-20250929",
+                "content": [{
+                    "type": "text",
+                    "text": "{}"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 5
+                }
+            }
+            """
+        );
+
+        IChatClient chatClient = CreateChatClient(handler, "claude-sonnet-4-5-20250929");
+
+        ChatOptions options = new()
+        {
+            ResponseFormat = ChatResponseFormat.ForJsonSchema(
+                JsonElement.Parse(inputSchema),
+                "test_schema"
+            ),
+        };
+
+        ChatResponse response = await chatClient.GetResponseAsync(
+            "test",
+            options,
+            TestContext.Current.CancellationToken
+        );
+        Assert.NotNull(response);
+    }
+
+    /// <summary>
+    /// Validates that a type-specific keyword whose value is malformed is removed and described
+    /// rather than read as the wrong type or forwarded to the API unvalidated. Covers union and
+    /// scalar nodes alike, since both select the same type-specific pre-checks.
+    /// </summary>
+    [Fact]
+    public async Task GetResponseAsync_ResponseFormatSchema_MalformedKeywordValuesAreStripped()
+    {
+        string inputSchema = """
+            {
+                "type": "object",
+                "properties": {
+                    "nonStringFormat": {
+                        "type": ["string", "null"],
+                        "format": 3
+                    },
+                    "nullFormat": {
+                        "type": ["string", "null"],
+                        "format": null
+                    },
+                    "nonIntegerMinItems": {
+                        "type": ["array", "null"],
+                        "items": { "type": "string" },
+                        "minItems": "5"
+                    },
+                    "overflowingMinItems": {
+                        "type": ["array", "null"],
+                        "items": { "type": "string" },
+                        "minItems": 2147483648
+                    },
+                    "nonStringFormatOnScalar": {
+                        "type": "string",
+                        "format": 3
+                    }
+                },
+                "required": ["nonStringFormat", "nullFormat", "nonIntegerMinItems", "overflowingMinItems", "nonStringFormatOnScalar"]
+            }
+            """;
+
+        VerbatimHttpHandler handler = new(
+            expectedRequest: """
+            {
+                "max_tokens": 1024,
+                "model": "claude-sonnet-4-5-20250929",
+                "messages": [{
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": "test"
+                    }]
+                }],
+                "output_config": {
+                    "format": {
+                        "type": "json_schema",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "nonStringFormat": {
+                                    "type": ["string", "null"],
+                                    "description": "{format: 3}"
+                                },
+                                "nullFormat": {
+                                    "type": ["string", "null"],
+                                    "description": "{format: null}"
+                                },
+                                "nonIntegerMinItems": {
+                                    "type": ["array", "null"],
+                                    "items": { "type": "string" },
+                                    "description": "{minItems: \"5\"}"
+                                },
+                                "overflowingMinItems": {
+                                    "type": ["array", "null"],
+                                    "items": { "type": "string" },
+                                    "description": "{minItems: 2147483648}"
+                                },
+                                "nonStringFormatOnScalar": {
+                                    "type": "string",
+                                    "description": "{format: 3}"
+                                }
+                            },
+                            "required": ["nonStringFormat", "nullFormat", "nonIntegerMinItems", "overflowingMinItems", "nonStringFormatOnScalar"],
+                            "additionalProperties": false
+                        }
+                    }
+                }
+            }
+            """,
+            actualResponse: """
+            {
+                "id": "msg_malformed_01",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-sonnet-4-5-20250929",
+                "content": [{
+                    "type": "text",
+                    "text": "{}"
+                }],
+                "stop_reason": "end_turn",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 5
                 }
             }
             """

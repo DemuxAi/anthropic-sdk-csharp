@@ -40,6 +40,7 @@ public class EnvironmentCreateParamsTest : TestBase
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Scope = Scope.Organization,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedName = "python-data-analysis";
@@ -69,6 +70,7 @@ public class EnvironmentCreateParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedName, parameters.Name);
         Assert.Equal(expectedConfig, parameters.Config);
@@ -88,6 +90,7 @@ public class EnvironmentCreateParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -123,6 +126,8 @@ public class EnvironmentCreateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("metadata"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -156,12 +161,61 @@ public class EnvironmentCreateParamsTest : TestBase
             // Null should be interpreted as omitted for these properties
             Metadata = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.Metadata);
         Assert.False(parameters.RawBodyData.ContainsKey("metadata"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new EnvironmentCreateParams
+        {
+            Name = "python-data-analysis",
+            Config = new BetaCloudConfigParams()
+            {
+                Networking = new BetaLimitedNetworkParams()
+                {
+                    AllowMcpServers = true,
+                    AllowPackageManagers = true,
+                    AllowedHosts = ["api.example.com"],
+                },
+                Packages = new()
+                {
+                    Apt = ["string"],
+                    Cargo = ["string"],
+                    Gem = ["string"],
+                    Go = ["string"],
+                    Npm = ["string"],
+                    Pip = ["pandas", "numpy"],
+                    Type = BetaPackagesParamsType.Packages,
+                },
+            },
+            Description = "Python environment with data-analysis packages.",
+            Metadata = new Dictionary<string, string>() { { "foo", "string" } },
+            Scope = Scope.Organization,
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Metadata = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.Metadata);
+        Assert.False(parameters.RawBodyData.ContainsKey("metadata"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -172,6 +226,7 @@ public class EnvironmentCreateParamsTest : TestBase
             Name = "python-data-analysis",
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.Config);
@@ -190,6 +245,7 @@ public class EnvironmentCreateParamsTest : TestBase
             Name = "python-data-analysis",
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             Config = null,
             Description = null,
@@ -224,13 +280,18 @@ public class EnvironmentCreateParamsTest : TestBase
         {
             Name = "python-data-analysis",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["managed-agents-2026-04-01", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,managed-agents-2026-04-01"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -263,6 +324,7 @@ public class EnvironmentCreateParamsTest : TestBase
             Metadata = new Dictionary<string, string>() { { "foo", "string" } },
             Scope = Scope.Organization,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         EnvironmentCreateParams copied = new(parameters);
@@ -341,6 +403,29 @@ public class ConfigTest : TestBase
         var deserialized = JsonSerializer.Deserialize<Config>(element, ModelBase.SerializerOptions);
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Config value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "cloud"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("cloud");
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        Config emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
     }
 }
 

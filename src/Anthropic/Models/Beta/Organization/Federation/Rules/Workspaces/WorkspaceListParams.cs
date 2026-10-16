@@ -43,6 +43,7 @@ public record class WorkspaceListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("limit");
                 return;
             }
 
@@ -79,6 +80,7 @@ public record class WorkspaceListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -175,13 +177,21 @@ public record class WorkspaceListParams : ParamsBase
             options.BaseUrl.ToString().TrimEnd('/')
                 + string.Format(
                     "/v1/organizations/federation_rules/{0}/workspaces",
-                    this.FederationRuleID
+                    ParamsBase.EncodePathSegment(
+                        this.FederationRuleID,
+                        nameof(this.FederationRuleID)
+                    )
                 )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route =>
+        "/v1/organizations/federation_rules/{federation_rule_id}/workspaces";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "page"];
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

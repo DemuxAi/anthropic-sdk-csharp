@@ -62,6 +62,7 @@ public class SessionUpdateParamsTest : TestBase
             Title = "Order #1234 inquiry",
             VaultIds = ["string"],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedSessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7";
@@ -114,6 +115,7 @@ public class SessionUpdateParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedSessionID, parameters.SessionID);
         Assert.Equal(expectedAgent, parameters.Agent);
@@ -139,6 +141,7 @@ public class SessionUpdateParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -162,6 +165,8 @@ public class SessionUpdateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("vault_ids"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -182,6 +187,7 @@ public class SessionUpdateParamsTest : TestBase
             Agent = null,
             VaultIds = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.Agent);
@@ -190,6 +196,80 @@ public class SessionUpdateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("vault_ids"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new SessionUpdateParams
+        {
+            SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
+            Agent = new()
+            {
+                McpServers =
+                [
+                    new()
+                    {
+                        Name = "example-mcp",
+                        Type = BetaManagedAgentsUrlMcpServerParamsType.Url,
+                        Url = "https://example-server.modelcontextprotocol.io/sse",
+                    },
+                ],
+                Tools =
+                [
+                    new BetaManagedAgentsAgentToolset20260401Params()
+                    {
+                        Type = BetaManagedAgentsAgentToolset20260401ParamsType.AgentToolset20260401,
+                        Configs =
+                        [
+                            new BetaManagedAgentsBashToolConfigParams()
+                            {
+                                Enabled = true,
+                                PermissionPolicy = new BetaManagedAgentsAlwaysAllowPolicy(
+                                    BetaManagedAgentsAlwaysAllowPolicyType.AlwaysAllow
+                                ),
+                                Type = BetaManagedAgentsBashToolConfigParamsType.Bash,
+                            },
+                        ],
+                        DefaultConfig = new()
+                        {
+                            Enabled = true,
+                            PermissionPolicy = new BetaManagedAgentsAlwaysAllowPolicy(
+                                BetaManagedAgentsAlwaysAllowPolicyType.AlwaysAllow
+                            ),
+                        },
+                    },
+                ],
+            },
+            Budget = new()
+            {
+                MaxListCost = new() { Amount = "2500", Currency = BetaCurrency.Usd },
+                Type = BetaManagedAgentsBudgetLimitType.Limit,
+            },
+            Metadata = new Dictionary<string, string?>() { { "foo", "string" } },
+            Title = "Order #1234 inquiry",
+            VaultIds = ["string"],
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Agent = null,
+            VaultIds = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.Agent);
+        Assert.False(parameters.RawBodyData.ContainsKey("agent"));
+        Assert.Null(parameters.VaultIds);
+        Assert.False(parameters.RawBodyData.ContainsKey("vault_ids"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -237,6 +317,7 @@ public class SessionUpdateParamsTest : TestBase
             },
             VaultIds = ["string"],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.Budget);
@@ -292,6 +373,7 @@ public class SessionUpdateParamsTest : TestBase
             },
             VaultIds = ["string"],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             Budget = null,
             Metadata = null,
@@ -331,13 +413,18 @@ public class SessionUpdateParamsTest : TestBase
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["managed-agents-2026-04-01", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,managed-agents-2026-04-01"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -393,6 +480,7 @@ public class SessionUpdateParamsTest : TestBase
             Title = "Order #1234 inquiry",
             VaultIds = ["string"],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         SessionUpdateParams copied = new(parameters);

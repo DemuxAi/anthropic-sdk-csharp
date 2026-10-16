@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 using Messages = Anthropic.Models.Messages;
 
@@ -218,6 +219,11 @@ public class BetaContentBlockTest : TestBase
         {
             Content = "content",
             EncryptedContent = "encrypted_content",
+            Signature = "signature",
+            ToolChanges =
+            [
+                new BetaResponseToolAdditionBlock(new BetaResponseToolChangeToolReference("name")),
+            ],
         };
         value.Validate();
     }
@@ -227,9 +233,31 @@ public class BetaContentBlockTest : TestBase
     {
         BetaContentBlock value = new BetaFallbackBlock()
         {
-            From = new(Messages::Model.ClaudeSonnet5),
-            To = new(Messages::Model.ClaudeSonnet5),
+            From = new(Messages::Model.ClaudeHaiku5_5),
+            To = new(Messages::Model.ClaudeHaiku5_5),
             Trigger = new(BetaFallbackRefusalTriggerCategory.Cyber),
+        };
+        value.Validate();
+    }
+
+    [Fact]
+    public void McpToolListingValidationWorks()
+    {
+        BetaContentBlock value = new BetaMcpToolListingBlock()
+        {
+            McpServerName = "mcp_server_name",
+            Tools =
+            [
+                new()
+                {
+                    InputSchema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Name = "name",
+                    Description = "description",
+                },
+            ],
         };
         value.Validate();
     }
@@ -534,6 +562,11 @@ public class BetaContentBlockTest : TestBase
         {
             Content = "content",
             EncryptedContent = "encrypted_content",
+            Signature = "signature",
+            ToolChanges =
+            [
+                new BetaResponseToolAdditionBlock(new BetaResponseToolChangeToolReference("name")),
+            ],
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<BetaContentBlock>(
@@ -549,8 +582,8 @@ public class BetaContentBlockTest : TestBase
     {
         BetaContentBlock value = new BetaFallbackBlock()
         {
-            From = new(Messages::Model.ClaudeSonnet5),
-            To = new(Messages::Model.ClaudeSonnet5),
+            From = new(Messages::Model.ClaudeHaiku5_5),
+            To = new(Messages::Model.ClaudeHaiku5_5),
             Trigger = new(BetaFallbackRefusalTriggerCategory.Cyber),
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -560,5 +593,90 @@ public class BetaContentBlockTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void McpToolListingSerializationRoundtripWorks()
+    {
+        BetaContentBlock value = new BetaMcpToolListingBlock()
+        {
+            McpServerName = "mcp_server_name",
+            Tools =
+            [
+                new()
+                {
+                    InputSchema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Name = "name",
+                    Description = "description",
+                },
+            ],
+        };
+        string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<BetaContentBlock>(
+            element,
+            ModelBase.SerializerOptions
+        );
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaContentBlock value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "text",
+                  "signature": "signature",
+                  "id": "id",
+                  "tool_use_id": "srvtoolu_SQfNkl1n_JR_"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("text");
+        string expectedSignature = "signature";
+        string expectedID = "id";
+        string expectedToolUseID = "srvtoolu_SQfNkl1n_JR_";
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedSignature, value.Signature);
+        Assert.Equal(expectedID, value.ID);
+        Assert.Equal(expectedToolUseID, value.ToolUseID);
+
+        BetaContentBlock emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.Signature);
+        Assert.Null(emptyValue.ID);
+        Assert.Null(emptyValue.ToolUseID);
+
+        BetaContentBlock mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "signature": [
+                    "invalid"
+                  ],
+                  "id": [
+                    "invalid"
+                  ],
+                  "tool_use_id": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.Signature);
+        Assert.Null(mismatchedValue.ID);
+        Assert.Null(mismatchedValue.ToolUseID);
     }
 }

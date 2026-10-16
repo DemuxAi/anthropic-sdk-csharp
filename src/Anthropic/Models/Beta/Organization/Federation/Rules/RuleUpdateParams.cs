@@ -99,11 +99,7 @@ public record class RuleUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// Does the incoming JWT qualify?
-    ///
-    /// <para>All populated fields must pass; omitted fields are skipped. At least
-    /// one of `subject_prefix` (other than a wildcard-only value like `*`), `claims`,
-    /// or `condition` is required; `audience` alone is not sufficient.</para>
+    /// Replaces the entire match object. All populated matcher fields must pass.
     /// </summary>
     public BetaFederationRuleMatch? Match
     {
@@ -145,7 +141,7 @@ public record class RuleUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// Bind to a fixed service account by ID.
+    /// Replaces the entire target object. Currently always a `service_account` target.
     /// </summary>
     public BetaServiceAccountTarget? Target
     {
@@ -203,6 +199,7 @@ public record class RuleUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -307,12 +304,20 @@ public record class RuleUpdateParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/federation_rules/{0}", this.FederationRuleID)
+                + string.Format(
+                    "/v1/organizations/federation_rules/{0}",
+                    ParamsBase.EncodePathSegment(
+                        this.FederationRuleID,
+                        nameof(this.FederationRuleID)
+                    )
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/federation_rules/{federation_rule_id}";
 
     internal override HttpContent? BodyContent()
     {

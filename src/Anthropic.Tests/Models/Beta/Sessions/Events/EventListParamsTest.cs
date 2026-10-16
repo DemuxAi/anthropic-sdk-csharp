@@ -24,8 +24,9 @@ public class EventListParamsTest : TestBase
             Limit = 0,
             Order = Order.Asc,
             Page = "page",
-            Types = ["string"],
+            Types = [BetaManagedAgentsSessionEventType.UserMessage],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedSessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7";
@@ -36,11 +37,15 @@ public class EventListParamsTest : TestBase
         int expectedLimit = 0;
         ApiEnum<string, Order> expectedOrder = Order.Asc;
         string expectedPage = "page";
-        List<string> expectedTypes = ["string"];
+        List<ApiEnum<string, BetaManagedAgentsSessionEventType>> expectedTypes =
+        [
+            BetaManagedAgentsSessionEventType.UserMessage,
+        ];
         List<ApiEnum<string, AnthropicBeta>> expectedBetas =
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedSessionID, parameters.SessionID);
         Assert.Equal(expectedCreatedAtGt, parameters.CreatedAtGt);
@@ -62,6 +67,7 @@ public class EventListParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -87,6 +93,8 @@ public class EventListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("types"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -106,6 +114,7 @@ public class EventListParamsTest : TestBase
             Page = null,
             Types = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.CreatedAtGt);
@@ -126,6 +135,61 @@ public class EventListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("types"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new EventListParams
+        {
+            SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
+            CreatedAtGt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            CreatedAtGte = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            CreatedAtLt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            CreatedAtLte = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            Limit = 0,
+            Order = Order.Asc,
+            Page = "page",
+            Types = [BetaManagedAgentsSessionEventType.UserMessage],
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            CreatedAtGt = null,
+            CreatedAtGte = null,
+            CreatedAtLt = null,
+            CreatedAtLte = null,
+            Limit = null,
+            Order = null,
+            Page = null,
+            Types = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.CreatedAtGt);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[gt]"));
+        Assert.Null(parameters.CreatedAtGte);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[gte]"));
+        Assert.Null(parameters.CreatedAtLt);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[lt]"));
+        Assert.Null(parameters.CreatedAtLte);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[lte]"));
+        Assert.Null(parameters.Limit);
+        Assert.False(parameters.RawQueryData.ContainsKey("limit"));
+        Assert.Null(parameters.Order);
+        Assert.False(parameters.RawQueryData.ContainsKey("order"));
+        Assert.Null(parameters.Page);
+        Assert.False(parameters.RawQueryData.ContainsKey("page"));
+        Assert.Null(parameters.Types);
+        Assert.False(parameters.RawQueryData.ContainsKey("types"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -141,7 +205,7 @@ public class EventListParamsTest : TestBase
             Limit = 0,
             Order = Order.Asc,
             Page = "page",
-            Types = ["string"],
+            Types = [BetaManagedAgentsSessionEventType.UserMessage],
         };
 
         var url = parameters.Url(new() { ApiKey = "my-anthropic-api-key" });
@@ -149,7 +213,7 @@ public class EventListParamsTest : TestBase
         Assert.True(
             TestBase.UrisEqual(
                 new Uri(
-                    "https://api.anthropic.com/v1/sessions/sesn_011CZkZAtmR3yMPDzynEDxu7/events?beta=true&created_at%5bgt%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&created_at%5bgte%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&created_at%5blt%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&created_at%5blte%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&limit=0&order=asc&page=page&types%5b%5d=string"
+                    "https://api.anthropic.com/v1/sessions/sesn_011CZkZAtmR3yMPDzynEDxu7/events?beta=true&created_at%5bgt%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&created_at%5bgte%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&created_at%5blt%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&created_at%5blte%5d=2019-12-27T18%3a11%3a19.117%2b00%3a00&limit=0&order=asc&page=page&types%5b%5d=user.message"
                 ),
                 url
             )
@@ -164,13 +228,18 @@ public class EventListParamsTest : TestBase
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["managed-agents-2026-04-01", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,managed-agents-2026-04-01"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -187,8 +256,9 @@ public class EventListParamsTest : TestBase
             Limit = 0,
             Order = Order.Asc,
             Page = "page",
-            Types = ["string"],
+            Types = [BetaManagedAgentsSessionEventType.UserMessage],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         EventListParams copied = new(parameters);

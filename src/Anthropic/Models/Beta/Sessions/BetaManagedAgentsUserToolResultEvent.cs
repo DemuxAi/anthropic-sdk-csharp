@@ -78,6 +78,7 @@ public sealed record class BetaManagedAgentsUserToolResultEvent : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("content");
                 return;
             }
 
@@ -102,7 +103,7 @@ public sealed record class BetaManagedAgentsUserToolResultEvent : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// Timestamp when this result was processed.
     /// </summary>
     public System::DateTimeOffset? ProcessedAt
     {
@@ -115,7 +116,8 @@ public sealed record class BetaManagedAgentsUserToolResultEvent : JsonModel
     }
 
     /// <summary>
-    /// Routes this result to a subagent thread. Copy from the `agent.tool_use` event's `session_thread_id`.
+    /// Set by the server to the subagent thread this result was routed to. Omitted
+    /// when it was routed to the primary thread.
     /// </summary>
     public string? SessionThreadID
     {
@@ -250,12 +252,14 @@ public record class Content : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsTextBlock: (_) => null,
-                betaManagedAgentsImageBlock: (_) => null,
-                betaManagedAgentsDocumentBlock: (x) => x.Title,
-                betaManagedAgentsSearchResultBlock: (x) => x.Title
-            );
+            return this.Value switch
+            {
+                Events::BetaManagedAgentsTextBlock _ => null,
+                Events::BetaManagedAgentsImageBlock _ => null,
+                Events::BetaManagedAgentsDocumentBlock x => x.Title,
+                Events::BetaManagedAgentsSearchResultBlock x => x.Title,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "title"),
+            };
         }
     }
 

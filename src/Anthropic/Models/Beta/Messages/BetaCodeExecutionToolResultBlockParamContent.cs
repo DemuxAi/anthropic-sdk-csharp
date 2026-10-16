@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -7,9 +8,6 @@ using System = System;
 
 namespace Anthropic.Models.Beta.Messages;
 
-/// <summary>
-/// Code execution result with encrypted stdout for PFC + web_search results.
-/// </summary>
 [JsonConverter(typeof(BetaCodeExecutionToolResultBlockParamContentConverter))]
 public record class BetaCodeExecutionToolResultBlockParamContent : ModelBase
 {
@@ -32,11 +30,29 @@ public record class BetaCodeExecutionToolResultBlockParamContent : ModelBase
     {
         get
         {
-            return Match(
-                errorParam: (x) => x.Type,
-                resultBlockParam: (x) => x.Type,
-                encryptedCodeExecutionResultBlockParam: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaCodeExecutionToolResultErrorParam x => x.Type,
+                BetaCodeExecutionResultBlockParam x => x.Type,
+                BetaEncryptedCodeExecutionResultBlockParam x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
+        }
+    }
+
+    public IReadOnlyList<BetaCodeExecutionOutputBlockParam>? Content
+    {
+        get
+        {
+            return this.Value switch
+            {
+                BetaCodeExecutionToolResultErrorParam _ => null,
+                BetaCodeExecutionResultBlockParam x => x.Content,
+                BetaEncryptedCodeExecutionResultBlockParam x => x.Content,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<
+                    IReadOnlyList<BetaCodeExecutionOutputBlockParam>
+                >(this.Json, "content"),
+            };
         }
     }
 
@@ -44,11 +60,16 @@ public record class BetaCodeExecutionToolResultBlockParamContent : ModelBase
     {
         get
         {
-            return Match<long?>(
-                errorParam: (_) => null,
-                resultBlockParam: (x) => x.ReturnCode,
-                encryptedCodeExecutionResultBlockParam: (x) => x.ReturnCode
-            );
+            return this.Value switch
+            {
+                BetaCodeExecutionToolResultErrorParam _ => null,
+                BetaCodeExecutionResultBlockParam x => x.ReturnCode,
+                BetaEncryptedCodeExecutionResultBlockParam x => x.ReturnCode,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<long>(
+                    this.Json,
+                    "return_code"
+                ),
+            };
         }
     }
 
@@ -56,11 +77,13 @@ public record class BetaCodeExecutionToolResultBlockParamContent : ModelBase
     {
         get
         {
-            return Match<string?>(
-                errorParam: (_) => null,
-                resultBlockParam: (x) => x.Stderr,
-                encryptedCodeExecutionResultBlockParam: (x) => x.Stderr
-            );
+            return this.Value switch
+            {
+                BetaCodeExecutionToolResultErrorParam _ => null,
+                BetaCodeExecutionResultBlockParam x => x.Stderr,
+                BetaEncryptedCodeExecutionResultBlockParam x => x.Stderr,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "stderr"),
+            };
         }
     }
 

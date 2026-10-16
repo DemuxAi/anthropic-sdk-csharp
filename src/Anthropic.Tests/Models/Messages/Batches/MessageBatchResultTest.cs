@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models;
 using Anthropic.Models.Messages;
 using Anthropic.Models.Messages.Batches;
@@ -49,7 +50,8 @@ public class MessageBatchResultTest : TestBase
                         Text = "Hi! My name is Claude.",
                     },
                 ],
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new CacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Category.Cyber,
@@ -73,6 +75,7 @@ public class MessageBatchResultTest : TestBase
                     OutputTokensDetails = new(0),
                     ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                     ServiceTier = UsageServiceTier.Standard,
+                    Speed = UsageSpeed.Standard,
                 },
             }
         );
@@ -146,7 +149,8 @@ public class MessageBatchResultTest : TestBase
                         Text = "Hi! My name is Claude.",
                     },
                 ],
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new CacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Category.Cyber,
@@ -170,6 +174,7 @@ public class MessageBatchResultTest : TestBase
                     OutputTokensDetails = new(0),
                     ServerToolUse = new() { WebFetchRequests = 2, WebSearchRequests = 0 },
                     ServiceTier = UsageServiceTier.Standard,
+                    Speed = UsageSpeed.Standard,
                 },
             }
         );
@@ -225,5 +230,28 @@ public class MessageBatchResultTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        MessageBatchResult value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "succeeded"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("succeeded");
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        MessageBatchResult emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
     }
 }

@@ -47,6 +47,7 @@ public record class DeploymentUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("agent");
                 return;
             }
 
@@ -55,8 +56,11 @@ public record class DeploymentUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// A hard spend ceiling. The session stops issuing new model requests once the
-    /// tracked list cost reaches `max_list_cost`.
+    /// Spend ceiling for future sessions. Full replacement. Omit to preserve; send
+    /// null to clear (sessions created afterwards are uncapped). The deployment agent's
+    /// model must have a public list price, or the request is rejected; a multiagent
+    /// roster is re-validated in full when each fire copies the cap, which fails
+    /// closed the same way.
     /// </summary>
     public BetaManagedAgentsBudgetLimit? Budget
     {
@@ -95,6 +99,7 @@ public record class DeploymentUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("environment_id");
                 return;
             }
 
@@ -119,6 +124,7 @@ public record class DeploymentUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("initial_events");
                 return;
             }
 
@@ -166,6 +172,7 @@ public record class DeploymentUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("name");
                 return;
             }
 
@@ -196,7 +203,8 @@ public record class DeploymentUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// 5-field POSIX cron schedule. Literal wall-clock matching in the configured timezone.
+    /// Cron schedule. Full replacement. Omit to preserve; send null to clear (revert
+    /// to manual-only).
     /// </summary>
     public BetaManagedAgentsScheduleParams? Schedule
     {
@@ -229,7 +237,8 @@ public record class DeploymentUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `managed-agents-2026-04-01` in
+    /// this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -244,6 +253,7 @@ public record class DeploymentUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -251,6 +261,33 @@ public record class DeploymentUpdateParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -345,12 +382,17 @@ public record class DeploymentUpdateParams : ParamsBase
         var queryString = this.QueryString(options);
         return new System::UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/deployments/{0}", this.DeploymentID)
+                + string.Format(
+                    "/v1/deployments/{0}",
+                    ParamsBase.EncodePathSegment(this.DeploymentID, nameof(this.DeploymentID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/deployments/{deployment_id}";
 
     internal override HttpContent? BodyContent()
     {
@@ -674,11 +716,16 @@ public record class DeploymentUpdateParamsResource : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsGitHubRepositoryResourceParams: (x) => x.MountPath,
-                betaManagedAgentsFileResourceParams: (x) => x.MountPath,
-                betaManagedAgentsMemoryStoreResourceParam: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsGitHubRepositoryResourceParams x => x.MountPath,
+                BetaManagedAgentsFileResourceParams x => x.MountPath,
+                BetaManagedAgentsMemoryStoreResourceParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "mount_path"
+                ),
+            };
         }
     }
 

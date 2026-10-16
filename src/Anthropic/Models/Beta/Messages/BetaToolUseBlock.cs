@@ -58,9 +58,6 @@ public sealed record class BetaToolUseBlock : JsonModel
         init { this._rawData.Set("type", value); }
     }
 
-    /// <summary>
-    /// Tool invocation directly from the model.
-    /// </summary>
     public BetaToolUseBlockCaller? Caller
     {
         get
@@ -72,6 +69,7 @@ public sealed record class BetaToolUseBlock : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("caller");
                 return;
             }
 
@@ -148,9 +146,6 @@ class BetaToolUseBlockFromRaw : IFromRawJson<BetaToolUseBlock>
         BetaToolUseBlock.FromRawUnchecked(rawData);
 }
 
-/// <summary>
-/// Tool invocation directly from the model.
-/// </summary>
 [JsonConverter(typeof(BetaToolUseBlockCallerConverter))]
 public record class BetaToolUseBlockCaller : ModelBase
 {
@@ -173,11 +168,13 @@ public record class BetaToolUseBlockCaller : ModelBase
     {
         get
         {
-            return Match(
-                betaDirect: (x) => x.Type,
-                betaServerTool: (x) => x.Type,
-                betaServerToolCaller20260120: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller x => x.Type,
+                BetaServerToolCaller x => x.Type,
+                BetaServerToolCaller20260120 x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -185,11 +182,13 @@ public record class BetaToolUseBlockCaller : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaDirect: (_) => null,
-                betaServerTool: (x) => x.ToolID,
-                betaServerToolCaller20260120: (x) => x.ToolID
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller _ => null,
+                BetaServerToolCaller x => x.ToolID,
+                BetaServerToolCaller20260120 x => x.ToolID,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "tool_id"),
+            };
         }
     }
 

@@ -48,7 +48,7 @@ public sealed record class BetaManagedAgentsAgentMcpToolResultEvent : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// Timestamp when this event was processed.
     /// </summary>
     public required System::DateTimeOffset ProcessedAt
     {
@@ -86,6 +86,7 @@ public sealed record class BetaManagedAgentsAgentMcpToolResultEvent : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("content");
                 return;
             }
 
@@ -235,12 +236,14 @@ public record class Content : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsTextBlock: (_) => null,
-                betaManagedAgentsImageBlock: (_) => null,
-                betaManagedAgentsDocumentBlock: (x) => x.Title,
-                betaManagedAgentsSearchResultBlock: (x) => x.Title
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsTextBlock _ => null,
+                BetaManagedAgentsImageBlock _ => null,
+                BetaManagedAgentsDocumentBlock x => x.Title,
+                BetaManagedAgentsSearchResultBlock x => x.Title,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "title"),
+            };
         }
     }
 

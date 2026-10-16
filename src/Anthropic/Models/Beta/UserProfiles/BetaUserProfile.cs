@@ -9,6 +9,13 @@ using System = System;
 
 namespace Anthropic.Models.Beta.UserProfiles;
 
+/// <summary>
+/// A record of an entity that the platform serves through the API, such as an end-user
+/// of the platform's product or a company that the platform resells Claude access to.
+///
+/// <para>A Messages, Message Batches or token counting request can send a profile's
+/// `id` in the `anthropic-user-profile-id` header to attribute the request to that entity.</para>
+/// </summary>
 [JsonConverter(typeof(JsonModelConverter<BetaUserProfile, BetaUserProfileFromRaw>))]
 public sealed record class BetaUserProfile : JsonModel
 {
@@ -26,7 +33,7 @@ public sealed record class BetaUserProfile : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// When this user profile was created, in RFC 3339 format.
     /// </summary>
     public required System::DateTimeOffset CreatedAt
     {
@@ -96,7 +103,8 @@ public sealed record class BetaUserProfile : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// When this user profile was last modified, in RFC 3339 format. Trust-grant
+    /// status changes also bump this timestamp.
     /// </summary>
     public required System::DateTimeOffset UpdatedAt
     {
@@ -109,11 +117,8 @@ public sealed record class BetaUserProfile : JsonModel
     }
 
     /// <summary>
-    /// How the platform uses the API on behalf of the entity this profile represents.
-    /// `application`: the platform sells a product that uses the API behind the
-    /// scenes, and the profile represents an individual end-user of that product.
-    /// `passthrough`: the platform resells raw inference, and the profile identifies
-    /// the resold-to company.
+    /// How the platform uses the API for this entity: `application` (default) or
+    /// `passthrough`. Present under the `user-profiles-2026-08-18` and later beta headers.
     /// </summary>
     public ApiEnum<string, BetaUserProfileAccessType>? AccessType
     {
@@ -128,6 +133,7 @@ public sealed record class BetaUserProfile : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("access_type");
                 return;
             }
 
@@ -136,7 +142,9 @@ public sealed record class BetaUserProfile : JsonModel
     }
 
     /// <summary>
-    /// Platform's own identifier for this user. Not enforced unique.
+    /// Platform's own identifier for this user. Not enforced unique. Present under
+    /// the `user-profiles-2026-03-24` and `user-profiles-2026-08-18` beta headers;
+    /// under `user-profiles-2026-09-04` the value is `external_user_details.reference_id`.
     /// </summary>
     public string? ExternalID
     {
@@ -149,9 +157,55 @@ public sealed record class BetaUserProfile : JsonModel
     }
 
     /// <summary>
+    /// Details about the entity this profile represents, as the platform states them;
+    /// not verified by Anthropic. Present under the `user-profiles-2026-09-04` beta
+    /// header, with every field present and `null` until the platform supplies a
+    /// value; the earlier beta headers serve `reference_id` as the top-level `external_id`,
+    /// and `user-profiles-2026-08-18` serves `onboarded_at` as `external_user_onboarded_at`.
+    /// </summary>
+    public BetaUserProfileExternalUserDetails? ExternalUserDetails
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableClass<BetaUserProfileExternalUserDetails>(
+                "external_user_details"
+            );
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawData.Remove("external_user_details");
+                return;
+            }
+
+            this._rawData.Set("external_user_details", value);
+        }
+    }
+
+    /// <summary>
+    /// When the entity this profile represents opened its account with the platform,
+    /// as stated by the platform, in RFC 3339 format (UTC). `null` until the platform
+    /// supplies one. Present under the `user-profiles-2026-08-18` beta header; under
+    /// `user-profiles-2026-09-04` the value is `external_user_details.onboarded_at`.
+    /// </summary>
+    public System::DateTimeOffset? ExternalUserOnboardedAt
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableStruct<System::DateTimeOffset>(
+                "external_user_onboarded_at"
+            );
+        }
+        init { this._rawData.Set("external_user_onboarded_at", value); }
+    }
+
+    /// <summary>
     /// Real-world name of the entity this profile represents (company or individual).
-    /// For a resold-to company (`access_type` `passthrough`, or `relationship` `resold`
-    /// under the `user-profiles-2026-03-24` header) this is that company's name.
+    /// For a company the platform resells Claude access to (`access_type` `passthrough`)
+    /// this is that company's name.
     /// </summary>
     public string? Name
     {
@@ -161,31 +215,6 @@ public sealed record class BetaUserProfile : JsonModel
             return this._rawData.GetNullableClass<string>("name");
         }
         init { this._rawData.Set("name", value); }
-    }
-
-    /// <summary>
-    /// How the entity behind a user profile relates to the platform that owns the
-    /// API key. `external`: an individual end-user of the platform. `resold`: a company
-    /// the platform resells Claude access to. `internal`: the platform's own usage.
-    /// </summary>
-    public ApiEnum<string, BetaUserProfileRelationship>? Relationship
-    {
-        get
-        {
-            this._rawData.Freeze();
-            return this._rawData.GetNullableClass<ApiEnum<string, BetaUserProfileRelationship>>(
-                "relationship"
-            );
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawData.Set("relationship", value);
-        }
     }
 
     /// <inheritdoc/>
@@ -202,8 +231,9 @@ public sealed record class BetaUserProfile : JsonModel
         _ = this.UpdatedAt;
         this.AccessType?.Validate();
         _ = this.ExternalID;
+        this.ExternalUserDetails?.Validate();
+        _ = this.ExternalUserOnboardedAt;
         _ = this.Name;
-        this.Relationship?.Validate();
     }
 
     public BetaUserProfile() { }
@@ -286,15 +316,21 @@ sealed class TypeConverter : JsonConverter<global::Anthropic.Models.Beta.UserPro
 }
 
 /// <summary>
-/// How the platform uses the API on behalf of the entity this profile represents.
-/// `application`: the platform sells a product that uses the API behind the scenes,
-/// and the profile represents an individual end-user of that product. `passthrough`:
-/// the platform resells raw inference, and the profile identifies the resold-to company.
+/// How the platform uses the API for this entity: `application` (default) or `passthrough`.
+/// Present under the `user-profiles-2026-08-18` and later beta headers.
 /// </summary>
 [JsonConverter(typeof(BetaUserProfileAccessTypeConverter))]
 public enum BetaUserProfileAccessType
 {
+    /// <summary>
+    /// The user profile represents an individual end-user of a product that the
+    /// platform builds on the API. New profiles get this value by default.
+    /// </summary>
     Application,
+
+    /// <summary>
+    /// The user profile represents a company that the platform resells Claude access to.
+    /// </summary>
     Passthrough,
 }
 
@@ -326,58 +362,6 @@ sealed class BetaUserProfileAccessTypeConverter : JsonConverter<BetaUserProfileA
             {
                 BetaUserProfileAccessType.Application => "application",
                 BetaUserProfileAccessType.Passthrough => "passthrough",
-                _ => throw new AnthropicInvalidDataException(
-                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
-                ),
-            },
-            options
-        );
-    }
-}
-
-/// <summary>
-/// How the entity behind a user profile relates to the platform that owns the API
-/// key. `external`: an individual end-user of the platform. `resold`: a company
-/// the platform resells Claude access to. `internal`: the platform's own usage.
-/// </summary>
-[JsonConverter(typeof(BetaUserProfileRelationshipConverter))]
-public enum BetaUserProfileRelationship
-{
-    External,
-    Resold,
-    Internal,
-}
-
-sealed class BetaUserProfileRelationshipConverter : JsonConverter<BetaUserProfileRelationship>
-{
-    public override BetaUserProfileRelationship Read(
-        ref Utf8JsonReader reader,
-        System::Type typeToConvert,
-        JsonSerializerOptions options
-    )
-    {
-        return JsonSerializer.Deserialize<string>(ref reader, options) switch
-        {
-            "external" => BetaUserProfileRelationship.External,
-            "resold" => BetaUserProfileRelationship.Resold,
-            "internal" => BetaUserProfileRelationship.Internal,
-            _ => (BetaUserProfileRelationship)(-1),
-        };
-    }
-
-    public override void Write(
-        Utf8JsonWriter writer,
-        BetaUserProfileRelationship value,
-        JsonSerializerOptions options
-    )
-    {
-        JsonSerializer.Serialize(
-            writer,
-            value switch
-            {
-                BetaUserProfileRelationship.External => "external",
-                BetaUserProfileRelationship.Resold => "resold",
-                BetaUserProfileRelationship.Internal => "internal",
                 _ => throw new AnthropicInvalidDataException(
                     string.Format("Invalid value '{0}' in {1}", value, nameof(value))
                 ),

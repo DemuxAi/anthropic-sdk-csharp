@@ -19,6 +19,7 @@ public class MemoryStoreUpdateParamsTest : TestBase
             Metadata = new Dictionary<string, string?>() { { "foo", "string" } },
             Name = "x",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedMemoryStoreID = "memory_store_id";
@@ -29,6 +30,7 @@ public class MemoryStoreUpdateParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedMemoryStoreID, parameters.MemoryStoreID);
         Assert.Equal(expectedDescription, parameters.Description);
@@ -47,6 +49,7 @@ public class MemoryStoreUpdateParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -62,6 +65,8 @@ public class MemoryStoreUpdateParamsTest : TestBase
 
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -76,10 +81,37 @@ public class MemoryStoreUpdateParamsTest : TestBase
 
             // Null should be interpreted as omitted for these properties
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new MemoryStoreUpdateParams
+        {
+            MemoryStoreID = "memory_store_id",
+            Description = "description",
+            Metadata = new Dictionary<string, string?>() { { "foo", "string" } },
+            Name = "x",
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -89,6 +121,7 @@ public class MemoryStoreUpdateParamsTest : TestBase
         {
             MemoryStoreID = "memory_store_id",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.Description);
@@ -106,6 +139,7 @@ public class MemoryStoreUpdateParamsTest : TestBase
         {
             MemoryStoreID = "memory_store_id",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             Description = null,
             Metadata = null,
@@ -143,13 +177,18 @@ public class MemoryStoreUpdateParamsTest : TestBase
         {
             MemoryStoreID = "memory_store_id",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["agent-memory-2026-07-22", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,agent-memory-2026-07-22"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -163,6 +202,7 @@ public class MemoryStoreUpdateParamsTest : TestBase
             Metadata = new Dictionary<string, string?>() { { "foo", "string" } },
             Name = "x",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         MemoryStoreUpdateParams copied = new(parameters);

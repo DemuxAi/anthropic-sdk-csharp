@@ -51,6 +51,7 @@ public sealed record class BetaManagedAgentsWebFetchToolConfigParams : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("allowed_domains");
                 return;
             }
 
@@ -78,6 +79,7 @@ public sealed record class BetaManagedAgentsWebFetchToolConfigParams : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("blocked_domains");
                 return;
             }
 
@@ -116,7 +118,8 @@ public sealed record class BetaManagedAgentsWebFetchToolConfigParams : JsonModel
     }
 
     /// <summary>
-    /// Permission policy for tool execution.
+    /// Permission policy for this tool. Controls whether tool calls are auto-approved
+    /// or require confirmation.
     /// </summary>
     public BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy? PermissionPolicy
     {
@@ -143,11 +146,27 @@ public sealed record class BetaManagedAgentsWebFetchToolConfigParams : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("type");
                 return;
             }
 
             this._rawData.Set("type", value);
         }
+    }
+
+    /// <summary>
+    /// Which sources contribute URLs the tool may fetch. Omit to allow every source.
+    /// </summary>
+    public BetaManagedAgentsWebFetchUrlSourcesParams? UrlSources
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableClass<BetaManagedAgentsWebFetchUrlSourcesParams>(
+                "url_sources"
+            );
+        }
+        init { this._rawData.Set("url_sources", value); }
     }
 
     /// <inheritdoc/>
@@ -163,6 +182,7 @@ public sealed record class BetaManagedAgentsWebFetchToolConfigParams : JsonModel
         _ = this.MaxContentTokens;
         this.PermissionPolicy?.Validate();
         this.Type?.Validate();
+        this.UrlSources?.Validate();
     }
 
     public BetaManagedAgentsWebFetchToolConfigParams()
@@ -214,7 +234,8 @@ class BetaManagedAgentsWebFetchToolConfigParamsFromRaw
 }
 
 /// <summary>
-/// Permission policy for tool execution.
+/// Permission policy for this tool. Controls whether tool calls are auto-approved
+/// or require confirmation.
 /// </summary>
 [JsonConverter(typeof(BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicyConverter))]
 public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : ModelBase
@@ -245,6 +266,15 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
 
     public BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy(
         BetaManagedAgentsAlwaysAskPolicy value,
+        JsonElement? element = null
+    )
+    {
+        this.Value = value;
+        this._element = element;
+    }
+
+    public BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy(
+        BetaManagedAgentsAutoPolicy value,
         JsonElement? element = null
     )
     {
@@ -304,6 +334,29 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
     }
 
     /// <summary>
+    /// Returns true and sets the <c>out</c> parameter if the instance was constructed with a variant of
+    /// type <see cref="BetaManagedAgentsAutoPolicy"/>.
+    ///
+    /// <para>Consider using <see cref="Switch"/> or <see cref="Match"/> if you need to handle every variant.</para>
+    ///
+    /// <example>
+    /// <code>
+    /// if (instance.TryPickBetaManagedAgentsAuto(out var value)) {
+    ///     // `value` is of type `BetaManagedAgentsAutoPolicy`
+    ///     Console.WriteLine(value);
+    /// }
+    /// </code>
+    /// </example>
+    /// </summary>
+    public bool TryPickBetaManagedAgentsAuto(
+        [NotNullWhen(true)] out BetaManagedAgentsAutoPolicy? value
+    )
+    {
+        value = this.Value as BetaManagedAgentsAutoPolicy;
+        return value != null;
+    }
+
+    /// <summary>
     /// Calls the function parameter corresponding to the variant the instance was constructed with.
     ///
     /// <para>Use the <c>TryPick</c> method(s) if you don't need to handle every variant, or <see cref="Match"/>
@@ -318,14 +371,16 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
     /// <code>
     /// instance.Switch(
     ///     (BetaManagedAgentsAlwaysAllowPolicy value) =&gt; {...},
-    ///     (BetaManagedAgentsAlwaysAskPolicy value) =&gt; {...}
+    ///     (BetaManagedAgentsAlwaysAskPolicy value) =&gt; {...},
+    ///     (BetaManagedAgentsAutoPolicy value) =&gt; {...}
     /// );
     /// </code>
     /// </example>
     /// </summary>
     public void Switch(
         System::Action<BetaManagedAgentsAlwaysAllowPolicy> betaManagedAgentsAlwaysAllow,
-        System::Action<BetaManagedAgentsAlwaysAskPolicy> betaManagedAgentsAlwaysAsk
+        System::Action<BetaManagedAgentsAlwaysAskPolicy> betaManagedAgentsAlwaysAsk,
+        System::Action<BetaManagedAgentsAutoPolicy> betaManagedAgentsAuto
     )
     {
         switch (this.Value)
@@ -335,6 +390,9 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
                 break;
             case BetaManagedAgentsAlwaysAskPolicy value:
                 betaManagedAgentsAlwaysAsk(value);
+                break;
+            case BetaManagedAgentsAutoPolicy value:
+                betaManagedAgentsAuto(value);
                 break;
             default:
                 throw new AnthropicInvalidDataException(
@@ -359,20 +417,23 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
     /// <code>
     /// var result = instance.Match(
     ///     (BetaManagedAgentsAlwaysAllowPolicy value) =&gt; {...},
-    ///     (BetaManagedAgentsAlwaysAskPolicy value) =&gt; {...}
+    ///     (BetaManagedAgentsAlwaysAskPolicy value) =&gt; {...},
+    ///     (BetaManagedAgentsAutoPolicy value) =&gt; {...}
     /// );
     /// </code>
     /// </example>
     /// </summary>
     public T Match<T>(
         System::Func<BetaManagedAgentsAlwaysAllowPolicy, T> betaManagedAgentsAlwaysAllow,
-        System::Func<BetaManagedAgentsAlwaysAskPolicy, T> betaManagedAgentsAlwaysAsk
+        System::Func<BetaManagedAgentsAlwaysAskPolicy, T> betaManagedAgentsAlwaysAsk,
+        System::Func<BetaManagedAgentsAutoPolicy, T> betaManagedAgentsAuto
     )
     {
         return this.Value switch
         {
             BetaManagedAgentsAlwaysAllowPolicy value => betaManagedAgentsAlwaysAllow(value),
             BetaManagedAgentsAlwaysAskPolicy value => betaManagedAgentsAlwaysAsk(value),
+            BetaManagedAgentsAutoPolicy value => betaManagedAgentsAuto(value),
             _ => throw new AnthropicInvalidDataException(
                 "Data did not match any variant of BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy"
             ),
@@ -385,6 +446,10 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
 
     public static implicit operator BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy(
         BetaManagedAgentsAlwaysAskPolicy value
+    ) => new(value);
+
+    public static implicit operator BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy(
+        BetaManagedAgentsAutoPolicy value
     ) => new(value);
 
     /// <summary>
@@ -407,7 +472,8 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
         }
         this.Switch(
             (betaManagedAgentsAlwaysAllow) => betaManagedAgentsAlwaysAllow.Validate(),
-            (betaManagedAgentsAlwaysAsk) => betaManagedAgentsAlwaysAsk.Validate()
+            (betaManagedAgentsAlwaysAsk) => betaManagedAgentsAlwaysAsk.Validate(),
+            (betaManagedAgentsAuto) => betaManagedAgentsAuto.Validate()
         );
     }
 
@@ -433,6 +499,7 @@ public record class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicy : 
         {
             BetaManagedAgentsAlwaysAllowPolicy _ => 0,
             BetaManagedAgentsAlwaysAskPolicy _ => 1,
+            BetaManagedAgentsAutoPolicy _ => 2,
             _ => -1,
         };
     }
@@ -486,6 +553,26 @@ sealed class BetaManagedAgentsWebFetchToolConfigParamsPermissionPolicyConverter
                 try
                 {
                     var deserialized = JsonSerializer.Deserialize<BetaManagedAgentsAlwaysAskPolicy>(
+                        element,
+                        options
+                    );
+                    if (deserialized != null)
+                    {
+                        return new(deserialized, element);
+                    }
+                }
+                catch (JsonException)
+                {
+                    // ignore
+                }
+
+                return new(element);
+            }
+            case "auto":
+            {
+                try
+                {
+                    var deserialized = JsonSerializer.Deserialize<BetaManagedAgentsAutoPolicy>(
                         element,
                         options
                     );

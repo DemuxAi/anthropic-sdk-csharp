@@ -15,20 +15,22 @@ public class EventListParamsTest : TestBase
         var parameters = new EventListParams
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
-            ThreadID = "sthr_011CZkZVWa6oIjw0rgXZpnBt",
+            ThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt",
             Limit = 0,
             Page = "page",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedSessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7";
-        string expectedThreadID = "sthr_011CZkZVWa6oIjw0rgXZpnBt";
+        string expectedThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt";
         int expectedLimit = 0;
         string expectedPage = "page";
         List<ApiEnum<string, AnthropicBeta>> expectedBetas =
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedSessionID, parameters.SessionID);
         Assert.Equal(expectedThreadID, parameters.ThreadID);
@@ -40,6 +42,7 @@ public class EventListParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -48,7 +51,7 @@ public class EventListParamsTest : TestBase
         var parameters = new EventListParams
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
-            ThreadID = "sthr_011CZkZVWa6oIjw0rgXZpnBt",
+            ThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt",
         };
 
         Assert.Null(parameters.Limit);
@@ -57,6 +60,8 @@ public class EventListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("page"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -65,12 +70,13 @@ public class EventListParamsTest : TestBase
         var parameters = new EventListParams
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
-            ThreadID = "sthr_011CZkZVWa6oIjw0rgXZpnBt",
+            ThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt",
 
             // Null should be interpreted as omitted for these properties
             Limit = null,
             Page = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.Limit);
@@ -79,6 +85,38 @@ public class EventListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("page"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new EventListParams
+        {
+            SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
+            ThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt",
+            Limit = 0,
+            Page = "page",
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Limit = null,
+            Page = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.Limit);
+        Assert.False(parameters.RawQueryData.ContainsKey("limit"));
+        Assert.Null(parameters.Page);
+        Assert.False(parameters.RawQueryData.ContainsKey("page"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -87,7 +125,7 @@ public class EventListParamsTest : TestBase
         EventListParams parameters = new()
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
-            ThreadID = "sthr_011CZkZVWa6oIjw0rgXZpnBt",
+            ThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt",
             Limit = 0,
             Page = "page",
         };
@@ -97,7 +135,7 @@ public class EventListParamsTest : TestBase
         Assert.True(
             TestBase.UrisEqual(
                 new Uri(
-                    "https://api.anthropic.com/v1/sessions/sesn_011CZkZAtmR3yMPDzynEDxu7/threads/sthr_011CZkZVWa6oIjw0rgXZpnBt/events?beta=true&limit=0&page=page"
+                    "https://api.anthropic.com/v1/sessions/sesn_011CZkZAtmR3yMPDzynEDxu7/threads/sthr_011CZkZVWa6oJjw1rgXZpnBt/events?beta=true&limit=0&page=page"
                 ),
                 url
             )
@@ -111,15 +149,20 @@ public class EventListParamsTest : TestBase
         EventListParams parameters = new()
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
-            ThreadID = "sthr_011CZkZVWa6oIjw0rgXZpnBt",
+            ThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["managed-agents-2026-04-01", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,managed-agents-2026-04-01"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -129,10 +172,11 @@ public class EventListParamsTest : TestBase
         var parameters = new EventListParams
         {
             SessionID = "sesn_011CZkZAtmR3yMPDzynEDxu7",
-            ThreadID = "sthr_011CZkZVWa6oIjw0rgXZpnBt",
+            ThreadID = "sthr_011CZkZVWa6oJjw1rgXZpnBt",
             Limit = 0,
             Page = "page",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         EventListParams copied = new(parameters);

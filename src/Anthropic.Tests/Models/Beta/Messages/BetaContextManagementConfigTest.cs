@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 
 namespace Anthropic.Tests.Models.Beta.Messages;
@@ -169,6 +170,32 @@ public class BetaContextManagementConfigTest : TestBase
     }
 
     [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaContextManagementConfig
+        {
+            Edits =
+            [
+                new BetaClearToolUses20250919Edit()
+                {
+                    ClearAtLeast = new(0),
+                    ClearToolInputs = true,
+                    ExcludeTools = ["string"],
+                    Keep = new(0),
+                    Trigger = new BetaInputTokensTrigger(1),
+                },
+            ],
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Edits = null,
+        };
+
+        Assert.Null(model.Edits);
+        Assert.False(model.RawData.ContainsKey("edits"));
+    }
+
+    [Fact]
     public void OptionalNonNullablePropertiesSetToNullValidation_Works()
     {
         var model = new BetaContextManagementConfig
@@ -279,5 +306,28 @@ public class EditTest : TestBase
         var deserialized = JsonSerializer.Deserialize<Edit>(element, ModelBase.SerializerOptions);
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Edit value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "clear_tool_uses_20250919"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("clear_tool_uses_20250919");
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        Edit emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
     }
 }

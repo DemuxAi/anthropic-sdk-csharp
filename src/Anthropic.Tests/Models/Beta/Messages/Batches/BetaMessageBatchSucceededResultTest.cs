@@ -59,10 +59,8 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -83,9 +81,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -100,7 +96,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -110,6 +106,15 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             },
         };
 
@@ -158,10 +163,8 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     },
                 ]
             ),
-            Diagnostics = new(
-                new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-            ),
-            Model = Model.ClaudeOpus5,
+            Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+            Model = Model.ClaudeOpus5_5,
             StopDetails = new()
             {
                 Category = Messages::Category.Cyber,
@@ -178,9 +181,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                 CacheCreation = new() { Ephemeral1hInputTokens = 0, Ephemeral5mInputTokens = 0 },
                 CacheCreationInputTokens = 2051,
                 CacheReadInputTokens = 2051,
-                FallbackCredit = new(
-                    new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                ),
+                FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                 InferenceGeo = "global",
                 InputTokens = 2095,
                 Iterations =
@@ -195,7 +196,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                         CacheCreationInputTokens = 0,
                         CacheReadInputTokens = 0,
                         InputTokens = 0,
-                        Model = Model.ClaudeSonnet5,
+                        Model = Model.ClaudeHaiku5_5,
                         OutputTokens = 0,
                     },
                 ],
@@ -205,6 +206,15 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                 ServiceTier = Messages::BetaUsageServiceTier.Standard,
                 Speed = Messages::BetaUsageSpeed.Standard,
             },
+            InputTransformations =
+            [
+                new Messages::BetaThinkingDroppedInputTransformation()
+                {
+                    Path = "path",
+                    Reason =
+                        Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                },
+            ],
         };
         JsonElement expectedType = JsonSerializer.SerializeToElement("succeeded");
 
@@ -262,10 +272,8 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -286,9 +294,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -303,7 +309,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -313,6 +319,15 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             },
         };
 
@@ -375,10 +390,8 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -399,9 +412,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -416,7 +427,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -426,6 +437,15 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             },
         };
 
@@ -481,10 +501,8 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     },
                 ]
             ),
-            Diagnostics = new(
-                new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-            ),
-            Model = Model.ClaudeOpus5,
+            Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+            Model = Model.ClaudeOpus5_5,
             StopDetails = new()
             {
                 Category = Messages::Category.Cyber,
@@ -501,9 +519,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                 CacheCreation = new() { Ephemeral1hInputTokens = 0, Ephemeral5mInputTokens = 0 },
                 CacheCreationInputTokens = 2051,
                 CacheReadInputTokens = 2051,
-                FallbackCredit = new(
-                    new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                ),
+                FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                 InferenceGeo = "global",
                 InputTokens = 2095,
                 Iterations =
@@ -518,7 +534,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                         CacheCreationInputTokens = 0,
                         CacheReadInputTokens = 0,
                         InputTokens = 0,
-                        Model = Model.ClaudeSonnet5,
+                        Model = Model.ClaudeHaiku5_5,
                         OutputTokens = 0,
                     },
                 ],
@@ -528,6 +544,15 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                 ServiceTier = Messages::BetaUsageServiceTier.Standard,
                 Speed = Messages::BetaUsageSpeed.Standard,
             },
+            InputTransformations =
+            [
+                new Messages::BetaThinkingDroppedInputTransformation()
+                {
+                    Path = "path",
+                    Reason =
+                        Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                },
+            ],
         };
         JsonElement expectedType = JsonSerializer.SerializeToElement("succeeded");
 
@@ -585,10 +610,8 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -609,9 +632,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -626,7 +647,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -636,6 +657,15 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             },
         };
 
@@ -692,10 +722,8 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -716,9 +744,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -733,7 +759,7 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -743,6 +769,15 @@ public class BetaMessageBatchSucceededResultTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             },
         };
 

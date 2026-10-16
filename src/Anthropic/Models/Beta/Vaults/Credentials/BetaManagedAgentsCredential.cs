@@ -31,7 +31,7 @@ public sealed record class BetaManagedAgentsCredential : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// When the credential was archived. Null if not archived.
     /// </summary>
     public required System::DateTimeOffset? ArchivedAt
     {
@@ -44,7 +44,7 @@ public sealed record class BetaManagedAgentsCredential : JsonModel
     }
 
     /// <summary>
-    /// Authentication details for a credential.
+    /// Authentication configuration for this credential.
     /// </summary>
     public required BetaManagedAgentsCredentialAuth Auth
     {
@@ -192,7 +192,7 @@ class BetaManagedAgentsCredentialFromRaw : IFromRawJson<BetaManagedAgentsCredent
 }
 
 /// <summary>
-/// Authentication details for a credential.
+/// Authentication configuration for this credential.
 /// </summary>
 [JsonConverter(typeof(BetaManagedAgentsCredentialAuthConverter))]
 public record class BetaManagedAgentsCredentialAuth : ModelBase
@@ -216,11 +216,16 @@ public record class BetaManagedAgentsCredentialAuth : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsMcpOAuthAuthResponse: (x) => x.McpServerUrl,
-                betaManagedAgentsStaticBearerAuthResponse: (x) => x.McpServerUrl,
-                betaManagedAgentsEnvironmentVariableAuthResponse: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsMcpOAuthAuthResponse x => x.McpServerUrl,
+                BetaManagedAgentsStaticBearerAuthResponse x => x.McpServerUrl,
+                BetaManagedAgentsEnvironmentVariableAuthResponse _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "mcp_server_url"
+                ),
+            };
         }
     }
 

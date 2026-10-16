@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 
 namespace Anthropic.Tests.Models.Beta.Messages;
@@ -174,6 +176,41 @@ public class BetaRequestToolAdditionBlockToolTest : TestBase
     }
 
     [Fact]
+    public void BetaToolChangeToolDefinitionParamValidationWorks()
+    {
+        BetaRequestToolAdditionBlockTool value = new BetaToolChangeToolDefinitionParam(
+            new BetaTool()
+            {
+                InputSchema = new()
+                {
+                    Properties = new Dictionary<string, JsonElement>()
+                    {
+                        { "location", JsonSerializer.SerializeToElement("bar") },
+                        { "unit", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Required = ["location"],
+                },
+                Name = "name",
+                AllowedCallers = [BetaToolAllowedCaller.Direct],
+                CacheControl = new() { Ttl = Ttl.Ttl5m },
+                DeferLoading = true,
+                Description = "Get the current weather in a given location",
+                EagerInputStreaming = true,
+                InputExamples =
+                [
+                    new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                ],
+                Strict = true,
+                Type = BetaToolType.Custom,
+            }
+        );
+        value.Validate();
+    }
+
+    [Fact]
     public void BetaToolChangeToolReferenceSerializationRoundtripWorks()
     {
         BetaRequestToolAdditionBlockTool value = new BetaToolChangeToolReference("name");
@@ -216,5 +253,97 @@ public class BetaRequestToolAdditionBlockToolTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void BetaToolChangeToolDefinitionParamSerializationRoundtripWorks()
+    {
+        BetaRequestToolAdditionBlockTool value = new BetaToolChangeToolDefinitionParam(
+            new BetaTool()
+            {
+                InputSchema = new()
+                {
+                    Properties = new Dictionary<string, JsonElement>()
+                    {
+                        { "location", JsonSerializer.SerializeToElement("bar") },
+                        { "unit", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Required = ["location"],
+                },
+                Name = "name",
+                AllowedCallers = [BetaToolAllowedCaller.Direct],
+                CacheControl = new() { Ttl = Ttl.Ttl5m },
+                DeferLoading = true,
+                Description = "Get the current weather in a given location",
+                EagerInputStreaming = true,
+                InputExamples =
+                [
+                    new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                ],
+                Strict = true,
+                Type = BetaToolType.Custom,
+            }
+        );
+        string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<BetaRequestToolAdditionBlockTool>(
+            element,
+            ModelBase.SerializerOptions
+        );
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaRequestToolAdditionBlockTool value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "name": "name",
+                  "type": "tool_reference",
+                  "server_name": "server_name"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        string expectedName = "name";
+        JsonElement expectedType = JsonSerializer.SerializeToElement("tool_reference");
+        string expectedServerName = "server_name";
+
+        Assert.Equal(expectedName, value.Name);
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedServerName, value.ServerName);
+
+        BetaRequestToolAdditionBlockTool emptyValue = new(
+            JsonSerializer.Deserialize<JsonElement>("{}")
+        );
+
+        Assert.Null(emptyValue.Name);
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.ServerName);
+
+        BetaRequestToolAdditionBlockTool mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "name": [
+                    "invalid"
+                  ],
+                  "server_name": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.Name);
+        Assert.Null(mismatchedValue.ServerName);
     }
 }

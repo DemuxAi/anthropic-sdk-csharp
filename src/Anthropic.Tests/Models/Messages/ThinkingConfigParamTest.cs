@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Messages;
 
 namespace Anthropic.Tests.Models.Messages;
@@ -21,6 +22,13 @@ public class ThinkingConfigParamTest : TestBase
     public void DisabledValidationWorks()
     {
         ThinkingConfigParam value = new ThinkingConfigDisabled();
+        value.Validate();
+    }
+
+    [Fact]
+    public void BetweenToolsValidationWorks()
+    {
+        ThinkingConfigParam value = new ThinkingConfigBetweenTools();
         value.Validate();
     }
 
@@ -62,6 +70,19 @@ public class ThinkingConfigParamTest : TestBase
     }
 
     [Fact]
+    public void BetweenToolsSerializationRoundtripWorks()
+    {
+        ThinkingConfigParam value = new ThinkingConfigBetweenTools();
+        string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
+        var deserialized = JsonSerializer.Deserialize<ThinkingConfigParam>(
+            element,
+            ModelBase.SerializerOptions
+        );
+
+        Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
     public void AdaptiveSerializationRoundtripWorks()
     {
         ThinkingConfigParam value = new ThinkingConfigAdaptive() { Display = Display.Summarized };
@@ -72,5 +93,28 @@ public class ThinkingConfigParamTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        ThinkingConfigParam value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "enabled"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("enabled");
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        ThinkingConfigParam emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
     }
 }

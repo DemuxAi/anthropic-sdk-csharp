@@ -226,6 +226,35 @@ public class BetaManagedAgentsUserCustomToolResultEventTest : TestBase
     }
 
     [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaManagedAgentsUserCustomToolResultEvent
+        {
+            ID = "id",
+            CustomToolUseID = "custom_tool_use_id",
+            Type = BetaManagedAgentsUserCustomToolResultEventType.UserCustomToolResult,
+            Content =
+            [
+                new BetaManagedAgentsTextBlock()
+                {
+                    Text = "Where is my order #1234?",
+                    Type = BetaManagedAgentsTextBlockType.Text,
+                },
+            ],
+            IsError = true,
+            ProcessedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            SessionThreadID = "session_thread_id",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Content = null,
+        };
+
+        Assert.Null(model.Content);
+        Assert.False(model.RawData.ContainsKey("content"));
+    }
+
+    [Fact]
     public void OptionalNonNullablePropertiesSetToNullValidation_Works()
     {
         var model = new BetaManagedAgentsUserCustomToolResultEvent
@@ -583,5 +612,44 @@ public class BetaManagedAgentsUserCustomToolResultEventContentTest : TestBase
             );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaManagedAgentsUserCustomToolResultEventContent value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "title": "title"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        string expectedTitle = "title";
+
+        Assert.Equal(expectedTitle, value.Title);
+
+        BetaManagedAgentsUserCustomToolResultEventContent emptyValue = new(
+            JsonSerializer.Deserialize<JsonElement>("{}")
+        );
+
+        Assert.Null(emptyValue.Title);
+
+        BetaManagedAgentsUserCustomToolResultEventContent mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "title": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.Title);
     }
 }

@@ -7,9 +7,6 @@ using System = System;
 
 namespace Anthropic.Models.Beta.Sessions.Resources;
 
-/// <summary>
-/// A memory store attached to an agent session.
-/// </summary>
 [JsonConverter(typeof(BetaManagedAgentsSessionResourceConverter))]
 public record class BetaManagedAgentsSessionResource : ModelBase
 {
@@ -32,11 +29,13 @@ public record class BetaManagedAgentsSessionResource : ModelBase
     {
         get
         {
-            return Match<string?>(
-                githubRepository: (x) => x.ID,
-                file: (x) => x.ID,
-                memoryStore: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsGitHubRepositoryResource x => x.ID,
+                BetaManagedAgentsFileResource x => x.ID,
+                BetaManagedAgentsMemoryStoreResource _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "id"),
+            };
         }
     }
 
@@ -44,11 +43,16 @@ public record class BetaManagedAgentsSessionResource : ModelBase
     {
         get
         {
-            return Match<System::DateTimeOffset?>(
-                githubRepository: (x) => x.CreatedAt,
-                file: (x) => x.CreatedAt,
-                memoryStore: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsGitHubRepositoryResource x => x.CreatedAt,
+                BetaManagedAgentsFileResource x => x.CreatedAt,
+                BetaManagedAgentsMemoryStoreResource _ => null,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<System::DateTimeOffset>(
+                    this.Json,
+                    "created_at"
+                ),
+            };
         }
     }
 
@@ -56,11 +60,16 @@ public record class BetaManagedAgentsSessionResource : ModelBase
     {
         get
         {
-            return Match<string?>(
-                githubRepository: (x) => x.MountPath,
-                file: (x) => x.MountPath,
-                memoryStore: (x) => x.MountPath
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsGitHubRepositoryResource x => x.MountPath,
+                BetaManagedAgentsFileResource x => x.MountPath,
+                BetaManagedAgentsMemoryStoreResource x => x.MountPath,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "mount_path"
+                ),
+            };
         }
     }
 
@@ -68,11 +77,16 @@ public record class BetaManagedAgentsSessionResource : ModelBase
     {
         get
         {
-            return Match<System::DateTimeOffset?>(
-                githubRepository: (x) => x.UpdatedAt,
-                file: (x) => x.UpdatedAt,
-                memoryStore: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsGitHubRepositoryResource x => x.UpdatedAt,
+                BetaManagedAgentsFileResource x => x.UpdatedAt,
+                BetaManagedAgentsMemoryStoreResource _ => null,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<System::DateTimeOffset>(
+                    this.Json,
+                    "updated_at"
+                ),
+            };
         }
     }
 

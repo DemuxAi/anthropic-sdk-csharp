@@ -62,9 +62,6 @@ public sealed record class BetaWebFetchToolResultBlockParam : JsonModel
         init { this._rawData.Set("cache_control", value); }
     }
 
-    /// <summary>
-    /// Tool invocation directly from the model.
-    /// </summary>
     public BetaWebFetchToolResultBlockParamCaller? Caller
     {
         get
@@ -76,6 +73,7 @@ public sealed record class BetaWebFetchToolResultBlockParam : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("caller");
                 return;
             }
 
@@ -168,10 +166,12 @@ public record class BetaWebFetchToolResultBlockParamContent : ModelBase
     {
         get
         {
-            return Match(
-                betaWebFetchToolResultErrorBlockParam: (x) => x.Type,
-                betaWebFetchBlockParam: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaWebFetchToolResultErrorBlockParam x => x.Type,
+                BetaWebFetchBlockParam x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -437,9 +437,6 @@ sealed class BetaWebFetchToolResultBlockParamContentConverter
     }
 }
 
-/// <summary>
-/// Tool invocation directly from the model.
-/// </summary>
 [JsonConverter(typeof(BetaWebFetchToolResultBlockParamCallerConverter))]
 public record class BetaWebFetchToolResultBlockParamCaller : ModelBase
 {
@@ -462,11 +459,13 @@ public record class BetaWebFetchToolResultBlockParamCaller : ModelBase
     {
         get
         {
-            return Match(
-                betaDirect: (x) => x.Type,
-                betaServerTool: (x) => x.Type,
-                betaServerToolCaller20260120: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller x => x.Type,
+                BetaServerToolCaller x => x.Type,
+                BetaServerToolCaller20260120 x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -474,11 +473,13 @@ public record class BetaWebFetchToolResultBlockParamCaller : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaDirect: (_) => null,
-                betaServerTool: (x) => x.ToolID,
-                betaServerToolCaller20260120: (x) => x.ToolID
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller _ => null,
+                BetaServerToolCaller x => x.ToolID,
+                BetaServerToolCaller20260120 x => x.ToolID,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "tool_id"),
+            };
         }
     }
 

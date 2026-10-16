@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta;
 using Anthropic.Models.Beta.Messages.Batches;
 using Anthropic.Models.Messages;
@@ -59,10 +60,8 @@ public class BetaMessageBatchResultTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -83,9 +82,7 @@ public class BetaMessageBatchResultTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -100,7 +97,7 @@ public class BetaMessageBatchResultTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -110,6 +107,15 @@ public class BetaMessageBatchResultTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             }
         );
         value.Validate();
@@ -191,10 +197,8 @@ public class BetaMessageBatchResultTest : TestBase
                         },
                     ]
                 ),
-                Diagnostics = new(
-                    new Messages::CacheMissReason(new Messages::BetaCacheMissModelChanged(0))
-                ),
-                Model = Model.ClaudeOpus5,
+                Diagnostics = new(new Messages::BetaCacheMissModelChanged(0)),
+                Model = Model.ClaudeOpus5_5,
                 StopDetails = new()
                 {
                     Category = Messages::Category.Cyber,
@@ -215,9 +219,7 @@ public class BetaMessageBatchResultTest : TestBase
                     },
                     CacheCreationInputTokens = 2051,
                     CacheReadInputTokens = 2051,
-                    FallbackCredit = new(
-                        new Messages::Status(new Messages::BetaFallbackCreditRedeemed())
-                    ),
+                    FallbackCredit = new(new Messages::BetaFallbackCreditRedeemed()),
                     InferenceGeo = "global",
                     InputTokens = 2095,
                     Iterations =
@@ -232,7 +234,7 @@ public class BetaMessageBatchResultTest : TestBase
                             CacheCreationInputTokens = 0,
                             CacheReadInputTokens = 0,
                             InputTokens = 0,
-                            Model = Model.ClaudeSonnet5,
+                            Model = Model.ClaudeHaiku5_5,
                             OutputTokens = 0,
                         },
                     ],
@@ -242,6 +244,15 @@ public class BetaMessageBatchResultTest : TestBase
                     ServiceTier = Messages::BetaUsageServiceTier.Standard,
                     Speed = Messages::BetaUsageSpeed.Standard,
                 },
+                InputTransformations =
+                [
+                    new Messages::BetaThinkingDroppedInputTransformation()
+                    {
+                        Path = "path",
+                        Reason =
+                            Messages::BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+                    },
+                ],
             }
         );
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -296,5 +307,28 @@ public class BetaMessageBatchResultTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaMessageBatchResult value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "succeeded"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("succeeded");
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        BetaMessageBatchResult emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
     }
 }

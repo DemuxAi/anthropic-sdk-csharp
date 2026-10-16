@@ -80,6 +80,30 @@ public class ExternalKeyCreateParamsTest : TestBase
     }
 
     [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new ExternalKeyCreateParams
+        {
+            ProviderConfig = new BetaAwsExternalKeyConfig()
+            {
+                KmsArn =
+                    "arn:aws:kms:us-east-1:111122223333:key/abcd1234-5678-90ab-cdef-000011112222",
+                Region = "us-east-1",
+                RoleArn = "arn:aws:iam::111122223333:role/anthropic-cmek",
+            },
+            DisplayName = "x",
+            Geo = Geo.Us,
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Geo = null,
+        };
+
+        Assert.Null(parameters.Geo);
+        Assert.False(parameters.RawBodyData.ContainsKey("geo"));
+    }
+
+    [Fact]
     public void OptionalNullableParamsUnsetAreNotSet_Works()
     {
         var parameters = new ExternalKeyCreateParams
@@ -251,6 +275,47 @@ public class ProviderConfigTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        ProviderConfig value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "aws",
+                  "key_name": "projects/my-proj/locations/us/keyRings/my-ring/cryptoKeys/my-key"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("aws");
+        string expectedKeyName = "projects/my-proj/locations/us/keyRings/my-ring/cryptoKeys/my-key";
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedKeyName, value.KeyName);
+
+        ProviderConfig emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.KeyName);
+
+        ProviderConfig mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "key_name": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.KeyName);
     }
 }
 

@@ -153,6 +153,7 @@ public sealed record class BetaEnvironment : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("scope");
                 return;
             }
 
@@ -241,7 +242,15 @@ public record class BetaEnvironmentConfig : ModelBase
 
     public JsonElement Type
     {
-        get { return Match(betaCloud: (x) => x.Type, betaSelfHosted: (x) => x.Type); }
+        get
+        {
+            return this.Value switch
+            {
+                BetaCloudConfig x => x.Type,
+                BetaSelfHostedConfig x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
+        }
     }
 
     public BetaEnvironmentConfig(BetaCloudConfig value, JsonElement? element = null)

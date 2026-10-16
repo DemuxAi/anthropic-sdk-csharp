@@ -25,9 +25,25 @@ public sealed record class BetaThinkingConfigAdaptive : JsonModel
     }
 
     /// <summary>
+    /// Controls for block binding: what happens when a thinking block this request
+    /// sends back fails the conversation check. `null`, absent or an empty object
+    /// means every default.
+    /// </summary>
+    public BetaThinkingBlockBinding? BlockBinding
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableClass<BetaThinkingBlockBinding>("block_binding");
+        }
+        init { this._rawData.Set("block_binding", value); }
+    }
+
+    /// <summary>
     /// Controls how thinking content appears in the response. When set to `summarized`,
     /// thinking is returned normally. When set to `omitted`, thinking content is
-    /// redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+    /// redacted but a signature is returned for multi-turn continuity. The default
+    /// depends on the model; see [Controlling thinking display](https://platform.claude.com/docs/en/build-with-claude/thinking#controlling-thinking-display).
     /// </summary>
     public ApiEnum<string, Display>? Display
     {
@@ -46,6 +62,7 @@ public sealed record class BetaThinkingConfigAdaptive : JsonModel
         {
             throw new AnthropicInvalidDataException("Invalid value given for constant");
         }
+        this.BlockBinding?.Validate();
         this.Display?.Validate();
     }
 
@@ -95,7 +112,8 @@ class BetaThinkingConfigAdaptiveFromRaw : IFromRawJson<BetaThinkingConfigAdaptiv
 /// <summary>
 /// Controls how thinking content appears in the response. When set to `summarized`,
 /// thinking is returned normally. When set to `omitted`, thinking content is redacted
-/// but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+/// but a signature is returned for multi-turn continuity. The default depends on
+/// the model; see [Controlling thinking display](https://platform.claude.com/docs/en/build-with-claude/thinking#controlling-thinking-display).
 /// </summary>
 [JsonConverter(typeof(DisplayConverter))]
 public enum Display

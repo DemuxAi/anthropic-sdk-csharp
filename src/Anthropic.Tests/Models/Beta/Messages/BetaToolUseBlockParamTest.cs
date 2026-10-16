@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 
 namespace Anthropic.Tests.Models.Beta.Messages;
@@ -202,6 +203,30 @@ public class BetaToolUseBlockParamTest : TestBase
     }
 
     [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaToolUseBlockParam
+        {
+            ID = "id",
+            Input = new Dictionary<string, JsonElement>()
+            {
+                { "foo", JsonSerializer.SerializeToElement("bar") },
+            },
+            Name = "x",
+            CacheControl = new() { Ttl = Ttl.Ttl5m },
+            Caller = new BetaDirectCaller(),
+            ToolsetName = "toolset_name",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Caller = null,
+        };
+
+        Assert.Null(model.Caller);
+        Assert.False(model.RawData.ContainsKey("caller"));
+    }
+
+    [Fact]
     public void OptionalNonNullablePropertiesSetToNullValidation_Works()
     {
         var model = new BetaToolUseBlockParam
@@ -388,5 +413,46 @@ public class BetaToolUseBlockParamCallerTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaToolUseBlockParamCaller value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "direct",
+                  "tool_id": "srvtoolu_SQfNkl1n_JR_"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("direct");
+        string expectedToolID = "srvtoolu_SQfNkl1n_JR_";
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedToolID, value.ToolID);
+
+        BetaToolUseBlockParamCaller emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.ToolID);
+
+        BetaToolUseBlockParamCaller mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "tool_id": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.ToolID);
     }
 }

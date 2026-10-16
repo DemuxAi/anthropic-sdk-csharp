@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -7,9 +8,6 @@ using System = System;
 
 namespace Anthropic.Models.Messages;
 
-/// <summary>
-/// Code execution result with encrypted stdout for PFC + web_search results.
-/// </summary>
 [JsonConverter(typeof(CodeExecutionToolResultBlockParamContentConverter))]
 public record class CodeExecutionToolResultBlockParamContent : ModelBase
 {
@@ -32,11 +30,29 @@ public record class CodeExecutionToolResultBlockParamContent : ModelBase
     {
         get
         {
-            return Match(
-                errorParam: (x) => x.Type,
-                resultBlockParam: (x) => x.Type,
-                encryptedCodeExecutionResultBlockParam: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                CodeExecutionToolResultErrorParam x => x.Type,
+                CodeExecutionResultBlockParam x => x.Type,
+                EncryptedCodeExecutionResultBlockParam x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
+        }
+    }
+
+    public IReadOnlyList<CodeExecutionOutputBlockParam>? Content
+    {
+        get
+        {
+            return this.Value switch
+            {
+                CodeExecutionToolResultErrorParam _ => null,
+                CodeExecutionResultBlockParam x => x.Content,
+                EncryptedCodeExecutionResultBlockParam x => x.Content,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<
+                    IReadOnlyList<CodeExecutionOutputBlockParam>
+                >(this.Json, "content"),
+            };
         }
     }
 
@@ -44,11 +60,16 @@ public record class CodeExecutionToolResultBlockParamContent : ModelBase
     {
         get
         {
-            return Match<long?>(
-                errorParam: (_) => null,
-                resultBlockParam: (x) => x.ReturnCode,
-                encryptedCodeExecutionResultBlockParam: (x) => x.ReturnCode
-            );
+            return this.Value switch
+            {
+                CodeExecutionToolResultErrorParam _ => null,
+                CodeExecutionResultBlockParam x => x.ReturnCode,
+                EncryptedCodeExecutionResultBlockParam x => x.ReturnCode,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<long>(
+                    this.Json,
+                    "return_code"
+                ),
+            };
         }
     }
 
@@ -56,11 +77,13 @@ public record class CodeExecutionToolResultBlockParamContent : ModelBase
     {
         get
         {
-            return Match<string?>(
-                errorParam: (_) => null,
-                resultBlockParam: (x) => x.Stderr,
-                encryptedCodeExecutionResultBlockParam: (x) => x.Stderr
-            );
+            return this.Value switch
+            {
+                CodeExecutionToolResultErrorParam _ => null,
+                CodeExecutionResultBlockParam x => x.Stderr,
+                EncryptedCodeExecutionResultBlockParam x => x.Stderr,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "stderr"),
+            };
         }
     }
 

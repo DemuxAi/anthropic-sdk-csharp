@@ -171,11 +171,10 @@ public sealed record class BetaFederationIssuer : JsonModel
     }
 
     /// <summary>
-    /// Status of automatic JWKS polling for a federation issuer.
-    ///
-    /// <para>Anthropic periodically fetches the issuer's signing keys in the background.
-    /// These fields summarize the most recent fetches so the health of the JWKS endpoint
-    /// can be monitored.</para>
+    /// Live state of Anthropic's JWKS polling for this issuer. Populated on both
+    /// single-issuer retrieval and list responses, including archived issuers. Typically
+    /// null for inline-key issuers (no polling), or when poll status is temporarily
+    /// unavailable or polling has not started yet.
     /// </summary>
     public required BetaFederationIssuerPollStatus? PollStatus
     {
@@ -319,11 +318,13 @@ public record class BetaFederationIssuerJwks : ModelBase
     {
         get
         {
-            return Match(
-                betaJwksDiscovery: (x) => x.Type,
-                betaJwksExplicitUrl: (x) => x.Type,
-                betaJwksInline: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaJwksDiscovery x => x.Type,
+                BetaJwksExplicitUrl x => x.Type,
+                BetaJwksInline x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -331,11 +332,16 @@ public record class BetaFederationIssuerJwks : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaJwksDiscovery: (x) => x.CACertPem,
-                betaJwksExplicitUrl: (x) => x.CACertPem,
-                betaJwksInline: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaJwksDiscovery x => x.CACertPem,
+                BetaJwksExplicitUrl x => x.CACertPem,
+                BetaJwksInline _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "ca_cert_pem"
+                ),
+            };
         }
     }
 

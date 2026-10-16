@@ -66,7 +66,7 @@ public sealed record class BetaManagedAgentsAgentToolUseEvent : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// Timestamp when this event was processed.
     /// </summary>
     public required System::DateTimeOffset ProcessedAt
     {
@@ -91,24 +91,22 @@ public sealed record class BetaManagedAgentsAgentToolUseEvent : JsonModel
     }
 
     /// <summary>
-    /// AgentEvaluatedPermission enum
+    /// The evaluated permission policy for this tool invocation.
     /// </summary>
-    public ApiEnum<
-        string,
-        BetaManagedAgentsAgentToolUseEventEvaluatedPermission
-    >? EvaluatedPermission
+    public ApiEnum<string, BetaManagedAgentsAgentEvaluatedPermission>? EvaluatedPermission
     {
         get
         {
             this._rawData.Freeze();
             return this._rawData.GetNullableClass<
-                ApiEnum<string, BetaManagedAgentsAgentToolUseEventEvaluatedPermission>
+                ApiEnum<string, BetaManagedAgentsAgentEvaluatedPermission>
             >("evaluated_permission");
         }
         init
         {
             if (value == null)
             {
+                this._rawData.Remove("evaluated_permission");
                 return;
             }
 
@@ -117,9 +115,39 @@ public sealed record class BetaManagedAgentsAgentToolUseEvent : JsonModel
     }
 
     /// <summary>
+    /// Which resolved permission_policy produced evaluated_permission: always_allow,
+    /// always_ask, or auto (with the server's per-invocation judgement). Absent only
+    /// when the server refused the call before any policy applied (for example,
+    /// the named tool is not enabled in the session); such a refusal has evaluated_permission
+    /// deny. An event recorded before this field existed reads as the arm its evaluated_permission
+    /// implies (always_allow for allow, always_ask for ask).
+    /// </summary>
+    public BetaManagedAgentsAgentToolEvaluation? Evaluation
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableClass<BetaManagedAgentsAgentToolEvaluation>(
+                "evaluation"
+            );
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawData.Remove("evaluation");
+                return;
+            }
+
+            this._rawData.Set("evaluation", value);
+        }
+    }
+
+    /// <summary>
     /// When set, this event was cross-posted from a subagent's thread to surface
     /// its permission request on the primary thread's stream. Empty on the thread's
-    /// own events. Echo this on a `user.tool_confirmation` event to route the approval back.
+    /// own events. Informational only: the server routes the matching `user.tool_confirmation`
+    /// or `user.tool_result` by `tool_use_id`, so clients do not send it back.
     /// </summary>
     public string? SessionThreadID
     {
@@ -140,6 +168,7 @@ public sealed record class BetaManagedAgentsAgentToolUseEvent : JsonModel
         _ = this.ProcessedAt;
         this.Type.Validate();
         this.EvaluatedPermission?.Validate();
+        this.Evaluation?.Validate();
         _ = this.SessionThreadID;
     }
 
@@ -216,57 +245,6 @@ sealed class BetaManagedAgentsAgentToolUseEventTypeConverter
             value switch
             {
                 BetaManagedAgentsAgentToolUseEventType.AgentToolUse => "agent.tool_use",
-                _ => throw new AnthropicInvalidDataException(
-                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
-                ),
-            },
-            options
-        );
-    }
-}
-
-/// <summary>
-/// AgentEvaluatedPermission enum
-/// </summary>
-[JsonConverter(typeof(BetaManagedAgentsAgentToolUseEventEvaluatedPermissionConverter))]
-public enum BetaManagedAgentsAgentToolUseEventEvaluatedPermission
-{
-    Allow,
-    Ask,
-    Deny,
-}
-
-sealed class BetaManagedAgentsAgentToolUseEventEvaluatedPermissionConverter
-    : JsonConverter<BetaManagedAgentsAgentToolUseEventEvaluatedPermission>
-{
-    public override BetaManagedAgentsAgentToolUseEventEvaluatedPermission Read(
-        ref Utf8JsonReader reader,
-        System::Type typeToConvert,
-        JsonSerializerOptions options
-    )
-    {
-        return JsonSerializer.Deserialize<string>(ref reader, options) switch
-        {
-            "allow" => BetaManagedAgentsAgentToolUseEventEvaluatedPermission.Allow,
-            "ask" => BetaManagedAgentsAgentToolUseEventEvaluatedPermission.Ask,
-            "deny" => BetaManagedAgentsAgentToolUseEventEvaluatedPermission.Deny,
-            _ => (BetaManagedAgentsAgentToolUseEventEvaluatedPermission)(-1),
-        };
-    }
-
-    public override void Write(
-        Utf8JsonWriter writer,
-        BetaManagedAgentsAgentToolUseEventEvaluatedPermission value,
-        JsonSerializerOptions options
-    )
-    {
-        JsonSerializer.Serialize(
-            writer,
-            value switch
-            {
-                BetaManagedAgentsAgentToolUseEventEvaluatedPermission.Allow => "allow",
-                BetaManagedAgentsAgentToolUseEventEvaluatedPermission.Ask => "ask",
-                BetaManagedAgentsAgentToolUseEventEvaluatedPermission.Deny => "deny",
                 _ => throw new AnthropicInvalidDataException(
                     string.Format("Invalid value '{0}' in {1}", value, nameof(value))
                 ),

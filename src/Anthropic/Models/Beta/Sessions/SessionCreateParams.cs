@@ -57,8 +57,9 @@ public record class SessionCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// A hard spend ceiling. The session stops issuing new model requests once the
-    /// tracked list cost reaches `max_list_cost`.
+    /// Enforced spend ceiling for the session. Omit to create an uncapped session.
+    /// Every model the session can run — the agent's model and each callable agent's
+    /// model — must have a public list price, or the request is rejected with reason `model_not_budgetable`.
     /// </summary>
     public BetaManagedAgentsBudgetLimit? Budget
     {
@@ -71,6 +72,7 @@ public record class SessionCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("budget");
                 return;
             }
 
@@ -95,6 +97,7 @@ public record class SessionCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("initial_events");
                 return;
             }
 
@@ -120,6 +123,7 @@ public record class SessionCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("metadata");
                 return;
             }
 
@@ -144,6 +148,7 @@ public record class SessionCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("resources");
                 return;
             }
 
@@ -181,6 +186,7 @@ public record class SessionCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("vault_ids");
                 return;
             }
 
@@ -192,7 +198,8 @@ public record class SessionCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `managed-agents-2026-04-01` in
+    /// this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -207,6 +214,7 @@ public record class SessionCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -214,6 +222,33 @@ public record class SessionCreateParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -304,6 +339,8 @@ public record class SessionCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/sessions";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(
@@ -355,11 +392,13 @@ public record class Agent : ModelBase
     {
         get
         {
-            return Match<string?>(
-                @string: (_) => null,
-                betaManagedAgentsAgentParams: (x) => x.ID,
-                betaManagedAgentsAgentWithOverridesParams: (x) => x.ID
-            );
+            return this.Value switch
+            {
+                string _ => null,
+                BetaManagedAgentsAgentParams x => x.ID,
+                BetaManagedAgentsAgentWithOverridesParams x => x.ID,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "id"),
+            };
         }
     }
 
@@ -367,11 +406,13 @@ public record class Agent : ModelBase
     {
         get
         {
-            return Match<int?>(
-                @string: (_) => null,
-                betaManagedAgentsAgentParams: (x) => x.Version,
-                betaManagedAgentsAgentWithOverridesParams: (x) => x.Version
-            );
+            return this.Value switch
+            {
+                string _ => null,
+                BetaManagedAgentsAgentParams x => x.Version,
+                BetaManagedAgentsAgentWithOverridesParams x => x.Version,
+                _ => WrappedJsonSerializer.GetNullableStructProperty<int>(this.Json, "version"),
+            };
         }
     }
 
@@ -1011,11 +1052,16 @@ public record class Resource : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsGitHubRepositoryResourceParams: (x) => x.MountPath,
-                betaManagedAgentsFileResourceParams: (x) => x.MountPath,
-                betaManagedAgentsMemoryStoreResourceParam: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsGitHubRepositoryResourceParams x => x.MountPath,
+                BetaManagedAgentsFileResourceParams x => x.MountPath,
+                BetaManagedAgentsMemoryStoreResourceParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "mount_path"
+                ),
+            };
         }
     }
 

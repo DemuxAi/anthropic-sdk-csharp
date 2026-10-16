@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -37,6 +38,11 @@ public static class AnthropicClientExtensions
     /// This may be overridden with <see cref="ChatOptions.MaxOutputTokens"/>.
     /// If no value is provided for this parameter or in <see cref="ChatOptions"/>, a default maximum will be used.
     /// </param>
+    /// <param name="thinkingMode">
+    /// How <see cref="ChatOptions.Reasoning"/> is sent; see <see cref="AnthropicThinkingMode"/>. This has to match
+    /// the model the client targets: the default, <see cref="AnthropicThinkingMode.Adaptive"/>, is what current
+    /// models take, while models that predate adaptive thinking need <see cref="AnthropicThinkingMode.Extended"/>.
+    /// </param>
     /// <returns>An <see cref="IChatClient"/> that can be used to converse via the <see cref="IAnthropicClient"/>.</returns>
     /// <remarks>
     /// The returned client reports the API's <c>stop_reason</c> through <see cref="ChatResponse.FinishReason"/>:
@@ -62,7 +68,8 @@ public static class AnthropicClientExtensions
     public static IChatClient AsIChatClient(
         this IAnthropicClient client,
         string? defaultModelId = null,
-        int? defaultMaxOutputTokens = null
+        int? defaultMaxOutputTokens = null,
+        AnthropicThinkingMode thinkingMode = AnthropicThinkingMode.Adaptive
     )
     {
         if (client is null)
@@ -78,8 +85,28 @@ public static class AnthropicClientExtensions
             );
         }
 
-        return new AnthropicChatClient(client, defaultModelId, defaultMaxOutputTokens);
+        return new AnthropicChatClient(
+            client,
+            defaultModelId,
+            defaultMaxOutputTokens,
+            thinkingMode
+        );
     }
+
+    /// <inheritdoc cref="AsIChatClient(IAnthropicClient, string?, int?, AnthropicThinkingMode)"/>
+    // Binary compatibility with callers compiled against the two-argument form.
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IChatClient AsIChatClient(
+        this IAnthropicClient client,
+        string? defaultModelId,
+        int? defaultMaxOutputTokens
+    ) =>
+        AsIChatClient(
+            client,
+            defaultModelId,
+            defaultMaxOutputTokens,
+            AnthropicThinkingMode.Adaptive
+        );
 
     /// <summary>
     /// Creates an <see cref="IHostedFileClient"/> that can be used to manage files via the <see cref="IFileService"/>.
@@ -119,7 +146,7 @@ public static class AnthropicClientExtensions
     /// <remarks>
     /// <para>
     /// The returned tool is only suitable for use with the <see cref="IChatClient"/> returned by
-    /// <see cref="AsIChatClient"/> (or <see cref="IChatClient"/>s that delegate
+    /// <see cref="AsIChatClient(IAnthropicClient, string?, int?, AnthropicThinkingMode)"/> (or <see cref="IChatClient"/>s that delegate
     /// to such an instance). It is likely to be ignored by any other <see cref="IChatClient"/> implementation.
     /// </para>
     /// <para>
@@ -128,7 +155,7 @@ public static class AnthropicClientExtensions
     /// <see cref="HostedFileSearchTool"/>, those types should be preferred instead of this method, as they are more portable,
     /// capable of being respected by any <see cref="IChatClient"/> implementation. This method does not attempt to
     /// map the supplied <see cref="ToolUnion"/> to any of those types, it simply wraps it as-is:
-    /// the <see cref="IChatClient"/> returned by <see cref="AsIChatClient"/> will
+    /// the <see cref="IChatClient"/> returned by <see cref="AsIChatClient(IAnthropicClient, string?, int?, AnthropicThinkingMode)"/> will
     /// be able to unwrap the <see cref="ToolUnion"/> when it processes the list of tools.
     /// </para>
     /// </remarks>
@@ -227,13 +254,26 @@ public static class AnthropicClientExtensions
         "minItems",
     };
 
+    /// <summary>Gets the properties supported for schemas of the given JSON Schema type.</summary>
+    private static HashSet<string> GetSupportedSchemaProperties(string? type) =>
+        type switch
+        {
+            "object" => s_supportedObjectSchemaProperties,
+            "string" => s_supportedStringSchemaProperties,
+            "array" => s_supportedArraySchemaProperties,
+            _ => s_supportedBaseSchemaProperties,
+        };
+
     /// <summary>
     /// Gets a shared cache for JSON schema transformations for Anthropic's structured output features.
     /// </summary>
     /// <remarks>
     /// Transforms schemas using the same whitelist approach as the TypeScript and Python SDKs:
     /// unsupported constraints are removed and appended to the description so the model
-    /// might still follow them. See:
+    /// might still follow them. Union types diverge deliberately: those SDKs compare
+    /// <c>type</c> against a single string, so a type array matches no branch (TypeScript
+    /// strips its keywords, Python raises). Here a type array keeps the keywords of every
+    /// member it names. See:
     /// <list type="bullet">
     /// <item><see href="https://github.com/anthropics/anthropic-sdk-typescript/blob/main/src/lib/transform-json-schema.ts"/></item>
     /// <item><see href="https://github.com/anthropics/anthropic-sdk-python/blob/main/src/anthropic/lib/_parse/_transform.py"/></item>
@@ -262,50 +302,90 @@ public static class AnthropicClientExtensions
                         schemaObj["anyOf"] = oneOfNode;
                     }
 
-                    // Determine the schema type for type-specific handling.
+                    // Determine the schema type(s) for type-specific handling. A union type
+                    // ("type": ["string","null"], the shape System.Text.Json emits for
+                    // Nullable<T> and for a nullable reference type) is a JSON array rather
+                    // than a string, and carries the keywords of every member it names.
+                    schemaObj.TryGetPropertyValue("type", out JsonNode? typeNode);
                     string? type =
-                        schemaObj.TryGetPropertyValue("type", out JsonNode? typeNode)
-                        && typeNode is JsonValue
-                            ? typeNode.GetValue<string>()
+                        typeNode is JsonValue typeValue
+                        && typeValue.TryGetValue(out string? typeName)
+                            ? typeName
                             : null;
+                    HashSet<string>? unionTypes = null;
+                    if (type is null && typeNode is JsonArray typeArray)
+                    {
+                        unionTypes = new(StringComparer.Ordinal);
+                        foreach (JsonNode? typeMember in typeArray)
+                        {
+                            if (
+                                typeMember is JsonValue memberValue
+                                && memberValue.TryGetValue(out string? memberName)
+                            )
+                            {
+                                unionTypes.Add(memberName);
+                            }
+                        }
+                    }
+
+                    bool HasType(string candidate) =>
+                        unionTypes is null ? type == candidate : unionTypes.Contains(candidate);
 
                     List<KeyValuePair<string, string>>? removed = null;
 
-                    // String format: only supported formats are kept.
+                    // String format: only supported formats are kept. A value that is not a
+                    // supported format string -- including a non-string one -- is removed too,
+                    // rather than being read as a string or reaching the wire unvalidated.
                     if (
-                        type == "string"
+                        HasType("string")
                         && schemaObj.TryGetPropertyValue("format", out JsonNode? formatNode)
-                        && formatNode?.GetValue<string>() is string format
-                        && !s_supportedStringFormats.Contains(format)
+                        && !(
+                            formatNode is JsonValue formatValue
+                            && formatValue.TryGetValue(out string? format)
+                            && s_supportedStringFormats.Contains(format)
+                        )
                     )
                     {
-                        string serialized = formatNode!.ToJsonString(s_relaxedJsonOptions);
+                        string serialized =
+                            formatNode?.ToJsonString(s_relaxedJsonOptions) ?? "null";
                         schemaObj.Remove("format");
                         (removed ??= []).Add(new("format", serialized));
                     }
 
-                    // Array minItems: only 0 and 1 are directly supported.
+                    // Array minItems: only 0 and 1 are directly supported. A value outside that
+                    // range -- or one that is not an integer at all -- is removed.
                     if (
-                        type == "array"
+                        HasType("array")
                         && schemaObj.TryGetPropertyValue("minItems", out JsonNode? minItemsNode)
-                        && minItemsNode is JsonValue minItemsJsonValue
-                        && minItemsJsonValue.TryGetValue(out int minItems)
-                        && minItems is not (0 or 1)
+                        && !(
+                            minItemsNode is JsonValue minItemsValue
+                            && minItemsValue.TryGetValue(out int minItems)
+                            && minItems is 0 or 1
+                        )
                     )
                     {
-                        string serialized = minItemsNode.ToJsonString(s_relaxedJsonOptions);
+                        string serialized =
+                            minItemsNode?.ToJsonString(s_relaxedJsonOptions) ?? "null";
                         schemaObj.Remove("minItems");
                         (removed ??= []).Add(new("minItems", serialized));
                     }
 
                     // Remove all properties not in the supported set for this schema type.
-                    HashSet<string> supported = type switch
+                    // A union type is supported by the union of its members' sets, so
+                    // ["string","null"] keeps "format" exactly as "string" does.
+                    HashSet<string> supported;
+                    if (unionTypes is null)
                     {
-                        "object" => s_supportedObjectSchemaProperties,
-                        "string" => s_supportedStringSchemaProperties,
-                        "array" => s_supportedArraySchemaProperties,
-                        _ => s_supportedBaseSchemaProperties,
-                    };
+                        supported = GetSupportedSchemaProperties(type);
+                    }
+                    else
+                    {
+                        supported = new(s_supportedBaseSchemaProperties, StringComparer.Ordinal);
+                        foreach (string memberType in unionTypes)
+                        {
+                            supported.UnionWith(GetSupportedSchemaProperties(memberType));
+                        }
+                    }
 
                     foreach (KeyValuePair<string, JsonNode?> prop in schemaObj.ToArray())
                     {
@@ -511,7 +591,8 @@ public static class AnthropicClientExtensions
     private sealed class AnthropicChatClient(
         IAnthropicClient anthropicClient,
         string? defaultModelId,
-        int? defaultMaxTokens
+        int? defaultMaxTokens,
+        AnthropicThinkingMode thinkingMode
     ) : IChatClient
     {
         private const int DefaultMaxTokens = 1024;
@@ -519,6 +600,7 @@ public static class AnthropicClientExtensions
         private readonly IAnthropicClient _anthropicClient = anthropicClient;
         private readonly string? _defaultModelId = defaultModelId;
         private readonly int _defaultMaxTokens = defaultMaxTokens ?? DefaultMaxTokens;
+        private readonly AnthropicThinkingMode _thinkingMode = thinkingMode;
         private ChatClientMetadata? _metadata;
 
         /// <inheritdoc />
@@ -585,16 +667,18 @@ public static class AnthropicClientExtensions
             // client-side non-streaming token limit. Use a streaming-level timeout to
             // bypass that check while still providing appropriate timeout behavior.
             var messageService = _anthropicClient.Messages;
-            if (createParams.Thinking is ThinkingConfigParam { Value: ThinkingConfigEnabled })
+            if (createParams.Thinking is ThinkingConfigParam { Value: not ThinkingConfigDisabled })
             {
                 messageService = messageService.WithOptions(opts =>
                     opts with
                     {
-                        Timeout = ClientOptions.TimeoutFromMaxTokens(
-                            createParams.MaxTokens,
-                            isStreaming: true,
-                            createParams.Model
-                        ),
+                        Timeout =
+                            opts.Timeout
+                            ?? ClientOptions.TimeoutFromMaxTokens(
+                                createParams.MaxTokens,
+                                isStreaming: true,
+                                createParams.Model
+                            ),
                     }
                 );
             }
@@ -739,7 +823,7 @@ public static class AnthropicClientExtensions
                                     {
                                         ProtectedData = redactedThinking.Data,
                                         RawRepresentation = redactedThinking,
-                                    }
+                                    }.MarkRedacted()
                                 );
                                 break;
 
@@ -1009,7 +1093,28 @@ public static class AnthropicClientExtensions
                             }
                             break;
 
-                        case TextReasoningContent trc when !string.IsNullOrEmpty(trc.Text):
+                        // redacted_thinking carries opaque data; a thinking block carries text plus a
+                        // signature, and its text is empty whenever display was omitted, so empty text
+                        // alone can't tell the two apart. Only content that came back as redacted is
+                        // sent as redacted; anything else with a signature round-trips as thinking.
+                        // RawRepresentation identifies it until the history is serialized, and the
+                        // marker after that.
+                        case TextReasoningContent { ProtectedData: { } redactedData } trc
+                            when trc.RawRepresentation
+                                is RedactedThinkingBlock
+                                    or Anthropic.Models.Beta.Messages.BetaRedactedThinkingBlock
+                                || trc.IsMarkedRedacted():
+                            contents.Add(
+                                WithCacheControlFrom(
+                                    new RedactedThinkingBlockParam() { Data = redactedData },
+                                    trc
+                                )
+                            );
+                            break;
+
+                        case TextReasoningContent trc
+                            when !string.IsNullOrEmpty(trc.Text)
+                                || !string.IsNullOrEmpty(trc.ProtectedData):
                             contents.Add(
                                 WithCacheControlFrom(
                                     new ThinkingBlockParam()
@@ -1017,15 +1122,6 @@ public static class AnthropicClientExtensions
                                         Thinking = trc.Text,
                                         Signature = trc.ProtectedData ?? string.Empty,
                                     },
-                                    trc
-                                )
-                            );
-                            break;
-
-                        case TextReasoningContent trc when !string.IsNullOrEmpty(trc.ProtectedData):
-                            contents.Add(
-                                WithCacheControlFrom(
-                                    new RedactedThinkingBlockParam() { Data = trc.ProtectedData! },
                                     trc
                                 )
                             );
@@ -1612,6 +1708,14 @@ public static class AnthropicClientExtensions
                                 DisableParallelToolUse = !options.AllowMultipleToolCalls,
                             }
                         : toolMode is NoneChatToolMode ? new ToolChoiceNone()
+                        // RequiredChatToolMode covers both "any tool" and "this tool";
+                        // only RequiredFunctionName tells the two apart.
+                        : toolMode is RequiredChatToolMode { RequiredFunctionName: { } name }
+                            ? new ToolChoiceTool()
+                            {
+                                Name = name,
+                                DisableParallelToolUse = !options.AllowMultipleToolCalls,
+                            }
                         : toolMode is RequiredChatToolMode
                             ? new ToolChoiceAny()
                             {
@@ -1626,69 +1730,81 @@ public static class AnthropicClientExtensions
 
                 if (createParams.Thinking is null && options.Reasoning is { } reasoning)
                 {
+                    long? budgetTokens = reasoning.Effort switch
+                    {
+                        ReasoningEffort.Low => 1024,
+                        ReasoningEffort.Medium => 8192,
+                        ReasoningEffort.High => 16384,
+                        ReasoningEffort.ExtraHigh => 32768,
+                        _ => null,
+                    };
+
+                    // Thinking counts towards max_tokens in both modes. A caller who didn't set a limit
+                    // gets one with room for the budget plus the output; an explicit limit is sent as it
+                    // is.
+                    if (
+                        budgetTokens is { } room
+                        && createParams.MaxTokens <= room
+                        && options.MaxOutputTokens is null
+                    )
+                    {
+                        createParams = createParams with { MaxTokens = room + _defaultMaxTokens };
+                    }
+
                     ThinkingConfigParam? thinkingConfig = null;
                     if (reasoning.Effort is ReasoningEffort.None)
                     {
-                        thinkingConfig = new(new ThinkingConfigDisabled());
+                        thinkingConfig = new ThinkingConfigDisabled();
                     }
-                    else
+                    else if (_thinkingMode is AnthropicThinkingMode.Adaptive)
                     {
-                        long? budgetTokens = reasoning.Effort switch
+                        // Current models choose their own thinking budget from output_config.effort and
+                        // reject a budget_tokens value, so there is no budget to fit under the limit.
+                        // Reasoning with no Effort still turns thinking on, at the model's default effort.
+                        Effort? effort = reasoning.Effort switch
                         {
-                            ReasoningEffort.Low => 1024,
-                            ReasoningEffort.Medium => 8192,
-                            ReasoningEffort.High => 16384,
-                            ReasoningEffort.ExtraHigh => 32768,
+                            ReasoningEffort.Low => Effort.Low,
+                            ReasoningEffort.Medium => Effort.Medium,
+                            ReasoningEffort.High => Effort.High,
+                            ReasoningEffort.ExtraHigh => Effort.Xhigh,
                             _ => null,
                         };
-
-                        if (budgetTokens is { } budget)
+                        if (effort is { } requested && createParams.OutputConfig?.Effort is null)
                         {
-                            // Anthropic requires thinking budget >= 1024 and < max tokens.
-                            bool autoIncreaseMaxTokens = false;
-                            if (createParams.MaxTokens <= budget)
+                            createParams = createParams with
                             {
-                                if (options.MaxOutputTokens is not null)
+                                OutputConfig = (
+                                    createParams.OutputConfig ?? new OutputConfig()
+                                ) with
                                 {
-                                    // Caller explicitly set MaxOutputTokens. Clamp the budget to fit,
-                                    // and skip thinking if it can't meet the minimum.
-                                    budget = createParams.MaxTokens - 1;
-                                }
-                                else
-                                {
-                                    autoIncreaseMaxTokens = true;
-                                }
-                            }
-
-                            if (budget >= 1024)
-                            {
-                                if (autoIncreaseMaxTokens)
-                                {
-                                    // Caller didn't set MaxOutputTokens. Auto-increase max_tokens
-                                    // to accommodate the thinking budget plus room for output.
-                                    createParams = createParams with
-                                    {
-                                        MaxTokens = budget + _defaultMaxTokens,
-                                    };
-                                }
-
-                                thinkingConfig = new(new ThinkingConfigEnabled(budget));
-                            }
+                                    Effort = requested,
+                                },
+                            };
                         }
-                    }
 
-                    if (
-                        thinkingConfig is not null
-                        && reasoning.Output is ReasoningOutput.None
-                        && thinkingConfig.Value is ThinkingConfigEnabled enabled
-                    )
+                        thinkingConfig = AdaptiveThinking(reasoning.Output);
+                    }
+                    else if (budgetTokens is { } budget)
                     {
-                        thinkingConfig = new(
-                            enabled with
-                            {
-                                Display = ThinkingConfigEnabledDisplay.Omitted,
-                            }
-                        );
+                        // Extended thinking, for models that predate adaptive thinking: the effort becomes
+                        // a budget_tokens ceiling, which the API requires to be at least 1024 and below
+                        // max_tokens. An explicit limit too small for that leaves no room to think in, so
+                        // the request goes without. With no Effort there is no budget to send.
+                        if (createParams.MaxTokens <= budget)
+                        {
+                            budget = createParams.MaxTokens - 1;
+                        }
+
+                        if (budget >= 1024)
+                        {
+                            thinkingConfig =
+                                reasoning.Output is ReasoningOutput.None
+                                    ? new ThinkingConfigEnabled(budget)
+                                    {
+                                        Display = ThinkingConfigEnabledDisplay.Omitted,
+                                    }
+                                    : new ThinkingConfigEnabled(budget);
+                        }
                     }
 
                     if (thinkingConfig is not null)
@@ -1718,6 +1834,22 @@ public static class AnthropicClientExtensions
             // Merge the MEAI user-agent header with existing headers
             return AddMeaiHeaders(createParams);
         }
+
+        /// <summary>
+        /// The adaptive thinking configuration for <paramref name="output"/>. Models that take adaptive
+        /// thinking default to omitting thinking text, so callers who asked for reasoning output opt
+        /// back in to it.
+        /// </summary>
+        private static ThinkingConfigAdaptive AdaptiveThinking(ReasoningOutput? output) =>
+            output switch
+            {
+                ReasoningOutput.None => new ThinkingConfigAdaptive { Display = Display.Omitted },
+                ReasoningOutput.Summary or ReasoningOutput.Full => new ThinkingConfigAdaptive
+                {
+                    Display = Display.Summarized,
+                },
+                _ => new ThinkingConfigAdaptive(),
+            };
 
         private static MessageCreateParams AddMeaiHeaders(MessageCreateParams createParams)
         {
@@ -1851,7 +1983,7 @@ public static class AnthropicClientExtensions
                     {
                         ProtectedData = redactedThinking.Data,
                         RawRepresentation = redactedThinking,
-                    };
+                    }.MarkRedacted();
 
                 case ToolUseBlock toolUse:
                     var fcc = FunctionCallContent.CreateFromParsedArguments(
@@ -2647,7 +2779,13 @@ public static class AnthropicClientExtensions
     {
         public ToolUnion Tool => tool;
 
-        public override string Name => tool.Value?.GetType().Name ?? base.Name;
+        // Toolsets have no `name`, so they keep the variant type name.
+        public override string Name =>
+            tool.Json is { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty("name", out JsonElement name)
+            && name.ValueKind == JsonValueKind.String
+                ? name.GetString()!
+                : tool.Value?.GetType().Name ?? base.Name;
 
         public override object? GetService(System.Type serviceType, object? serviceKey = null) =>
             serviceKey is null && serviceType?.IsInstanceOfType(tool) is true

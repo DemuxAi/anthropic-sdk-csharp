@@ -31,7 +31,11 @@ public record class MemoryUpdateParams : ParamsBase
     public string? MemoryID { get; init; }
 
     /// <summary>
-    /// Query parameter for view
+    /// Selects which projection of a `memory` or `memory_version` the server returns.
+    /// `basic` returns the object with `content` set to `null`; `full` populates
+    /// `content`. When omitted, the default is endpoint-specific: retrieve operations
+    /// default to `full`; list, create, and update operations default to `basic`.
+    /// Listing with `view=full` caps `limit` at 20.
     /// </summary>
     public ApiEnum<string, BetaManagedAgentsMemoryView>? View
     {
@@ -46,6 +50,7 @@ public record class MemoryUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("view");
                 return;
             }
 
@@ -70,9 +75,10 @@ public record class MemoryUpdateParams : ParamsBase
     /// <summary>
     /// New path for the memory (a rename). Must start with `/`, contain at least
     /// one non-empty segment, and be at most 1,024 bytes. Must not contain empty
-    /// segments, `.` or `..` segments, control or format characters, and must be
-    /// NFC-normalized. Paths are case-sensitive. The memory's `id` is preserved
-    /// across renames. Omit to leave the path unchanged.
+    /// segments, `.` or `..` segments, control or format characters, or the Unicode
+    /// line and paragraph separators (U+2028, U+2029), and must be NFC-normalized.
+    /// Paths are case-sensitive. The memory's `id` is preserved across renames. Omit
+    /// to leave the path unchanged.
     /// </summary>
     public string? Path
     {
@@ -85,12 +91,9 @@ public record class MemoryUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// Optimistic-concurrency precondition: the update applies only if the memory's
-    /// stored `content_sha256` equals the supplied value. On mismatch, the request
-    /// returns `memory_precondition_failed_error` (HTTP 409); re-read the memory
-    /// and retry against the fresh state. If the precondition fails but the stored
-    /// state already exactly matches the requested `content` and `path`, the server
-    /// returns 200 instead of 409.
+    /// Optional optimistic-concurrency precondition. When supplied, the update applies
+    /// only if the memory's current state matches; on mismatch the request returns
+    /// `memory_precondition_failed_error` (HTTP 409). When omitted, the update is unconditional.
     /// </summary>
     public BetaManagedAgentsPrecondition? Precondition
     {
@@ -105,6 +108,7 @@ public record class MemoryUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("precondition");
                 return;
             }
 
@@ -113,7 +117,8 @@ public record class MemoryUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `agent-memory-2026-07-22` or
+    /// `managed-agents-2026-04-01` in this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -128,6 +133,7 @@ public record class MemoryUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -135,6 +141,33 @@ public record class MemoryUpdateParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -238,14 +271,18 @@ public record class MemoryUpdateParams : ParamsBase
             options.BaseUrl.ToString().TrimEnd('/')
                 + string.Format(
                     "/v1/memory_stores/{0}/memories/{1}",
-                    this.MemoryStoreID,
-                    this.MemoryID
+                    ParamsBase.EncodePathSegment(this.MemoryStoreID, nameof(this.MemoryStoreID)),
+                    ParamsBase.EncodePathSegment(this.MemoryID, nameof(this.MemoryID))
                 )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/memory_stores/{memory_store_id}/memories/{memory_id}";
+
+    internal override IReadOnlyList<string> QueryParams => ["view"];
 
     internal override HttpContent? BodyContent()
     {

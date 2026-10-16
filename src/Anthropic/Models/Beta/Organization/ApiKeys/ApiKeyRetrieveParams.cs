@@ -100,12 +100,17 @@ public record class ApiKeyRetrieveParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/api_keys/{0}", this.ApiKeyID)
+                + string.Format(
+                    "/v1/organizations/api_keys/{0}",
+                    ParamsBase.EncodePathSegment(this.ApiKeyID, nameof(this.ApiKeyID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/api_keys/{api_key_id}";
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

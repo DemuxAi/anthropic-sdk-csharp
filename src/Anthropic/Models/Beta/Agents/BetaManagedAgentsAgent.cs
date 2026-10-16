@@ -28,7 +28,7 @@ public sealed record class BetaManagedAgentsAgent : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// When the agent was archived. Null if not archived.
     /// </summary>
     public required System::DateTimeOffset? ArchivedAt
     {
@@ -61,6 +61,22 @@ public sealed record class BetaManagedAgentsAgent : JsonModel
             return this._rawData.GetNullableClass<string>("description");
         }
         init { this._rawData.Set("description", value); }
+    }
+
+    /// <summary>
+    /// Execution principal for runs of this agent. Always present; `{"type": "service_account"}`
+    /// when runs carry no customer-named principal.
+    /// </summary>
+    public required BetaManagedAgentsExecutionIdentity ExecutionIdentity
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNotNullClass<BetaManagedAgentsExecutionIdentity>(
+                "execution_identity"
+            );
+        }
+        init { this._rawData.Set("execution_identity", value); }
     }
 
     public required IReadOnlyList<BetaManagedAgentsMcpServerUrlDefinition> McpServers
@@ -111,7 +127,7 @@ public sealed record class BetaManagedAgentsAgent : JsonModel
     }
 
     /// <summary>
-    /// Resolved coordinator topology with a concrete agent roster.
+    /// Multiagent orchestration configuration. Null when the agent is single-threaded.
     /// </summary>
     public required BetaManagedAgentsMultiagent? Multiagent
     {
@@ -224,6 +240,7 @@ public sealed record class BetaManagedAgentsAgent : JsonModel
         _ = this.ArchivedAt;
         _ = this.CreatedAt;
         _ = this.Description;
+        this.ExecutionIdentity.Validate();
         foreach (var item in this.McpServers)
         {
             item.Validate();
@@ -309,10 +326,12 @@ public record class Skill : ModelBase
     {
         get
         {
-            return Match(
-                betaManagedAgentsAnthropic: (x) => x.SkillID,
-                betaManagedAgentsCustom: (x) => x.SkillID
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsAnthropicSkill x => x.SkillID,
+                BetaManagedAgentsCustomSkill x => x.SkillID,
+                _ => WrappedJsonSerializer.GetNotNullClassProperty<string>(this.Json, "skill_id"),
+            };
         }
     }
 
@@ -320,10 +339,12 @@ public record class Skill : ModelBase
     {
         get
         {
-            return Match(
-                betaManagedAgentsAnthropic: (x) => x.Version,
-                betaManagedAgentsCustom: (x) => x.Version
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsAnthropicSkill x => x.Version,
+                BetaManagedAgentsCustomSkill x => x.Version,
+                _ => WrappedJsonSerializer.GetNotNullClassProperty<string>(this.Json, "version"),
+            };
         }
     }
 

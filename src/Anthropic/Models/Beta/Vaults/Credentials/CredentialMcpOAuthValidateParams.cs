@@ -24,7 +24,8 @@ public record class CredentialMcpOAuthValidateParams : ParamsBase
     public string? CredentialID { get; init; }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `managed-agents-2026-04-01` in
+    /// this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -39,6 +40,7 @@ public record class CredentialMcpOAuthValidateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -46,6 +48,33 @@ public record class CredentialMcpOAuthValidateParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -141,14 +170,17 @@ public record class CredentialMcpOAuthValidateParams : ParamsBase
             options.BaseUrl.ToString().TrimEnd('/')
                 + string.Format(
                     "/v1/vaults/{0}/credentials/{1}/mcp_oauth_validate",
-                    this.VaultID,
-                    this.CredentialID
+                    ParamsBase.EncodePathSegment(this.VaultID, nameof(this.VaultID)),
+                    ParamsBase.EncodePathSegment(this.CredentialID, nameof(this.CredentialID))
                 )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route =>
+        "/v1/vaults/{vault_id}/credentials/{credential_id}/mcp_oauth_validate";
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

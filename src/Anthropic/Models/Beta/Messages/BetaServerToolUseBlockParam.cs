@@ -75,9 +75,6 @@ public sealed record class BetaServerToolUseBlockParam : JsonModel
         init { this._rawData.Set("cache_control", value); }
     }
 
-    /// <summary>
-    /// Tool invocation directly from the model.
-    /// </summary>
     public BetaServerToolUseBlockParamCaller? Caller
     {
         get
@@ -89,6 +86,7 @@ public sealed record class BetaServerToolUseBlockParam : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("caller");
                 return;
             }
 
@@ -219,9 +217,6 @@ sealed class BetaServerToolUseBlockParamNameConverter
     }
 }
 
-/// <summary>
-/// Tool invocation directly from the model.
-/// </summary>
 [JsonConverter(typeof(BetaServerToolUseBlockParamCallerConverter))]
 public record class BetaServerToolUseBlockParamCaller : ModelBase
 {
@@ -244,11 +239,13 @@ public record class BetaServerToolUseBlockParamCaller : ModelBase
     {
         get
         {
-            return Match(
-                betaDirect: (x) => x.Type,
-                betaServerTool: (x) => x.Type,
-                betaServerToolCaller20260120: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller x => x.Type,
+                BetaServerToolCaller x => x.Type,
+                BetaServerToolCaller20260120 x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -256,11 +253,13 @@ public record class BetaServerToolUseBlockParamCaller : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaDirect: (_) => null,
-                betaServerTool: (x) => x.ToolID,
-                betaServerToolCaller20260120: (x) => x.ToolID
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller _ => null,
+                BetaServerToolCaller x => x.ToolID,
+                BetaServerToolCaller20260120 x => x.ToolID,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "tool_id"),
+            };
         }
     }
 

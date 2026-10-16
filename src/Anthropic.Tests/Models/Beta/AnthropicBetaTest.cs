@@ -31,6 +31,7 @@ public class AnthropicBetaTest : TestBase
     [InlineData(AnthropicBeta.Output300k2026_03_24)]
     [InlineData(AnthropicBeta.UserProfiles2026_03_24)]
     [InlineData(AnthropicBeta.UserProfiles2026_08_18)]
+    [InlineData(AnthropicBeta.UserProfiles2026_09_04)]
     [InlineData(AnthropicBeta.AdvisorTool2026_03_01)]
     [InlineData(AnthropicBeta.ManagedAgents2026_04_01)]
     [InlineData(AnthropicBeta.CacheDiagnosis2026_04_07)]
@@ -49,6 +50,15 @@ public class AnthropicBetaTest : TestBase
     [InlineData(AnthropicBeta.TaskBudgets2026_03_13)]
     [InlineData(AnthropicBeta.ThinkingDisplayUpdates2026_08_18)]
     [InlineData(AnthropicBeta.CEUserManagement2026_07_13)]
+    [InlineData(AnthropicBeta.MidConversationOutputConfig2026_07_01)]
+    [InlineData(AnthropicBeta.ThinkingBindingControls2026_08_01)]
+    [InlineData(AnthropicBeta.MidConversationSystemClearAt2026_08_21)]
+    [InlineData(AnthropicBeta.Compact2026_09_04)]
+    [InlineData(AnthropicBeta.InlineTools2026_09_15)]
+    [InlineData(AnthropicBeta.McpClient2026_09_15)]
+    [InlineData(AnthropicBeta.CEPlugins2026_09_01)]
+    [InlineData(AnthropicBeta.SpendLimitReads2026_09_26)]
+    [InlineData(AnthropicBeta.TelemetryDestinations2026_08_11)]
     public void Validation_Works(AnthropicBeta rawValue)
     {
         // force implicit conversion because Theory can't do that for us
@@ -92,6 +102,7 @@ public class AnthropicBetaTest : TestBase
     [InlineData(AnthropicBeta.Output300k2026_03_24)]
     [InlineData(AnthropicBeta.UserProfiles2026_03_24)]
     [InlineData(AnthropicBeta.UserProfiles2026_08_18)]
+    [InlineData(AnthropicBeta.UserProfiles2026_09_04)]
     [InlineData(AnthropicBeta.AdvisorTool2026_03_01)]
     [InlineData(AnthropicBeta.ManagedAgents2026_04_01)]
     [InlineData(AnthropicBeta.CacheDiagnosis2026_04_07)]
@@ -110,6 +121,15 @@ public class AnthropicBetaTest : TestBase
     [InlineData(AnthropicBeta.TaskBudgets2026_03_13)]
     [InlineData(AnthropicBeta.ThinkingDisplayUpdates2026_08_18)]
     [InlineData(AnthropicBeta.CEUserManagement2026_07_13)]
+    [InlineData(AnthropicBeta.MidConversationOutputConfig2026_07_01)]
+    [InlineData(AnthropicBeta.ThinkingBindingControls2026_08_01)]
+    [InlineData(AnthropicBeta.MidConversationSystemClearAt2026_08_21)]
+    [InlineData(AnthropicBeta.Compact2026_09_04)]
+    [InlineData(AnthropicBeta.InlineTools2026_09_15)]
+    [InlineData(AnthropicBeta.McpClient2026_09_15)]
+    [InlineData(AnthropicBeta.CEPlugins2026_09_01)]
+    [InlineData(AnthropicBeta.SpendLimitReads2026_09_26)]
+    [InlineData(AnthropicBeta.TelemetryDestinations2026_08_11)]
     public void SerializationRoundtrip_Works(AnthropicBeta rawValue)
     {
         // force implicit conversion because Theory can't do that for us

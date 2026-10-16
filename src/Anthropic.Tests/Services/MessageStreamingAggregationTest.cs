@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Anthropic.Core;
 using Anthropic.Helpers;
 using Anthropic.Models.Messages;
 using Anthropic.Services;
 using Moq;
+using static Anthropic.Tests.TestHelpers.ReflectionTripwire;
 
 namespace Anthropic.Tests.Services;
 
@@ -18,6 +21,7 @@ public class MessageStreamingAggregationTest
             Container = null,
             ID = "Test",
             Content = [],
+            Diagnostics = null,
             Model = Model.ClaudeOpus4_6,
             StopDetails = null,
             StopReason = StopReason.ToolUse,
@@ -32,6 +36,7 @@ public class MessageStreamingAggregationTest
                 OutputTokensDetails = new(0),
                 ServerToolUse = null,
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = null,
                 InferenceGeo = "inference_geo",
             },
         };
@@ -204,6 +209,33 @@ public class MessageStreamingAggregationTest
     }
 
     [Fact]
+    public async Task CollectAsync_ReadsTheSourceToItsEnd_AndPassesNothingOnAfterTheEndMessage()
+    {
+        var readToTheEnd = false;
+        async IAsyncEnumerable<RawMessageStreamEvent> GetTestValues()
+        {
+            yield return new(new RawMessageStartEvent(GenerateStartMessage));
+            yield return new(new RawMessageStopEvent());
+            // Nothing follows `message_stop`. An event that did is read and left out.
+            yield return new(new RawContentBlockStopEvent() { Index = 0 });
+            await Task.CompletedTask;
+            readToTheEnd = true;
+        }
+        MessageContentAggregator aggregator = new();
+
+        List<RawMessageStreamEvent> passedOn = [];
+        await foreach (var streamEvent in GetTestValues().CollectAsync(aggregator))
+        {
+            passedOn.Add(streamEvent);
+        }
+
+        Assert.True(readToTheEnd);
+        Assert.Equal(2, passedOn.Count);
+        Assert.IsType<RawMessageStopEvent>(passedOn[1].Value);
+        Assert.Empty(aggregator.Message().Content);
+    }
+
+    [Fact]
     public async Task CreateStreamingAggregationPartialAggregation_Throws()
     {
         // arrange
@@ -366,6 +398,95 @@ public class MessageStreamingAggregationTest
     }
 
     [Fact]
+    public async Task Add_BuildsTheSameMessageAsCollectAsync()
+    {
+        // arrange
+
+        RawMessageStreamEvent[] events =
+        [
+            // Not part of the Message: before its start.
+            new(new RawContentBlockStopEvent() { Index = 9 }),
+            new(new RawMessageStartEvent(GenerateStartMessage)),
+            new(
+                new RawContentBlockStartEvent()
+                {
+                    Index = 0,
+                    ContentBlock = new(new TextBlock() { Citations = null, Text = "This is a " }),
+                }
+            ),
+            new(new RawContentBlockDeltaEvent() { Index = 0, Delta = new(new TextDelta("Test")) }),
+            new(new RawContentBlockStopEvent() { Index = 0 }),
+            new(
+                new RawContentBlockStartEvent()
+                {
+                    Index = 1,
+                    ContentBlock = new(
+                        new ToolUseBlock()
+                        {
+                            ID = "toolu_1",
+                            Name = "lookup",
+                            Input = new Dictionary<string, JsonElement>(),
+                            Caller = new DirectCaller(),
+                        }
+                    ),
+                }
+            ),
+            new(
+                new RawContentBlockDeltaEvent()
+                {
+                    Index = 1,
+                    Delta = new(new InputJsonDelta("{\"q\":")),
+                }
+            ),
+            new(
+                new RawContentBlockDeltaEvent()
+                {
+                    Index = 1,
+                    Delta = new(new InputJsonDelta("\"x\"}")),
+                }
+            ),
+            new(new RawContentBlockStopEvent() { Index = 1 }),
+            new(new RawMessageStopEvent()),
+        ];
+        static async IAsyncEnumerable<RawMessageStreamEvent> Stream(
+            IEnumerable<RawMessageStreamEvent> events
+        )
+        {
+            foreach (var streamEvent in events)
+            {
+                yield return streamEvent;
+            }
+            await Task.CompletedTask;
+        }
+
+        // act
+
+        var collected = await Stream(events).Aggregate();
+        var aggregator = new MessageContentAggregator();
+        foreach (var streamEvent in events.Take(events.Length - 1))
+        {
+            aggregator.Add(streamEvent);
+        }
+
+        // assert
+
+        // As after a stream that `CollectAsync` read to the same point.
+        Assert.Throws<Exceptions.AnthropicInvalidDataException>(() => aggregator.Message());
+        aggregator.Add(events[^1]);
+        // Not part of the Message: after its end.
+        aggregator.Add(
+            new(new RawContentBlockDeltaEvent() { Index = 0, Delta = new(new TextDelta("late")) })
+        );
+        var pushed = aggregator.Message();
+        pushed.Validate();
+        Assert.Equal("This is a Test", ((TextBlock)pushed.Content[0].Value!).Text);
+        Assert.Equal(
+            JsonSerializer.Serialize(collected, ModelBase.SerializerOptions),
+            JsonSerializer.Serialize(pushed, ModelBase.SerializerOptions)
+        );
+    }
+
+    [Fact]
     public async Task CreateStreamingAggregation_ReassemblesToolUseInputFromInputJsonDeltas()
     {
         // Arrange
@@ -440,6 +561,7 @@ public class MessageStreamingAggregationTest
             Container = null,
             ID = "Test",
             Content = [],
+            Diagnostics = null,
             Model = Model.ClaudeOpus4_6,
             StopDetails = null,
             StopReason = null,
@@ -454,6 +576,7 @@ public class MessageStreamingAggregationTest
                 OutputTokensDetails = new(11),
                 ServerToolUse = new() { WebFetchRequests = 1, WebSearchRequests = 1 },
                 ServiceTier = UsageServiceTier.Standard,
+                Speed = UsageSpeed.Fast,
                 InferenceGeo = "inference_geo",
             },
         };
@@ -593,6 +716,7 @@ public class MessageStreamingAggregationTest
         Assert.NotNull(stream.Usage.CacheCreation);
         Assert.Equal(5, stream.Usage.CacheCreation!.Ephemeral5mInputTokens);
         Assert.Equal(UsageServiceTier.Standard, stream.Usage.ServiceTier!.Value());
+        Assert.Equal(UsageSpeed.Fast, stream.Usage.Speed!.Value());
         Assert.Equal("inference_geo", stream.Usage.InferenceGeo);
         Assert.Null(stream.Container);
     }
@@ -883,5 +1007,30 @@ public class MessageStreamingAggregationTest
         Assert.Equal(2, citations.GetArrayLength());
         Assert.Equal("char_location", citations[0].GetProperty("type").GetString());
         Assert.Equal("web_search_result_location", citations[1].GetProperty("type").GetString());
+    }
+
+    [Fact]
+    public void MessageDeltaEventFields_AreAllHandledByAggregator()
+    {
+        // tripwire: handle a new field in MessageContentAggregator, then list it here
+        Assert.Equal(
+            ["Delta", "Type", "Usage"],
+            DeclaredPropertyNames(typeof(RawMessageDeltaEvent))
+        );
+        Assert.Equal(
+            ["Container", "StopDetails", "StopReason", "StopSequence"],
+            DeclaredPropertyNames(typeof(RawMessageDeltaEvent).GetProperty("Delta")!.PropertyType)
+        );
+        Assert.Equal(
+            [
+                "CacheCreationInputTokens",
+                "CacheReadInputTokens",
+                "InputTokens",
+                "OutputTokens",
+                "OutputTokensDetails",
+                "ServerToolUse",
+            ],
+            DeclaredPropertyNames(typeof(MessageDeltaUsage))
+        );
     }
 }

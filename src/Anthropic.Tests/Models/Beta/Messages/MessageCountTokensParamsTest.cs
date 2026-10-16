@@ -17,9 +17,19 @@ public class MessageCountTokensParamsTest : TestBase
     {
         var parameters = new MessageCountTokensParams
         {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             ContextManagement = new()
             {
                 Edits =
@@ -84,7 +94,14 @@ public class MessageCountTokensParamsTest : TestBase
                     },
                 ]
             ),
-            Thinking = new BetaThinkingConfigAdaptive() { Display = Display.Summarized },
+            Thinking = new BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Display.Summarized,
+            },
             ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },
             Tools =
             [
@@ -118,14 +135,22 @@ public class MessageCountTokensParamsTest : TestBase
             ],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         List<BetaMessageParam> expectedMessages =
         [
-            new() { Content = "Hello, world", Role = Role.User },
+            new()
+            {
+                Content = "Hello, world",
+                Role = Role.User,
+                ClearAt = ClearAt.NextUserMessage,
+                OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+            },
         ];
-        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5;
+        ApiEnum<string, Messages::Model> expectedModel = Messages::Model.ClaudeOpus5_5;
         BetaCacheControlEphemeral expectedCacheControl = new() { Ttl = Ttl.Ttl5m };
+        BetaCompactionConfig expectedCompaction = new() { Instructions = "instructions" };
         BetaContextManagementConfig expectedContextManagement = new()
         {
             Edits =
@@ -193,6 +218,10 @@ public class MessageCountTokensParamsTest : TestBase
         );
         BetaThinkingConfigParam expectedThinking = new BetaThinkingConfigAdaptive()
         {
+            BlockBinding = new()
+            {
+                PrefixMismatchBehavior = BetaThinkingPrefixMismatchBehavior.Error,
+            },
             Display = Display.Summarized,
         };
         BetaToolChoice expectedToolChoice = new BetaToolChoiceAuto()
@@ -234,6 +263,7 @@ public class MessageCountTokensParamsTest : TestBase
             AnthropicBeta.MessageBatches2024_09_24,
         ];
         string expectedUserProfileID = "anthropic-user-profile-id";
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedMessages.Count, parameters.Messages.Count);
         for (int i = 0; i < expectedMessages.Count; i++)
@@ -242,6 +272,7 @@ public class MessageCountTokensParamsTest : TestBase
         }
         Assert.Equal(expectedModel, parameters.Model);
         Assert.Equal(expectedCacheControl, parameters.CacheControl);
+        Assert.Equal(expectedCompaction, parameters.Compaction);
         Assert.Equal(expectedContextManagement, parameters.ContextManagement);
         Assert.NotNull(parameters.McpServers);
         Assert.Equal(expectedMcpServers.Count, parameters.McpServers.Count);
@@ -268,6 +299,7 @@ public class MessageCountTokensParamsTest : TestBase
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
         Assert.Equal(expectedUserProfileID, parameters.UserProfileID);
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -275,9 +307,19 @@ public class MessageCountTokensParamsTest : TestBase
     {
         var parameters = new MessageCountTokensParams
         {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             ContextManagement = new()
             {
                 Edits =
@@ -318,6 +360,8 @@ public class MessageCountTokensParamsTest : TestBase
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
         Assert.Null(parameters.UserProfileID);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -325,9 +369,19 @@ public class MessageCountTokensParamsTest : TestBase
     {
         var parameters = new MessageCountTokensParams
         {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             ContextManagement = new()
             {
                 Edits =
@@ -360,6 +414,7 @@ public class MessageCountTokensParamsTest : TestBase
             Tools = null,
             Betas = null,
             UserProfileID = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.McpServers);
@@ -378,254 +433,28 @@ public class MessageCountTokensParamsTest : TestBase
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
         Assert.Null(parameters.UserProfileID);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
-    public void OptionalNullableParamsUnsetAreNotSet_Works()
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
     {
         var parameters = new MessageCountTokensParams
         {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
-            McpServers =
+            Messages =
             [
                 new()
                 {
-                    Name = "name",
-                    Url = "url",
-                    AuthorizationToken = "authorization_token",
-                    ToolConfiguration = new() { AllowedTools = ["string"], Enabled = true },
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
                 },
             ],
-            OutputConfig = new()
-            {
-                Effort = Effort.Low,
-                Format = new()
-                {
-                    Schema = new Dictionary<string, JsonElement>()
-                    {
-                        { "foo", JsonSerializer.SerializeToElement("bar") },
-                    },
-                },
-                TaskBudget = new() { Total = 1024, Remaining = 0 },
-            },
-            System = new(
-                [
-                    new BetaTextBlockParam()
-                    {
-                        Text = "Today's date is 2024-06-01.",
-                        CacheControl = new() { Ttl = Ttl.Ttl5m },
-                        Citations =
-                        [
-                            new BetaCitationCharLocationParam()
-                            {
-                                CitedText = "The grass is green. The sky is blue.",
-                                DocumentIndex = 0,
-                                DocumentTitle = "x",
-                                EndCharIndex = 0,
-                                StartCharIndex = 0,
-                            },
-                        ],
-                    },
-                ]
-            ),
-            Thinking = new BetaThinkingConfigAdaptive() { Display = Display.Summarized },
-            ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },
-            Tools =
-            [
-                new BetaTool()
-                {
-                    InputSchema = new()
-                    {
-                        Properties = new Dictionary<string, JsonElement>()
-                        {
-                            { "location", JsonSerializer.SerializeToElement("bar") },
-                            { "unit", JsonSerializer.SerializeToElement("bar") },
-                        },
-                        Required = ["location"],
-                    },
-                    Name = "name",
-                    AllowedCallers = [BetaToolAllowedCaller.Direct],
-                    CacheControl = new() { Ttl = Ttl.Ttl5m },
-                    DeferLoading = true,
-                    Description = "Get the current weather in a given location",
-                    EagerInputStreaming = true,
-                    InputExamples =
-                    [
-                        new Dictionary<string, JsonElement>()
-                        {
-                            { "foo", JsonSerializer.SerializeToElement("bar") },
-                        },
-                    ],
-                    Strict = true,
-                    Type = BetaToolType.Custom,
-                },
-            ],
-            Betas = [AnthropicBeta.MessageBatches2024_09_24],
-            UserProfileID = "anthropic-user-profile-id",
-        };
-
-        Assert.Null(parameters.CacheControl);
-        Assert.False(parameters.RawBodyData.ContainsKey("cache_control"));
-        Assert.Null(parameters.ContextManagement);
-        Assert.False(parameters.RawBodyData.ContainsKey("context_management"));
-        Assert.Null(parameters.OutputFormat);
-        Assert.False(parameters.RawBodyData.ContainsKey("output_format"));
-        Assert.Null(parameters.Speed);
-        Assert.False(parameters.RawBodyData.ContainsKey("speed"));
-    }
-
-    [Fact]
-    public void OptionalNullableParamsSetToNullAreSetToNull_Works()
-    {
-        var parameters = new MessageCountTokensParams
-        {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
-            McpServers =
-            [
-                new()
-                {
-                    Name = "name",
-                    Url = "url",
-                    AuthorizationToken = "authorization_token",
-                    ToolConfiguration = new() { AllowedTools = ["string"], Enabled = true },
-                },
-            ],
-            OutputConfig = new()
-            {
-                Effort = Effort.Low,
-                Format = new()
-                {
-                    Schema = new Dictionary<string, JsonElement>()
-                    {
-                        { "foo", JsonSerializer.SerializeToElement("bar") },
-                    },
-                },
-                TaskBudget = new() { Total = 1024, Remaining = 0 },
-            },
-            System = new(
-                [
-                    new BetaTextBlockParam()
-                    {
-                        Text = "Today's date is 2024-06-01.",
-                        CacheControl = new() { Ttl = Ttl.Ttl5m },
-                        Citations =
-                        [
-                            new BetaCitationCharLocationParam()
-                            {
-                                CitedText = "The grass is green. The sky is blue.",
-                                DocumentIndex = 0,
-                                DocumentTitle = "x",
-                                EndCharIndex = 0,
-                                StartCharIndex = 0,
-                            },
-                        ],
-                    },
-                ]
-            ),
-            Thinking = new BetaThinkingConfigAdaptive() { Display = Display.Summarized },
-            ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },
-            Tools =
-            [
-                new BetaTool()
-                {
-                    InputSchema = new()
-                    {
-                        Properties = new Dictionary<string, JsonElement>()
-                        {
-                            { "location", JsonSerializer.SerializeToElement("bar") },
-                            { "unit", JsonSerializer.SerializeToElement("bar") },
-                        },
-                        Required = ["location"],
-                    },
-                    Name = "name",
-                    AllowedCallers = [BetaToolAllowedCaller.Direct],
-                    CacheControl = new() { Ttl = Ttl.Ttl5m },
-                    DeferLoading = true,
-                    Description = "Get the current weather in a given location",
-                    EagerInputStreaming = true,
-                    InputExamples =
-                    [
-                        new Dictionary<string, JsonElement>()
-                        {
-                            { "foo", JsonSerializer.SerializeToElement("bar") },
-                        },
-                    ],
-                    Strict = true,
-                    Type = BetaToolType.Custom,
-                },
-            ],
-            Betas = [AnthropicBeta.MessageBatches2024_09_24],
-            UserProfileID = "anthropic-user-profile-id",
-
-            CacheControl = null,
-            ContextManagement = null,
-            OutputFormat = null,
-            Speed = null,
-        };
-
-        Assert.Null(parameters.CacheControl);
-        Assert.True(parameters.RawBodyData.ContainsKey("cache_control"));
-        Assert.Null(parameters.ContextManagement);
-        Assert.True(parameters.RawBodyData.ContainsKey("context_management"));
-        Assert.Null(parameters.OutputFormat);
-        Assert.True(parameters.RawBodyData.ContainsKey("output_format"));
-        Assert.Null(parameters.Speed);
-        Assert.True(parameters.RawBodyData.ContainsKey("speed"));
-    }
-
-    [Fact]
-    public void Url_Works()
-    {
-        MessageCountTokensParams parameters = new()
-        {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
-        };
-
-        var url = parameters.Url(new() { ApiKey = "my-anthropic-api-key" });
-
-        Assert.True(
-            TestBase.UrisEqual(
-                new Uri("https://api.anthropic.com/v1/messages/count_tokens?beta=true"),
-                url
-            )
-        );
-    }
-
-    [Fact]
-    public void AddHeadersToRequest_Works()
-    {
-        HttpRequestMessage requestMessage = new();
-        MessageCountTokensParams parameters = new()
-        {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
-            Betas = [AnthropicBeta.MessageBatches2024_09_24],
-            UserProfileID = "anthropic-user-profile-id",
-        };
-
-        parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
-
-        Assert.Equal(
-            ["message-batches-2024-09-24"],
-            requestMessage.Headers.GetValues("anthropic-beta")
-        );
-        Assert.Equal(
-            ["anthropic-user-profile-id"],
-            requestMessage.Headers.GetValues("anthropic-user-profile-id")
-        );
-    }
-
-    [Fact]
-    public void CopyConstructor_Works()
-    {
-        var parameters = new MessageCountTokensParams
-        {
-            Messages = [new() { Content = "Hello, world", Role = Role.User }],
-            Model = Messages::Model.ClaudeOpus5,
+            Model = Messages::Model.ClaudeOpus5_5,
             CacheControl = new() { Ttl = Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
             ContextManagement = new()
             {
                 Edits =
@@ -690,7 +519,14 @@ public class MessageCountTokensParamsTest : TestBase
                     },
                 ]
             ),
-            Thinking = new BetaThinkingConfigAdaptive() { Display = Display.Summarized },
+            Thinking = new BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Display.Summarized,
+            },
             ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },
             Tools =
             [
@@ -724,6 +560,465 @@ public class MessageCountTokensParamsTest : TestBase
             ],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
             UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            McpServers = null,
+            OutputConfig = null,
+            System = null,
+            Thinking = null,
+            ToolChoice = null,
+            Tools = null,
+            Betas = null,
+            UserProfileID = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.McpServers);
+        Assert.False(parameters.RawBodyData.ContainsKey("mcp_servers"));
+        Assert.Null(parameters.OutputConfig);
+        Assert.False(parameters.RawBodyData.ContainsKey("output_config"));
+        Assert.Null(parameters.System);
+        Assert.False(parameters.RawBodyData.ContainsKey("system"));
+        Assert.Null(parameters.Thinking);
+        Assert.False(parameters.RawBodyData.ContainsKey("thinking"));
+        Assert.Null(parameters.ToolChoice);
+        Assert.False(parameters.RawBodyData.ContainsKey("tool_choice"));
+        Assert.Null(parameters.Tools);
+        Assert.False(parameters.RawBodyData.ContainsKey("tools"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.UserProfileID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-user-profile-id"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNullableParamsUnsetAreNotSet_Works()
+    {
+        var parameters = new MessageCountTokensParams
+        {
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
+            McpServers =
+            [
+                new()
+                {
+                    Name = "name",
+                    Url = "url",
+                    AuthorizationToken = "authorization_token",
+                    ToolConfiguration = new() { AllowedTools = ["string"], Enabled = true },
+                },
+            ],
+            OutputConfig = new()
+            {
+                Effort = Effort.Low,
+                Format = new()
+                {
+                    Schema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                },
+                TaskBudget = new() { Total = 1024, Remaining = 0 },
+            },
+            System = new(
+                [
+                    new BetaTextBlockParam()
+                    {
+                        Text = "Today's date is 2024-06-01.",
+                        CacheControl = new() { Ttl = Ttl.Ttl5m },
+                        Citations =
+                        [
+                            new BetaCitationCharLocationParam()
+                            {
+                                CitedText = "The grass is green. The sky is blue.",
+                                DocumentIndex = 0,
+                                DocumentTitle = "x",
+                                EndCharIndex = 0,
+                                StartCharIndex = 0,
+                            },
+                        ],
+                    },
+                ]
+            ),
+            Thinking = new BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Display.Summarized,
+            },
+            ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },
+            Tools =
+            [
+                new BetaTool()
+                {
+                    InputSchema = new()
+                    {
+                        Properties = new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("bar") },
+                            { "unit", JsonSerializer.SerializeToElement("bar") },
+                        },
+                        Required = ["location"],
+                    },
+                    Name = "name",
+                    AllowedCallers = [BetaToolAllowedCaller.Direct],
+                    CacheControl = new() { Ttl = Ttl.Ttl5m },
+                    DeferLoading = true,
+                    Description = "Get the current weather in a given location",
+                    EagerInputStreaming = true,
+                    InputExamples =
+                    [
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "foo", JsonSerializer.SerializeToElement("bar") },
+                        },
+                    ],
+                    Strict = true,
+                    Type = BetaToolType.Custom,
+                },
+            ],
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        };
+
+        Assert.Null(parameters.CacheControl);
+        Assert.False(parameters.RawBodyData.ContainsKey("cache_control"));
+        Assert.Null(parameters.Compaction);
+        Assert.False(parameters.RawBodyData.ContainsKey("compaction"));
+        Assert.Null(parameters.ContextManagement);
+        Assert.False(parameters.RawBodyData.ContainsKey("context_management"));
+        Assert.Null(parameters.OutputFormat);
+        Assert.False(parameters.RawBodyData.ContainsKey("output_format"));
+        Assert.Null(parameters.Speed);
+        Assert.False(parameters.RawBodyData.ContainsKey("speed"));
+    }
+
+    [Fact]
+    public void OptionalNullableParamsSetToNullAreSetToNull_Works()
+    {
+        var parameters = new MessageCountTokensParams
+        {
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
+            McpServers =
+            [
+                new()
+                {
+                    Name = "name",
+                    Url = "url",
+                    AuthorizationToken = "authorization_token",
+                    ToolConfiguration = new() { AllowedTools = ["string"], Enabled = true },
+                },
+            ],
+            OutputConfig = new()
+            {
+                Effort = Effort.Low,
+                Format = new()
+                {
+                    Schema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                },
+                TaskBudget = new() { Total = 1024, Remaining = 0 },
+            },
+            System = new(
+                [
+                    new BetaTextBlockParam()
+                    {
+                        Text = "Today's date is 2024-06-01.",
+                        CacheControl = new() { Ttl = Ttl.Ttl5m },
+                        Citations =
+                        [
+                            new BetaCitationCharLocationParam()
+                            {
+                                CitedText = "The grass is green. The sky is blue.",
+                                DocumentIndex = 0,
+                                DocumentTitle = "x",
+                                EndCharIndex = 0,
+                                StartCharIndex = 0,
+                            },
+                        ],
+                    },
+                ]
+            ),
+            Thinking = new BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Display.Summarized,
+            },
+            ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },
+            Tools =
+            [
+                new BetaTool()
+                {
+                    InputSchema = new()
+                    {
+                        Properties = new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("bar") },
+                            { "unit", JsonSerializer.SerializeToElement("bar") },
+                        },
+                        Required = ["location"],
+                    },
+                    Name = "name",
+                    AllowedCallers = [BetaToolAllowedCaller.Direct],
+                    CacheControl = new() { Ttl = Ttl.Ttl5m },
+                    DeferLoading = true,
+                    Description = "Get the current weather in a given location",
+                    EagerInputStreaming = true,
+                    InputExamples =
+                    [
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "foo", JsonSerializer.SerializeToElement("bar") },
+                        },
+                    ],
+                    Strict = true,
+                    Type = BetaToolType.Custom,
+                },
+            ],
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+
+            CacheControl = null,
+            Compaction = null,
+            ContextManagement = null,
+            OutputFormat = null,
+            Speed = null,
+        };
+
+        Assert.Null(parameters.CacheControl);
+        Assert.True(parameters.RawBodyData.ContainsKey("cache_control"));
+        Assert.Null(parameters.Compaction);
+        Assert.True(parameters.RawBodyData.ContainsKey("compaction"));
+        Assert.Null(parameters.ContextManagement);
+        Assert.True(parameters.RawBodyData.ContainsKey("context_management"));
+        Assert.Null(parameters.OutputFormat);
+        Assert.True(parameters.RawBodyData.ContainsKey("output_format"));
+        Assert.Null(parameters.Speed);
+        Assert.True(parameters.RawBodyData.ContainsKey("speed"));
+    }
+
+    [Fact]
+    public void Url_Works()
+    {
+        MessageCountTokensParams parameters = new()
+        {
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
+        };
+
+        var url = parameters.Url(new() { ApiKey = "my-anthropic-api-key" });
+
+        Assert.True(
+            TestBase.UrisEqual(
+                new Uri("https://api.anthropic.com/v1/messages/count_tokens?beta=true"),
+                url
+            )
+        );
+    }
+
+    [Fact]
+    public void AddHeadersToRequest_Works()
+    {
+        HttpRequestMessage requestMessage = new();
+        MessageCountTokensParams parameters = new()
+        {
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        };
+
+        parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
+
+        Assert.Equal(
+            ["message-batches-2024-09-24"],
+            requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["anthropic-user-profile-id"],
+            requestMessage.Headers.GetValues("anthropic-user-profile-id")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
+        );
+    }
+
+    [Fact]
+    public void CopyConstructor_Works()
+    {
+        var parameters = new MessageCountTokensParams
+        {
+            Messages =
+            [
+                new()
+                {
+                    Content = "Hello, world",
+                    Role = Role.User,
+                    ClearAt = ClearAt.NextUserMessage,
+                    OutputConfig = new() { Effort = BetaSystemMessageOutputConfigEffort.Low },
+                },
+            ],
+            Model = Messages::Model.ClaudeOpus5_5,
+            CacheControl = new() { Ttl = Ttl.Ttl5m },
+            Compaction = new() { Instructions = "instructions" },
+            ContextManagement = new()
+            {
+                Edits =
+                [
+                    new BetaClearToolUses20250919Edit()
+                    {
+                        ClearAtLeast = new(0),
+                        ClearToolInputs = true,
+                        ExcludeTools = ["string"],
+                        Keep = new(0),
+                        Trigger = new BetaInputTokensTrigger(1),
+                    },
+                ],
+            },
+            McpServers =
+            [
+                new()
+                {
+                    Name = "name",
+                    Url = "url",
+                    AuthorizationToken = "authorization_token",
+                    ToolConfiguration = new() { AllowedTools = ["string"], Enabled = true },
+                },
+            ],
+            OutputConfig = new()
+            {
+                Effort = Effort.Low,
+                Format = new()
+                {
+                    Schema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                },
+                TaskBudget = new() { Total = 1024, Remaining = 0 },
+            },
+            OutputFormat = new()
+            {
+                Schema = new Dictionary<string, JsonElement>()
+                {
+                    { "foo", JsonSerializer.SerializeToElement("bar") },
+                },
+            },
+            Speed = MessageCountTokensParamsSpeed.Standard,
+            System = new(
+                [
+                    new BetaTextBlockParam()
+                    {
+                        Text = "Today's date is 2024-06-01.",
+                        CacheControl = new() { Ttl = Ttl.Ttl5m },
+                        Citations =
+                        [
+                            new BetaCitationCharLocationParam()
+                            {
+                                CitedText = "The grass is green. The sky is blue.",
+                                DocumentIndex = 0,
+                                DocumentTitle = "x",
+                                EndCharIndex = 0,
+                                StartCharIndex = 0,
+                            },
+                        ],
+                    },
+                ]
+            ),
+            Thinking = new BetaThinkingConfigAdaptive()
+            {
+                BlockBinding = new()
+                {
+                    PrefixMismatchBehavior = BetaThinkingPrefixMismatchBehavior.Error,
+                },
+                Display = Display.Summarized,
+            },
+            ToolChoice = new BetaToolChoiceAuto() { DisableParallelToolUse = true },
+            Tools =
+            [
+                new BetaTool()
+                {
+                    InputSchema = new()
+                    {
+                        Properties = new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("bar") },
+                            { "unit", JsonSerializer.SerializeToElement("bar") },
+                        },
+                        Required = ["location"],
+                    },
+                    Name = "name",
+                    AllowedCallers = [BetaToolAllowedCaller.Direct],
+                    CacheControl = new() { Ttl = Ttl.Ttl5m },
+                    DeferLoading = true,
+                    Description = "Get the current weather in a given location",
+                    EagerInputStreaming = true,
+                    InputExamples =
+                    [
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "foo", JsonSerializer.SerializeToElement("bar") },
+                        },
+                    ],
+                    Strict = true,
+                    Type = BetaToolType.Custom,
+                },
+            ],
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            UserProfileID = "anthropic-user-profile-id",
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         MessageCountTokensParams copied = new(parameters);
@@ -1001,7 +1296,6 @@ public class ToolTest : TestBase
     {
         Tool value = new BetaBrowserToolset20260801()
         {
-            AllowedCallers = [BetaBrowserToolset20260801AllowedCaller.Direct],
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Configs = new()
             {
@@ -1156,7 +1450,6 @@ public class ToolTest : TestBase
     {
         Tool value = new BetaComputerToolset20260801()
         {
-            AllowedCallers = [BetaComputerToolset20260801AllowedCaller.Direct],
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Configs = new()
             {
@@ -1280,6 +1573,12 @@ public class ToolTest : TestBase
             MaxContentTokens = 1,
             MaxUses = 1,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
         };
         value.Validate();
     }
@@ -1321,6 +1620,12 @@ public class ToolTest : TestBase
             MaxContentTokens = 1,
             MaxUses = 1,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
         };
         value.Validate();
     }
@@ -1339,6 +1644,12 @@ public class ToolTest : TestBase
             MaxContentTokens = 1,
             MaxUses = 1,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
             UseCache = true,
         };
         value.Validate();
@@ -1383,6 +1694,12 @@ public class ToolTest : TestBase
             MaxUses = 1,
             ResponseInclusion = ResponseInclusion.Full,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
             UseCache = true,
         };
         value.Validate();
@@ -1393,7 +1710,7 @@ public class ToolTest : TestBase
     {
         Tool value = new BetaAdvisorTool20260301()
         {
-            Model = Messages::Model.ClaudeSonnet5,
+            Model = Messages::Model.ClaudeHaiku5_5,
             AllowedCallers = [AllowedCaller.Direct],
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Caching = new() { Ttl = Ttl.Ttl5m },
@@ -1448,6 +1765,18 @@ public class ToolTest : TestBase
                 },
             },
             DefaultConfig = new() { DeferLoading = true, Enabled = true },
+            Tools =
+            [
+                new()
+                {
+                    InputSchema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Name = "x",
+                    Description = "description",
+                },
+            ],
         };
         value.Validate();
     }
@@ -1603,7 +1932,6 @@ public class ToolTest : TestBase
     {
         Tool value = new BetaBrowserToolset20260801()
         {
-            AllowedCallers = [BetaBrowserToolset20260801AllowedCaller.Direct],
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Configs = new()
             {
@@ -1776,7 +2104,6 @@ public class ToolTest : TestBase
     {
         Tool value = new BetaComputerToolset20260801()
         {
-            AllowedCallers = [BetaComputerToolset20260801AllowedCaller.Direct],
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Configs = new()
             {
@@ -1915,6 +2242,12 @@ public class ToolTest : TestBase
             MaxContentTokens = 1,
             MaxUses = 1,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<Tool>(element, ModelBase.SerializerOptions);
@@ -1962,6 +2295,12 @@ public class ToolTest : TestBase
             MaxContentTokens = 1,
             MaxUses = 1,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<Tool>(element, ModelBase.SerializerOptions);
@@ -1983,6 +2322,12 @@ public class ToolTest : TestBase
             MaxContentTokens = 1,
             MaxUses = 1,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
             UseCache = true,
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -2033,6 +2378,12 @@ public class ToolTest : TestBase
             MaxUses = 1,
             ResponseInclusion = ResponseInclusion.Full,
             Strict = true,
+            UrlSources = new()
+            {
+                ClientToolResults = new BetaWebFetchUrlSourceAll(),
+                ServerToolResults = new BetaWebFetchUrlSourceAll(),
+                UserInput = new BetaWebFetchUrlSourceAll(),
+            },
             UseCache = true,
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -2046,7 +2397,7 @@ public class ToolTest : TestBase
     {
         Tool value = new BetaAdvisorTool20260301()
         {
-            Model = Messages::Model.ClaudeSonnet5,
+            Model = Messages::Model.ClaudeHaiku5_5,
             AllowedCallers = [AllowedCaller.Direct],
             CacheControl = new() { Ttl = Ttl.Ttl5m },
             Caching = new() { Ttl = Ttl.Ttl5m },
@@ -2110,10 +2461,201 @@ public class ToolTest : TestBase
                 },
             },
             DefaultConfig = new() { DeferLoading = true, Enabled = true },
+            Tools =
+            [
+                new()
+                {
+                    InputSchema = new Dictionary<string, JsonElement>()
+                    {
+                        { "foo", JsonSerializer.SerializeToElement("bar") },
+                    },
+                    Name = "x",
+                    Description = "description",
+                },
+            ],
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<Tool>(element, ModelBase.SerializerOptions);
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Tool value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "cache_control": {
+                    "type": "ephemeral",
+                    "ttl": "5m"
+                  },
+                  "defer_loading": true,
+                  "strict": true,
+                  "display_height_px": 1,
+                  "display_width_px": 1,
+                  "display_number": 0,
+                  "allowed_domains": [
+                    "string"
+                  ],
+                  "blocked_domains": [
+                    "string"
+                  ],
+                  "max_uses": 1,
+                  "user_location": {
+                    "type": "approximate",
+                    "city": "New York",
+                    "country": "US",
+                    "region": "California",
+                    "timezone": "America/New_York"
+                  },
+                  "citations": {
+                    "enabled": true
+                  },
+                  "max_content_tokens": 1,
+                  "url_sources": {
+                    "client_tool_results": {
+                      "type": "all"
+                    },
+                    "server_tool_results": {
+                      "type": "all"
+                    },
+                    "user_input": {
+                      "type": "all"
+                    }
+                  },
+                  "use_cache": true
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        BetaCacheControlEphemeral expectedCacheControl = new() { Ttl = Ttl.Ttl5m };
+        bool expectedDeferLoading = true;
+        bool expectedStrict = true;
+        long expectedDisplayHeightPx = 1;
+        long expectedDisplayWidthPx = 1;
+        long expectedDisplayNumber = 0;
+        List<string> expectedAllowedDomains = ["string"];
+        List<string> expectedBlockedDomains = ["string"];
+        long expectedMaxUses = 1;
+        BetaUserLocation expectedUserLocation = new()
+        {
+            City = "New York",
+            Country = "US",
+            Region = "California",
+            Timezone = "America/New_York",
+        };
+        BetaCitationsConfigParam expectedCitations = new() { Enabled = true };
+        long expectedMaxContentTokens = 1;
+        BetaWebFetchUrlSources expectedUrlSources = new()
+        {
+            ClientToolResults = new BetaWebFetchUrlSourceAll(),
+            ServerToolResults = new BetaWebFetchUrlSourceAll(),
+            UserInput = new BetaWebFetchUrlSourceAll(),
+        };
+        bool expectedUseCache = true;
+
+        Assert.Equal(expectedCacheControl, value.CacheControl);
+        Assert.Equal(expectedDeferLoading, value.DeferLoading);
+        Assert.Equal(expectedStrict, value.Strict);
+        Assert.Equal(expectedDisplayHeightPx, value.DisplayHeightPx);
+        Assert.Equal(expectedDisplayWidthPx, value.DisplayWidthPx);
+        Assert.Equal(expectedDisplayNumber, value.DisplayNumber);
+        Assert.NotNull(value.AllowedDomains);
+        Assert.Equal(expectedAllowedDomains.Count, value.AllowedDomains.Count);
+        for (int i = 0; i < expectedAllowedDomains.Count; i++)
+        {
+            Assert.Equal(expectedAllowedDomains[i], value.AllowedDomains[i]);
+        }
+        Assert.NotNull(value.BlockedDomains);
+        Assert.Equal(expectedBlockedDomains.Count, value.BlockedDomains.Count);
+        for (int i = 0; i < expectedBlockedDomains.Count; i++)
+        {
+            Assert.Equal(expectedBlockedDomains[i], value.BlockedDomains[i]);
+        }
+        Assert.Equal(expectedMaxUses, value.MaxUses);
+        Assert.Equal(expectedUserLocation, value.UserLocation);
+        Assert.Equal(expectedCitations, value.Citations);
+        Assert.Equal(expectedMaxContentTokens, value.MaxContentTokens);
+        Assert.Equal(expectedUrlSources, value.UrlSources);
+        Assert.Equal(expectedUseCache, value.UseCache);
+
+        Tool emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Null(emptyValue.CacheControl);
+        Assert.Null(emptyValue.DeferLoading);
+        Assert.Null(emptyValue.Strict);
+        Assert.Null(emptyValue.DisplayHeightPx);
+        Assert.Null(emptyValue.DisplayWidthPx);
+        Assert.Null(emptyValue.DisplayNumber);
+        Assert.Null(emptyValue.AllowedDomains);
+        Assert.Null(emptyValue.BlockedDomains);
+        Assert.Null(emptyValue.MaxUses);
+        Assert.Null(emptyValue.UserLocation);
+        Assert.Null(emptyValue.Citations);
+        Assert.Null(emptyValue.MaxContentTokens);
+        Assert.Null(emptyValue.UrlSources);
+        Assert.Null(emptyValue.UseCache);
+
+        Tool mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "cache_control": [
+                    "invalid"
+                  ],
+                  "defer_loading": [
+                    "invalid"
+                  ],
+                  "strict": [
+                    "invalid"
+                  ],
+                  "display_height_px": [
+                    "invalid"
+                  ],
+                  "display_width_px": [
+                    "invalid"
+                  ],
+                  "display_number": [
+                    "invalid"
+                  ],
+                  "max_uses": [
+                    "invalid"
+                  ],
+                  "user_location": [
+                    "invalid"
+                  ],
+                  "citations": [
+                    "invalid"
+                  ],
+                  "max_content_tokens": [
+                    "invalid"
+                  ],
+                  "url_sources": [
+                    "invalid"
+                  ],
+                  "use_cache": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.CacheControl);
+        Assert.Null(mismatchedValue.DeferLoading);
+        Assert.Null(mismatchedValue.Strict);
+        Assert.Null(mismatchedValue.DisplayHeightPx);
+        Assert.Null(mismatchedValue.DisplayWidthPx);
+        Assert.Null(mismatchedValue.DisplayNumber);
+        Assert.Null(mismatchedValue.MaxUses);
+        Assert.Null(mismatchedValue.UserLocation);
+        Assert.Null(mismatchedValue.Citations);
+        Assert.Null(mismatchedValue.MaxContentTokens);
+        Assert.Null(mismatchedValue.UrlSources);
+        Assert.Null(mismatchedValue.UseCache);
     }
 }

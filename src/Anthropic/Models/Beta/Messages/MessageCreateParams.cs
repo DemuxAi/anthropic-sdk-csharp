@@ -71,7 +71,9 @@ public record class MessageCreateParams : ParamsBase
     ///
     /// <para>If the final message uses the `assistant` role, the response content
     /// will continue immediately from the content in that message. This can be used
-    /// to constrain part of the model's response.</para>
+    /// to constrain part of the model's response. This is called prefill. On models
+    /// that don't support prefill, creating a message that ends with a partial `assistant`
+    /// response returns a 400 error. See [Prefill not supported](https://platform.claude.com/docs/en/api/errors#prefill-not-supported).</para>
     ///
     /// <para>Example with a single `user` message:</para>
     ///
@@ -83,7 +85,8 @@ public record class MessageCreateParams : ParamsBase
     /// "assistant", "content": "Hi, I'm Claude. How can I help you?"},   {"role":
     /// "user", "content": "Can you explain LLMs in plain English?"}, ] ```</para>
     ///
-    /// <para>Example with a partially-filled response from Claude:</para>
+    /// <para>Example with a partially-filled response from Claude, for models that
+    /// support prefill:</para>
     ///
     /// <para>```json [   {"role": "user", "content": "What's the Greek name for
     /// Sun? (A) Sol (B) Helios (C) Sun"},   {"role": "assistant", "content": "The
@@ -154,6 +157,27 @@ public record class MessageCreateParams : ParamsBase
     }
 
     /// <summary>
+    /// Compaction configuration.
+    ///
+    /// <para>When set on `POST /v1/messages`, the request is a compaction request:
+    /// the conversation in `messages` is summarized and the response holds only
+    /// the resulting `compaction` block (`stop_reason` `"compaction"`), which later
+    /// requests send first in `messages` in place of the messages it summarizes.
+    /// `POST /v1/messages/count_tokens` accepts this parameter and ignores it: the
+    /// count it returns is for the conversation in `messages` as sent. Cannot be
+    /// combined with `context_management`.</para>
+    /// </summary>
+    public BetaCompactionConfig? Compaction
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<BetaCompactionConfig>("compaction");
+        }
+        init { this._rawBodyData.Set("compaction", value); }
+    }
+
+    /// <summary>
     /// Container identifier for reuse across requests.
     /// </summary>
     public Container? Container
@@ -185,8 +209,9 @@ public record class MessageCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// Request-level diagnostics. Currently carries the previous response id for
-    /// prompt-cache divergence reporting.
+    /// Request-level diagnostics. Supply `previous_message_id` to have the response
+    /// include `diagnostics.cache_miss_reason` explaining any prompt-cache divergence
+    /// from that prior request.
     /// </summary>
     public BetaDiagnosticsParam? Diagnostics
     {
@@ -232,8 +257,12 @@ public record class MessageCreateParams : ParamsBase
     /// <summary>
     /// Opt-in server-side retry on one or more substitute models when the requested
     /// model declines for policy reasons. Tried in order: if the first entry also
-    /// declines, the second is tried, and so on. The string "default" requests the
-    /// requested model's server-defined default fallback configuration.
+    /// declines, the second is tried, and so on. Some models don't support fallbacks;
+    /// on those models, a list of fallback models returns a 400 error. See [Server-side
+    /// fallback](https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback).
+    /// The string "default" requests the requested model's server-defined default
+    /// fallback configuration. On a model that doesn't support fallbacks, the request
+    /// runs on the requested model alone, so a declined request stays declined.
     /// </summary>
     public BetaFallbacksParam? Fallbacks
     {
@@ -275,6 +304,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("mcp_servers");
                 return;
             }
 
@@ -299,6 +329,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("metadata");
                 return;
             }
 
@@ -320,6 +351,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("output_config");
                 return;
             }
 
@@ -363,6 +395,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("service_tier");
                 return;
             }
 
@@ -371,9 +404,11 @@ public record class MessageCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// Inference speed mode. `fast` provides significantly faster output token generation
-    /// at premium pricing. Not all models support `fast`; invalid combinations are
-    /// rejected at create time.
+    /// The inference speed mode for this request. `"fast"` enables high output-tokens-per-second inference.
+    ///
+    /// <para>Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+    /// value. See [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode)
+    /// for which models.</para>
     /// </summary>
     public ApiEnum<string, Speed>? Speed
     {
@@ -408,6 +443,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("stop_sequences");
                 return;
             }
 
@@ -435,6 +471,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("system");
                 return;
             }
 
@@ -453,7 +490,7 @@ public record class MessageCreateParams : ParamsBase
     /// fully deterministic.</para>
     /// </summary>
     [System::Obsolete(
-        "Deprecated. Models released after Claude Opus 4.6 do not support setting temperature. A value of 1.0 of will be accepted for backwards compatibility, all other values will be rejected with a 400 error."
+        "Deprecated. Models released after Claude Opus 4.6 do not support setting temperature. A value of 1.0 will be accepted for backwards compatibility, all other values will be rejected with a 400 error."
     )]
     public double? Temperature
     {
@@ -466,6 +503,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("temperature");
                 return;
             }
 
@@ -474,14 +512,15 @@ public record class MessageCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// Configuration for enabling Claude's extended thinking.
+    /// Configuration for Claude's thinking.
     ///
-    /// <para>When enabled, responses include `thinking` content blocks showing Claude's
-    /// thinking process before the final answer. Requires a minimum budget of 1,024
-    /// tokens and counts towards your `max_tokens` limit.</para>
+    /// <para>With `{"type": "adaptive"}`, Claude decides when and how much to think.
+    /// With `{"type": "enabled"}` (manual extended thinking), you set a `budget_tokens`
+    /// of at least 1,024. Thinking tokens count toward your `max_tokens` limit.</para>
     ///
-    /// <para>See [extended thinking](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)
-    /// for details.</para>
+    /// <para>Which `type` values are accepted, and what happens when you omit `thinking`,
+    /// depend on the model. See [thinking](https://platform.claude.com/docs/en/build-with-claude/thinking#configuring-thinking)
+    /// for each model's behavior.</para>
     /// </summary>
     public BetaThinkingConfigParam? Thinking
     {
@@ -494,6 +533,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("thinking");
                 return;
             }
 
@@ -516,6 +556,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("tool_choice");
                 return;
             }
 
@@ -582,6 +623,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("tools");
                 return;
             }
 
@@ -614,6 +656,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("top_k");
                 return;
             }
 
@@ -644,6 +687,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("top_p");
                 return;
             }
 
@@ -667,6 +711,7 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -692,10 +737,38 @@ public record class MessageCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-user-profile-id");
                 return;
             }
 
             this._rawHeaderData.Set("anthropic-user-profile-id", value);
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -785,6 +858,8 @@ public record class MessageCreateParams : ParamsBase
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/messages";
 
     internal override HttpContent? BodyContent()
     {
@@ -1400,9 +1475,11 @@ sealed class ServiceTierConverter : JsonConverter<ServiceTier>
 }
 
 /// <summary>
-/// Inference speed mode. `fast` provides significantly faster output token generation
-/// at premium pricing. Not all models support `fast`; invalid combinations are rejected
-/// at create time.
+/// The inference speed mode for this request. `"fast"` enables high output-tokens-per-second inference.
+///
+/// <para>Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+/// value. See [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode)
+/// for which models.</para>
 /// </summary>
 [JsonConverter(typeof(SpeedConverter))]
 public enum Speed

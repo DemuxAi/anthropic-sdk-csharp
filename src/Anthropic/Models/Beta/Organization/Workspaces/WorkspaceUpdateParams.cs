@@ -55,6 +55,7 @@ public record class WorkspaceUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("display_color");
                 return;
             }
 
@@ -66,10 +67,14 @@ public record class WorkspaceUpdateParams : ParamsBase
     /// ID of the customer-managed encryption key (CMEK) configuration to use for
     /// this Workspace. Setting this field requires CMEK to be enabled for your organization.
     /// When set, data stored for this Workspace is encrypted with the referenced
-    /// key. Create key configurations with the External Keys API. This field is
-    /// write-once: once a key is attached to a Workspace it cannot be detached or
-    /// replaced. To rotate key material, rotate the underlying key on your cloud
-    /// KMS; the `external_key_id` stays the same.
+    /// key. Create key configurations with the External Keys API. On Claude Platform
+    /// on AWS the value is the AWS KMS key ARN, and the key must be a single-Region
+    /// key in the same AWS account and Region as the Workspace. On that platform
+    /// the key is validated against this Workspace when it is attached, so a key-policy
+    /// problem is reported as an error on this request. This field is write-once:
+    /// once a key is attached to a Workspace it cannot be detached or replaced.
+    /// To rotate key material, rotate the underlying key on your cloud KMS; the `external_key_id`
+    /// stays the same.
     /// </summary>
     public string? ExternalKeyID
     {
@@ -82,6 +87,7 @@ public record class WorkspaceUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("external_key_id");
                 return;
             }
 
@@ -103,6 +109,7 @@ public record class WorkspaceUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("name");
                 return;
             }
 
@@ -220,12 +227,17 @@ public record class WorkspaceUpdateParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/workspaces/{0}", this.WorkspaceID)
+                + string.Format(
+                    "/v1/organizations/workspaces/{0}",
+                    ParamsBase.EncodePathSegment(this.WorkspaceID, nameof(this.WorkspaceID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/workspaces/{workspace_id}";
 
     internal override HttpContent? BodyContent()
     {

@@ -29,11 +29,9 @@ public record class UserProfileCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// How the platform uses the API on behalf of the entity this profile represents.
-    /// `application`: the platform sells a product that uses the API behind the
-    /// scenes, and the profile represents an individual end-user of that product.
-    /// `passthrough`: the platform resells raw inference, and the profile identifies
-    /// the resold-to company.
+    /// How the platform uses the API for this entity. `application` (default): the
+    /// profile represents an individual end-user of the platform's product. `passthrough`:
+    /// the profile identifies a company the platform resells Claude access to.
     /// </summary>
     public ApiEnum<string, AccessType>? AccessType
     {
@@ -46,6 +44,7 @@ public record class UserProfileCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("access_type");
                 return;
             }
 
@@ -54,7 +53,9 @@ public record class UserProfileCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// Platform's own identifier for this user. Not enforced unique. Maximum 255 characters.
+    /// Platform's own identifier for this user. Not enforced unique. Maximum 255
+    /// characters. Accepted under the `user-profiles-2026-03-24` and `user-profiles-2026-08-18`
+    /// beta headers; under `user-profiles-2026-09-04` send `external_user_details.reference_id` instead.
     /// </summary>
     public string? ExternalID
     {
@@ -64,6 +65,61 @@ public record class UserProfileCreateParams : ParamsBase
             return this._rawBodyData.GetNullableClass<string>("external_id");
         }
         init { this._rawBodyData.Set("external_id", value); }
+    }
+
+    /// <summary>
+    /// Details about the entity this profile represents, as the platform states them.
+    /// Every field is optional. Accepted under the `user-profiles-2026-09-04` beta
+    /// header only.
+    /// </summary>
+    public BetaUserProfileExternalUserDetailsParams? ExternalUserDetails
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<BetaUserProfileExternalUserDetailsParams>(
+                "external_user_details"
+            );
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawBodyData.Remove("external_user_details");
+                return;
+            }
+
+            this._rawBodyData.Set("external_user_details", value);
+        }
+    }
+
+    /// <summary>
+    /// When the entity this profile represents opened its account with the platform,
+    /// in RFC 3339 format: for an `application` profile, when the end-user signed
+    /// up; for a `passthrough` profile, when the company became the platform's customer.
+    /// Must be a complete timestamp no more than 1 minute in the future. Optional.
+    /// Accepted under the `user-profiles-2026-08-18` beta header; under `user-profiles-2026-09-04`
+    /// send `external_user_details.onboarded_at` instead.
+    /// </summary>
+    public System::DateTimeOffset? ExternalUserOnboardedAt
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableStruct<System::DateTimeOffset>(
+                "external_user_onboarded_at"
+            );
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawBodyData.Remove("external_user_onboarded_at");
+                return;
+            }
+
+            this._rawBodyData.Set("external_user_onboarded_at", value);
+        }
     }
 
     /// <summary>
@@ -82,6 +138,7 @@ public record class UserProfileCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("metadata");
                 return;
             }
 
@@ -94,8 +151,8 @@ public record class UserProfileCreateParams : ParamsBase
 
     /// <summary>
     /// Optional for all profiles. Real-world name of the entity this profile represents
-    /// (company or individual); for a resold-to company (`relationship` `resold`
-    /// / `access_type` `passthrough`), that company's name where known. Maximum
+    /// (company or individual); for a company the platform resells Claude access
+    /// to (`access_type` `passthrough`), that company's name where known. Maximum
     /// 255 characters.
     /// </summary>
     public string? Name
@@ -109,32 +166,8 @@ public record class UserProfileCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// How the entity behind a user profile relates to the platform that owns the
-    /// API key. `external`: an individual end-user of the platform. `resold`: a company
-    /// the platform resells Claude access to. `internal`: the platform's own usage.
-    /// </summary>
-    public ApiEnum<string, Relationship>? Relationship
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<ApiEnum<string, Relationship>>(
-                "relationship"
-            );
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("relationship", value);
-        }
-    }
-
-    /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `user-profiles-2026-03-24`, `user-profiles-2026-08-18`,
+    /// or `user-profiles-2026-09-04` in this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -149,6 +182,7 @@ public record class UserProfileCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -156,6 +190,33 @@ public record class UserProfileCreateParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -246,6 +307,8 @@ public record class UserProfileCreateParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/user_profiles";
+
     internal override HttpContent? BodyContent()
     {
         return new StringContent(
@@ -272,15 +335,22 @@ public record class UserProfileCreateParams : ParamsBase
 }
 
 /// <summary>
-/// How the platform uses the API on behalf of the entity this profile represents.
-/// `application`: the platform sells a product that uses the API behind the scenes,
-/// and the profile represents an individual end-user of that product. `passthrough`:
-/// the platform resells raw inference, and the profile identifies the resold-to company.
+/// How the platform uses the API for this entity. `application` (default): the profile
+/// represents an individual end-user of the platform's product. `passthrough`: the
+/// profile identifies a company the platform resells Claude access to.
 /// </summary>
 [JsonConverter(typeof(AccessTypeConverter))]
 public enum AccessType
 {
+    /// <summary>
+    /// The user profile represents an individual end-user of a product that the
+    /// platform builds on the API. New profiles get this value by default.
+    /// </summary>
     Application,
+
+    /// <summary>
+    /// The user profile represents a company that the platform resells Claude access to.
+    /// </summary>
     Passthrough,
 }
 
@@ -312,58 +382,6 @@ sealed class AccessTypeConverter : JsonConverter<AccessType>
             {
                 AccessType.Application => "application",
                 AccessType.Passthrough => "passthrough",
-                _ => throw new AnthropicInvalidDataException(
-                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
-                ),
-            },
-            options
-        );
-    }
-}
-
-/// <summary>
-/// How the entity behind a user profile relates to the platform that owns the API
-/// key. `external`: an individual end-user of the platform. `resold`: a company
-/// the platform resells Claude access to. `internal`: the platform's own usage.
-/// </summary>
-[JsonConverter(typeof(RelationshipConverter))]
-public enum Relationship
-{
-    External,
-    Resold,
-    Internal,
-}
-
-sealed class RelationshipConverter : JsonConverter<Relationship>
-{
-    public override Relationship Read(
-        ref Utf8JsonReader reader,
-        System::Type typeToConvert,
-        JsonSerializerOptions options
-    )
-    {
-        return JsonSerializer.Deserialize<string>(ref reader, options) switch
-        {
-            "external" => Relationship.External,
-            "resold" => Relationship.Resold,
-            "internal" => Relationship.Internal,
-            _ => (Relationship)(-1),
-        };
-    }
-
-    public override void Write(
-        Utf8JsonWriter writer,
-        Relationship value,
-        JsonSerializerOptions options
-    )
-    {
-        JsonSerializer.Serialize(
-            writer,
-            value switch
-            {
-                Relationship.External => "external",
-                Relationship.Resold => "resold",
-                Relationship.Internal => "internal",
                 _ => throw new AnthropicInvalidDataException(
                     string.Format("Invalid value '{0}' in {1}", value, nameof(value))
                 ),

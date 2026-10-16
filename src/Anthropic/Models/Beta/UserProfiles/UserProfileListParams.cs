@@ -22,7 +22,7 @@ namespace Anthropic.Models.Beta.UserProfiles;
 public record class UserProfileListParams : ParamsBase
 {
     /// <summary>
-    /// Query parameter for limit
+    /// The maximum number of user profiles to return, from 1 to 100. Defaults to 20.
     /// </summary>
     public int? Limit
     {
@@ -35,6 +35,7 @@ public record class UserProfileListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("limit");
                 return;
             }
 
@@ -43,7 +44,8 @@ public record class UserProfileListParams : ParamsBase
     }
 
     /// <summary>
-    /// Query parameter for order
+    /// The sort direction, applied to the field that `order_by` selects. Defaults
+    /// to `desc`.
     /// </summary>
     public ApiEnum<string, Order>? Order
     {
@@ -56,6 +58,7 @@ public record class UserProfileListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("order");
                 return;
             }
 
@@ -64,7 +67,32 @@ public record class UserProfileListParams : ParamsBase
     }
 
     /// <summary>
-    /// Query parameter for page
+    /// The field to sort user profiles by, in the direction that `order` sets. Defaults
+    /// to `created_at`.
+    /// </summary>
+    public ApiEnum<string, OrderBy>? OrderBy
+    {
+        get
+        {
+            this._rawQueryData.Freeze();
+            return this._rawQueryData.GetNullableClass<ApiEnum<string, OrderBy>>("order_by");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawQueryData.Remove("order_by");
+                return;
+            }
+
+            this._rawQueryData.Set("order_by", value);
+        }
+    }
+
+    /// <summary>
+    /// The cursor for the page to return, taken from `next_page` in a previous response.
+    ///
+    /// <para>Leave it out to get the first page.</para>
     /// </summary>
     public string? Page
     {
@@ -77,6 +105,7 @@ public record class UserProfileListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("page");
                 return;
             }
 
@@ -85,7 +114,8 @@ public record class UserProfileListParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `user-profiles-2026-03-24`, `user-profiles-2026-08-18`,
+    /// or `user-profiles-2026-09-04` in this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -100,6 +130,7 @@ public record class UserProfileListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -107,6 +138,33 @@ public record class UserProfileListParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -186,6 +244,10 @@ public record class UserProfileListParams : ParamsBase
         }.Uri;
     }
 
+    internal override string Route => "/v1/user_profiles";
+
+    internal override IReadOnlyList<string> QueryParams => ["limit", "order", "order_by", "page"];
+
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);
@@ -203,12 +265,21 @@ public record class UserProfileListParams : ParamsBase
 }
 
 /// <summary>
-/// Query parameter for order
+/// The sort direction, applied to the field that `order_by` selects. Defaults to `desc`.
 /// </summary>
 [JsonConverter(typeof(OrderConverter))]
 public enum Order
 {
+    /// <summary>
+    /// Oldest first when `order_by` is `created_at`, or names in ascending order
+    /// when `order_by` is `name`.
+    /// </summary>
     Asc,
+
+    /// <summary>
+    /// Newest first when `order_by` is `created_at`, or names in descending order
+    /// when `order_by` is `name`. This is the default.
+    /// </summary>
     Desc,
 }
 
@@ -236,6 +307,58 @@ sealed class OrderConverter : JsonConverter<Order>
             {
                 Order.Asc => "asc",
                 Order.Desc => "desc",
+                _ => throw new AnthropicInvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
+    }
+}
+
+/// <summary>
+/// The field to sort user profiles by, in the direction that `order` sets. Defaults
+/// to `created_at`.
+/// </summary>
+[JsonConverter(typeof(OrderByConverter))]
+public enum OrderBy
+{
+    /// <summary>
+    /// Sort by when each user profile was created. This is the default.
+    /// </summary>
+    CreatedAt,
+
+    /// <summary>
+    /// Sort by `name`, ignoring the case of ASCII letters. Profiles without a name
+    /// come last in either direction.
+    /// </summary>
+    Name,
+}
+
+sealed class OrderByConverter : JsonConverter<OrderBy>
+{
+    public override OrderBy Read(
+        ref Utf8JsonReader reader,
+        System::Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "created_at" => OrderBy.CreatedAt,
+            "name" => OrderBy.Name,
+            _ => (OrderBy)(-1),
+        };
+    }
+
+    public override void Write(Utf8JsonWriter writer, OrderBy value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                OrderBy.CreatedAt => "created_at",
+                OrderBy.Name => "name",
                 _ => throw new AnthropicInvalidDataException(
                     string.Format("Invalid value '{0}' in {1}", value, nameof(value))
                 ),

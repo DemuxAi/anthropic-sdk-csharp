@@ -166,12 +166,17 @@ public record class ExternalKeyUpdateParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/external_keys/{0}", this.ExternalKeyID)
+                + string.Format(
+                    "/v1/organizations/external_keys/{0}",
+                    ParamsBase.EncodePathSegment(this.ExternalKeyID, nameof(this.ExternalKeyID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/external_keys/{external_key_id}";
 
     internal override HttpContent? BodyContent()
     {
@@ -266,11 +271,13 @@ public record class ExternalKeyUpdateParamsProviderConfig : ModelBase
     {
         get
         {
-            return Match(
-                betaAwsExternalKey: (x) => x.Type,
-                betaGcpExternalKey: (x) => x.Type,
-                betaAzureExternalKeyConfigParam: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaAwsExternalKeyConfig x => x.Type,
+                BetaGcpExternalKeyConfig x => x.Type,
+                BetaAzureExternalKeyConfigParam x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -278,11 +285,13 @@ public record class ExternalKeyUpdateParamsProviderConfig : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaAwsExternalKey: (_) => null,
-                betaGcpExternalKey: (x) => x.KeyName,
-                betaAzureExternalKeyConfigParam: (x) => x.KeyName
-            );
+            return this.Value switch
+            {
+                BetaAwsExternalKeyConfig _ => null,
+                BetaGcpExternalKeyConfig x => x.KeyName,
+                BetaAzureExternalKeyConfigParam x => x.KeyName,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "key_name"),
+            };
         }
     }
 

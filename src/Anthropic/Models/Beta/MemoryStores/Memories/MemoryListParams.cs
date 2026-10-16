@@ -37,6 +37,7 @@ public record class MemoryListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("depth");
                 return;
             }
 
@@ -60,6 +61,7 @@ public record class MemoryListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("limit");
                 return;
             }
 
@@ -82,6 +84,7 @@ public record class MemoryListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("page");
                 return;
             }
 
@@ -104,6 +107,7 @@ public record class MemoryListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("path_prefix");
                 return;
             }
 
@@ -129,6 +133,7 @@ public record class MemoryListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawQueryData.Remove("view");
                 return;
             }
 
@@ -137,7 +142,8 @@ public record class MemoryListParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `agent-memory-2026-07-22` or
+    /// `managed-agents-2026-04-01` in this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -152,6 +158,7 @@ public record class MemoryListParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -159,6 +166,33 @@ public record class MemoryListParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -243,12 +277,22 @@ public record class MemoryListParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/memory_stores/{0}/memories", this.MemoryStoreID)
+                + string.Format(
+                    "/v1/memory_stores/{0}/memories",
+                    ParamsBase.EncodePathSegment(this.MemoryStoreID, nameof(this.MemoryStoreID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/memory_stores/{memory_store_id}/memories";
+
+    internal override IReadOnlyList<string> QueryParams =>
+        ["depth", "limit", "page", "path_prefix", "view"];
+
+    internal override IReadOnlyList<string> ContentQueryParams => ["page"];
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

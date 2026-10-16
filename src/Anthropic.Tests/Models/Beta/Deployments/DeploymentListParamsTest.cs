@@ -22,6 +22,7 @@ public class DeploymentListParamsTest : TestBase
             Page = "page",
             Status = BetaManagedAgentsDeploymentStatus.Active,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedAgentID = "agent_id";
@@ -36,6 +37,7 @@ public class DeploymentListParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedAgentID, parameters.AgentID);
         Assert.Equal(expectedCreatedAtGte, parameters.CreatedAtGte);
@@ -50,6 +52,7 @@ public class DeploymentListParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -73,6 +76,8 @@ public class DeploymentListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("status"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -89,6 +94,7 @@ public class DeploymentListParamsTest : TestBase
             Page = null,
             Status = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.AgentID);
@@ -107,6 +113,56 @@ public class DeploymentListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("status"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new DeploymentListParams
+        {
+            AgentID = "agent_id",
+            CreatedAtGte = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            CreatedAtLte = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            IncludeArchived = true,
+            Limit = 0,
+            Page = "page",
+            Status = BetaManagedAgentsDeploymentStatus.Active,
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            AgentID = null,
+            CreatedAtGte = null,
+            CreatedAtLte = null,
+            IncludeArchived = null,
+            Limit = null,
+            Page = null,
+            Status = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.AgentID);
+        Assert.False(parameters.RawQueryData.ContainsKey("agent_id"));
+        Assert.Null(parameters.CreatedAtGte);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[gte]"));
+        Assert.Null(parameters.CreatedAtLte);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[lte]"));
+        Assert.Null(parameters.IncludeArchived);
+        Assert.False(parameters.RawQueryData.ContainsKey("include_archived"));
+        Assert.Null(parameters.Limit);
+        Assert.False(parameters.RawQueryData.ContainsKey("limit"));
+        Assert.Null(parameters.Page);
+        Assert.False(parameters.RawQueryData.ContainsKey("page"));
+        Assert.Null(parameters.Status);
+        Assert.False(parameters.RawQueryData.ContainsKey("status"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -142,13 +198,18 @@ public class DeploymentListParamsTest : TestBase
         DeploymentListParams parameters = new()
         {
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["managed-agents-2026-04-01", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,managed-agents-2026-04-01"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -165,6 +226,7 @@ public class DeploymentListParamsTest : TestBase
             Page = "page",
             Status = BetaManagedAgentsDeploymentStatus.Active,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         DeploymentListParams copied = new(parameters);

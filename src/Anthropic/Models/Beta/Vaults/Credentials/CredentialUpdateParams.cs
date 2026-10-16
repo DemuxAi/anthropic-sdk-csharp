@@ -33,7 +33,8 @@ public record class CredentialUpdateParams : ParamsBase
     public string? CredentialID { get; init; }
 
     /// <summary>
-    /// Updated authentication details for a credential.
+    /// Updated authentication configuration. The `type` is immutable; the variant
+    /// sent must match the stored credential's type.
     /// </summary>
     public CredentialUpdateParamsAuth? Auth
     {
@@ -46,6 +47,7 @@ public record class CredentialUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("auth");
                 return;
             }
 
@@ -89,7 +91,8 @@ public record class CredentialUpdateParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `managed-agents-2026-04-01` in
+    /// this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -104,6 +107,7 @@ public record class CredentialUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -111,6 +115,33 @@ public record class CredentialUpdateParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -212,12 +243,18 @@ public record class CredentialUpdateParams : ParamsBase
         var queryString = this.QueryString(options);
         return new System::UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/vaults/{0}/credentials/{1}", this.VaultID, this.CredentialID)
+                + string.Format(
+                    "/v1/vaults/{0}/credentials/{1}",
+                    ParamsBase.EncodePathSegment(this.VaultID, nameof(this.VaultID)),
+                    ParamsBase.EncodePathSegment(this.CredentialID, nameof(this.CredentialID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/vaults/{vault_id}/credentials/{credential_id}";
 
     internal override HttpContent? BodyContent()
     {
@@ -245,7 +282,8 @@ public record class CredentialUpdateParams : ParamsBase
 }
 
 /// <summary>
-/// Updated authentication details for a credential.
+/// Updated authentication configuration. The `type` is immutable; the variant sent
+/// must match the stored credential's type.
 /// </summary>
 [JsonConverter(typeof(CredentialUpdateParamsAuthConverter))]
 public record class CredentialUpdateParamsAuth : ModelBase

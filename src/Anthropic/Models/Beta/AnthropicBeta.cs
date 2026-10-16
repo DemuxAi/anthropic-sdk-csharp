@@ -31,6 +31,7 @@ public enum AnthropicBeta
     Output300k2026_03_24,
     UserProfiles2026_03_24,
     UserProfiles2026_08_18,
+    UserProfiles2026_09_04,
     AdvisorTool2026_03_01,
     ManagedAgents2026_04_01,
     CacheDiagnosis2026_04_07,
@@ -49,6 +50,15 @@ public enum AnthropicBeta
     TaskBudgets2026_03_13,
     ThinkingDisplayUpdates2026_08_18,
     CEUserManagement2026_07_13,
+    MidConversationOutputConfig2026_07_01,
+    ThinkingBindingControls2026_08_01,
+    MidConversationSystemClearAt2026_08_21,
+    Compact2026_09_04,
+    InlineTools2026_09_15,
+    McpClient2026_09_15,
+    CEPlugins2026_09_01,
+    SpendLimitReads2026_09_26,
+    TelemetryDestinations2026_08_11,
 }
 
 sealed class AnthropicBetaConverter : JsonConverter<AnthropicBeta>
@@ -85,6 +95,7 @@ sealed class AnthropicBetaConverter : JsonConverter<AnthropicBeta>
             "output-300k-2026-03-24" => AnthropicBeta.Output300k2026_03_24,
             "user-profiles-2026-03-24" => AnthropicBeta.UserProfiles2026_03_24,
             "user-profiles-2026-08-18" => AnthropicBeta.UserProfiles2026_08_18,
+            "user-profiles-2026-09-04" => AnthropicBeta.UserProfiles2026_09_04,
             "advisor-tool-2026-03-01" => AnthropicBeta.AdvisorTool2026_03_01,
             "managed-agents-2026-04-01" => AnthropicBeta.ManagedAgents2026_04_01,
             "cache-diagnosis-2026-04-07" => AnthropicBeta.CacheDiagnosis2026_04_07,
@@ -104,6 +115,18 @@ sealed class AnthropicBetaConverter : JsonConverter<AnthropicBeta>
             "task-budgets-2026-03-13" => AnthropicBeta.TaskBudgets2026_03_13,
             "thinking-display-updates-2026-08-18" => AnthropicBeta.ThinkingDisplayUpdates2026_08_18,
             "ce-user-management-2026-07-13" => AnthropicBeta.CEUserManagement2026_07_13,
+            "mid-conversation-output-config-2026-07-01" =>
+                AnthropicBeta.MidConversationOutputConfig2026_07_01,
+            "thinking-binding-controls-2026-08-01" =>
+                AnthropicBeta.ThinkingBindingControls2026_08_01,
+            "mid-conversation-system-clear-at-2026-08-21" =>
+                AnthropicBeta.MidConversationSystemClearAt2026_08_21,
+            "compact-2026-09-04" => AnthropicBeta.Compact2026_09_04,
+            "inline-tools-2026-09-15" => AnthropicBeta.InlineTools2026_09_15,
+            "mcp-client-2026-09-15" => AnthropicBeta.McpClient2026_09_15,
+            "ce-plugins-2026-09-01" => AnthropicBeta.CEPlugins2026_09_01,
+            "spend-limit-reads-2026-09-26" => AnthropicBeta.SpendLimitReads2026_09_26,
+            "telemetry-destinations-2026-08-11" => AnthropicBeta.TelemetryDestinations2026_08_11,
             _ => (AnthropicBeta)(-1),
         };
     }
@@ -142,6 +165,7 @@ sealed class AnthropicBetaConverter : JsonConverter<AnthropicBeta>
                 AnthropicBeta.Output300k2026_03_24 => "output-300k-2026-03-24",
                 AnthropicBeta.UserProfiles2026_03_24 => "user-profiles-2026-03-24",
                 AnthropicBeta.UserProfiles2026_08_18 => "user-profiles-2026-08-18",
+                AnthropicBeta.UserProfiles2026_09_04 => "user-profiles-2026-09-04",
                 AnthropicBeta.AdvisorTool2026_03_01 => "advisor-tool-2026-03-01",
                 AnthropicBeta.ManagedAgents2026_04_01 => "managed-agents-2026-04-01",
                 AnthropicBeta.CacheDiagnosis2026_04_07 => "cache-diagnosis-2026-04-07",
@@ -162,6 +186,19 @@ sealed class AnthropicBetaConverter : JsonConverter<AnthropicBeta>
                 AnthropicBeta.ThinkingDisplayUpdates2026_08_18 =>
                     "thinking-display-updates-2026-08-18",
                 AnthropicBeta.CEUserManagement2026_07_13 => "ce-user-management-2026-07-13",
+                AnthropicBeta.MidConversationOutputConfig2026_07_01 =>
+                    "mid-conversation-output-config-2026-07-01",
+                AnthropicBeta.ThinkingBindingControls2026_08_01 =>
+                    "thinking-binding-controls-2026-08-01",
+                AnthropicBeta.MidConversationSystemClearAt2026_08_21 =>
+                    "mid-conversation-system-clear-at-2026-08-21",
+                AnthropicBeta.Compact2026_09_04 => "compact-2026-09-04",
+                AnthropicBeta.InlineTools2026_09_15 => "inline-tools-2026-09-15",
+                AnthropicBeta.McpClient2026_09_15 => "mcp-client-2026-09-15",
+                AnthropicBeta.CEPlugins2026_09_01 => "ce-plugins-2026-09-01",
+                AnthropicBeta.SpendLimitReads2026_09_26 => "spend-limit-reads-2026-09-26",
+                AnthropicBeta.TelemetryDestinations2026_08_11 =>
+                    "telemetry-destinations-2026-08-11",
                 _ => throw new AnthropicInvalidDataException(
                     string.Format("Invalid value '{0}' in {1}", value, nameof(value))
                 ),

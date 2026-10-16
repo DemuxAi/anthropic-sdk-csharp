@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,6 +10,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Anthropic.Core;
+using Anthropic.Core.Telemetry;
 using Anthropic.Credentials;
 using Anthropic.Exceptions;
 using Anthropic.Services;
@@ -67,6 +70,13 @@ public class AnthropicClient : IAnthropicClient
     }
 
     /// <inheritdoc/>
+    public OpenTelemetryOptions? OpenTelemetry
+    {
+        get { return this._options.OpenTelemetry; }
+        init { this._options.OpenTelemetry = value; }
+    }
+
+    /// <inheritdoc/>
     public virtual string? ApiKey
     {
         get { return this._options.ApiKey; }
@@ -99,6 +109,25 @@ public class AnthropicClient : IAnthropicClient
     {
         get { return this._options.ExtraHeaders; }
         init { this._options.ExtraHeaders = value; }
+    }
+
+    /// <inheritdoc cref="ClientOptions.OpenTelemetryProviderName"/>
+    internal string OpenTelemetryProviderName
+    {
+        get { return this._options.OpenTelemetryProviderName; }
+        init { this._options.OpenTelemetryProviderName = value; }
+    }
+
+    internal ClientOptions Options
+    {
+        get { return this._options; }
+    }
+
+    /// <inheritdoc cref="ClientOptions.OpenTelemetrySource"/>
+    internal ActivitySource? OpenTelemetrySource
+    {
+        get { return this._options.OpenTelemetrySource; }
+        init { this._options.OpenTelemetrySource = value; }
     }
 
     readonly Lazy<IAnthropicClientWithRawResponse> _withRawResponse;
@@ -137,6 +166,12 @@ public class AnthropicClient : IAnthropicClient
     public ISkillService Skills
     {
         get { return _skills.Value; }
+    }
+
+    readonly Lazy<IOrganizationService> _organization;
+    public IOrganizationService Organization
+    {
+        get { return _organization.Value; }
     }
 
     readonly Lazy<IBetaService> _beta;
@@ -242,6 +277,9 @@ public class AnthropicClient : IAnthropicClient
             options.Credentials = new TokenCache(options.Credentials!);
         }
 
+        // The tracing environment variables are read now: a later change of the environment does
+        // not reach this client.
+        _ = options.ResolvedOpenTelemetry;
         _options = options;
 
         _withRawResponse = new(() => new AnthropicClientWithRawResponse(this._options));
@@ -249,6 +287,7 @@ public class AnthropicClient : IAnthropicClient
         _models = new(() => new ModelService(this));
         _files = new(() => new FileService(this));
         _skills = new(() => new SkillService(this));
+        _organization = new(() => new OrganizationService(this));
         _beta = new(() => new BetaService(this));
     }
 }
@@ -256,6 +295,11 @@ public class AnthropicClient : IAnthropicClient
 /// <inheritdoc/>
 public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
 {
+    internal ClientOptions Options
+    {
+        get { return this._options; }
+    }
+
 #if NET
     static readonly Random Random = Random.Shared;
 #else
@@ -314,6 +358,13 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
     }
 
     /// <inheritdoc/>
+    public OpenTelemetryOptions? OpenTelemetry
+    {
+        get { return this._options.OpenTelemetry; }
+        init { this._options.OpenTelemetry = value; }
+    }
+
+    /// <inheritdoc/>
     public virtual string? ApiKey
     {
         get { return this._options.ApiKey; }
@@ -352,6 +403,8 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         {
             options.BackendAdaptationHandler = this._options.BackendAdaptationHandler;
         }
+        // The spans of such a client keep the scope of its package too.
+        options.OpenTelemetrySource ??= this._options.OpenTelemetrySource;
         return new AnthropicClientWithRawResponse(options);
     }
 
@@ -379,20 +432,29 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         get { return _skills.Value; }
     }
 
+    readonly Lazy<IOrganizationServiceWithRawResponse> _organization;
+    public IOrganizationServiceWithRawResponse Organization
+    {
+        get { return _organization.Value; }
+    }
+
     readonly Lazy<IBetaServiceWithRawResponse> _beta;
     public IBetaServiceWithRawResponse Beta
     {
         get { return _beta.Value; }
     }
 
-    /// <inheritdoc/>
-    public async Task<HttpResponse> Execute<T>(
+    async Task<HttpResponse> ExecuteWithRetries<T>(
         HttpRequest<T> request,
-        CancellationToken cancellationToken = default
+        Activity? span,
+        CancellationToken cancellationToken
     )
         where T : ParamsBase
     {
-        var maxRetries = this.MaxRetries ?? ClientOptions.DefaultMaxRetries;
+        // A body that reads from a caller's stream can only be sent once, so such a request gets no retries.
+        var maxRetries = request.Params.IsBodyRepeatable()
+            ? this.MaxRetries ?? ClientOptions.DefaultMaxRetries
+            : 0;
         var retries = 0;
         var authRetryConsumed = false;
         while (true)
@@ -400,12 +462,12 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
             HttpResponse? response = null;
             try
             {
-                response = await ExecuteOnce(request, retries, cancellationToken)
+                response = await ExecuteOnce(request, retries, span, cancellationToken)
                     .ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                if (++retries > maxRetries || !ShouldRetry(e))
+                if (++retries > maxRetries || !ShouldRetry(e, cancellationToken))
                 {
                     throw;
                 }
@@ -413,12 +475,12 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
 
             // 401 with token credentials: force-refresh the token and retry once.
             // Gated on retries == 0 so an auth retry never stacks on top of a transport
-            // retry. Body replayability is not gated separately — ExecuteOnce rebuilds the
-            // body from request.Params on every attempt, the same as the transport-retry path.
+            // retry, and on IsBodyRepeatable because a multipart body reads from the caller's
+            // streams, which the first attempt has already consumed.
             if (response?.StatusCode == HttpStatusCode.Unauthorized && UsingTokenCredentials)
             {
                 // UsingTokenCredentials => _tokenCache != null, so the ! deref is safe.
-                if (!authRetryConsumed && retries == 0)
+                if (!authRetryConsumed && retries == 0 && request.Params.IsBodyRepeatable())
                 {
                     authRetryConsumed = true;
                     var failedToken = _tokenCache!.Cached?.Token;
@@ -455,6 +517,12 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
 
             if (response != null && (++retries > maxRetries || !ShouldRetry(response)))
             {
+                if (span != null)
+                {
+                    // The span records the final attempt's response.
+                    Tracing.SetResponseStatusCode(span, response.RawMessage);
+                    ApiCallSpans.SetResponseHeaderAttributes(span, response.RawMessage);
+                }
                 if (response.IsSuccessStatusCode)
                 {
                     return response;
@@ -485,8 +553,8 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
             }
             finally
             {
-                // A malformed Retry-After header makes the computation throw; the response
-                // being retried is abandoned either way.
+                // The response being retried is abandoned whether or not the computation
+                // succeeds.
                 response?.Dispose();
             }
             await Task.Delay(backoff, cancellationToken).ConfigureAwait(false);
@@ -542,6 +610,18 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         {
             foreach (var header in extraHeaders)
             {
+                // Per-request params may already carry this single-valued header; appending
+                // a second value would put "a, b" on the wire.
+                if (
+                    string.Equals(
+                        header.Key,
+                        "anthropic-workspace-id",
+                        StringComparison.OrdinalIgnoreCase
+                    ) && requestMessage.Headers.Contains(header.Key)
+                )
+                {
+                    continue;
+                }
                 requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
         }
@@ -553,7 +633,8 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         // betas (e.g., files-api-2025-04-14) and the OAuth beta coexist without duplicates.
         if (requestMessage.Headers.TryGetValues("anthropic-beta", out var existing))
         {
-            foreach (var entry in existing)
+            var entries = existing.ToList();
+            foreach (var entry in entries)
             {
                 foreach (var part in entry.Split(','))
                 {
@@ -563,6 +644,9 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
                     }
                 }
             }
+            entries.Add(value);
+            requestMessage.Headers.Remove("anthropic-beta");
+            value = string.Join(",", entries);
         }
         requestMessage.Headers.TryAddWithoutValidation("anthropic-beta", value);
     }
@@ -578,9 +662,52 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         return default;
     }
 
+    /// <inheritdoc/>
+    public async Task<HttpResponse> Execute<T>(
+        HttpRequest<T> request,
+        CancellationToken cancellationToken = default
+    )
+        where T : ParamsBase
+    {
+        // One span covers every attempt of the call, and ends when its response has been read.
+        // A request that was not made through an SDK method has no span name, and no span. The
+        // attributes are built only for a span that would be emitted.
+        var span =
+            request.Span
+            ?? (
+                request.SpanName == null || !Tracing.IsEnabled(this._options)
+                    ? null
+                    : Tracing.StartApiCallSpan(
+                        this._options.ResolvedOpenTelemetry,
+                        request.SpanName,
+                        Tracing.StartAttributes(this._options, request),
+                        this._options.OpenTelemetrySource
+                    )
+            );
+        if (span == null)
+        {
+            return await this.ExecuteWithRetries(request, null, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        HttpResponse response;
+        try
+        {
+            response = await this.ExecuteWithRetries(request, span, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            Tracing.EndApiCallSpan(span, e, cancellationToken);
+            throw;
+        }
+        response.Span = span;
+        return response;
+    }
+
     async Task<HttpResponse> ExecuteOnce<T>(
         HttpRequest<T> request,
         int retryCount,
+        Activity? span,
         CancellationToken cancellationToken = default
     )
         where T : ParamsBase
@@ -601,11 +728,13 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         request.Params.AddHeadersToRequest(requestMessage, this._options);
         if (!requestMessage.Headers.Contains("x-stainless-retry-count"))
         {
-            requestMessage.Headers.Add("x-stainless-retry-count", retryCount.ToString());
+            requestMessage.Headers.Add(
+                "x-stainless-retry-count",
+                retryCount.ToString(CultureInfo.InvariantCulture)
+            );
         }
-        using CancellationTokenSource timeoutCts = new(
-            this.Timeout ?? ClientOptions.DefaultTimeout
-        );
+        var timeout = this.Timeout ?? ClientOptions.DefaultTimeout;
+        using CancellationTokenSource timeoutCts = new(timeout);
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(
             timeoutCts.Token,
             cancellationToken
@@ -614,6 +743,16 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         try
         {
             await BeforeSend(request, requestMessage, cts.Token).ConfigureAwait(false);
+            if (span != null)
+            {
+                Tracing.InjectTraceHeaders(span, requestMessage.Headers);
+                Tracing.TrackRequest(
+                    requestMessage,
+                    span,
+                    request.Params,
+                    Content.IsRecorded(this._options.ResolvedOpenTelemetry)
+                );
+            }
             responseMessage = await this
                 ._options.SendRequestAsync(requestMessage, cts.Token)
                 .ConfigureAwait(false);
@@ -622,6 +761,17 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         catch (HttpRequestException e)
         {
             throw new AnthropicIOException("I/O exception", e);
+        }
+        catch (OperationCanceledException e)
+            when (timeoutCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            throw new TaskCanceledException(
+                string.Format(
+                    "The request was canceled due to the configured client timeout of {0} elapsing.",
+                    timeout
+                ),
+                new TimeoutException(e.Message, e)
+            );
         }
         // `cts` is disposed as this method returns, before any of the body has been read, so its
         // token must not travel with the response: every body read links against the response's
@@ -634,15 +784,12 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
     static TimeSpan ComputeRetryBackoff(int retries, HttpResponse? response)
     {
         TimeSpan? apiBackoff = ParseRetryAfterMsHeader(response) ?? ParseRetryAfterHeader(response);
-        if (
-            apiBackoff != null
-            && apiBackoff > TimeSpan.Zero
-            && apiBackoff < TimeSpan.FromMinutes(1)
-        )
+        if (apiBackoff != null && apiBackoff > TimeSpan.Zero)
         {
-            // If the API asks us to wait a certain amount of time (and it's a reasonable amount), then just
-            // do what it says.
-            return (TimeSpan)apiBackoff;
+            // If the API asks us to wait a certain amount of time, then just do what it says.
+            // `Task.Delay` throws for delays above `int.MaxValue` milliseconds, so wait at most that long.
+            var maxDelay = TimeSpan.FromMilliseconds(int.MaxValue);
+            return apiBackoff < maxDelay ? (TimeSpan)apiBackoff : maxDelay;
         }
 
         // Apply exponential backoff, but not more than the max.
@@ -661,8 +808,25 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
             return null;
         }
 
-        if (float.TryParse(headerValue, out var retryAfterMs))
+        if (
+            float.TryParse(
+                headerValue,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out var retryAfterMs
+            )
+        )
         {
+            // NaN, infinite or out-of-range values can't be converted to a TimeSpan (the conversion
+            // throws), so treat them like an unparsable header.
+            if (
+                float.IsNaN(retryAfterMs)
+                || Math.Abs(retryAfterMs) >= TimeSpan.MaxValue.TotalMilliseconds
+            )
+            {
+                return null;
+            }
+
             return TimeSpan.FromMilliseconds(retryAfterMs);
         }
 
@@ -679,11 +843,35 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
             return null;
         }
 
-        if (float.TryParse(headerValue, out var retryAfterSeconds))
+        if (
+            float.TryParse(
+                headerValue,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out var retryAfterSeconds
+            )
+        )
         {
+            // NaN, infinite or out-of-range values can't be converted to a TimeSpan (the conversion
+            // throws), so treat them like an unparsable header.
+            if (
+                float.IsNaN(retryAfterSeconds)
+                || Math.Abs(retryAfterSeconds) >= TimeSpan.MaxValue.TotalSeconds
+            )
+            {
+                return null;
+            }
+
             return TimeSpan.FromSeconds(retryAfterSeconds);
         }
-        else if (DateTimeOffset.TryParse(headerValue, out var retryAfterDate))
+        else if (
+            DateTimeOffset.TryParse(
+                headerValue,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal,
+                out var retryAfterDate
+            )
+        )
         {
             return retryAfterDate - DateTimeOffset.Now;
         }
@@ -719,14 +907,22 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         };
     }
 
-    static bool ShouldRetry(Exception e)
+    static bool ShouldRetry(Exception e, CancellationToken cancellationToken)
     {
+        if (cancellationToken.IsCancellationRequested)
+        {
+            // The caller cancelled the request, so don't retry.
+            return false;
+        }
+
+        // Retry connection errors and attempts that hit the per-attempt timeout.
         return (
                 e is IOException
                 && e is not FileNotFoundException
                 && e is not DirectoryNotFoundException
             )
-            || e is AnthropicIOException;
+            || e is AnthropicIOException
+            || e is OperationCanceledException;
     }
 
     public void Dispose()
@@ -742,11 +938,15 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
     public AnthropicClientWithRawResponse()
     {
         _options = new();
+        // The tracing environment variables are read now: a later change of the environment does
+        // not reach this client.
+        _ = _options.ResolvedOpenTelemetry;
 
         _messages = new(() => new MessageServiceWithRawResponse(this));
         _models = new(() => new ModelServiceWithRawResponse(this));
         _files = new(() => new FileServiceWithRawResponse(this));
         _skills = new(() => new SkillServiceWithRawResponse(this));
+        _organization = new(() => new OrganizationServiceWithRawResponse(this));
         _beta = new(() => new BetaServiceWithRawResponse(this));
     }
 
@@ -762,6 +962,7 @@ public class AnthropicClientWithRawResponse : IAnthropicClientWithRawResponse
         {
             options.Credentials = new TokenCache(options.Credentials!);
         }
+        _ = options.ResolvedOpenTelemetry;
         _options = options;
         _tokenCache = _options.Credentials as TokenCache;
     }

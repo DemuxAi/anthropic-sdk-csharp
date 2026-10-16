@@ -59,6 +59,7 @@ public sealed record class BetaToolResultBlockParam : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("content");
                 return;
             }
 
@@ -77,6 +78,7 @@ public sealed record class BetaToolResultBlockParam : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("is_error");
                 return;
             }
 
@@ -423,9 +425,6 @@ sealed class BetaToolResultBlockParamContentConverter
     }
 }
 
-/// <summary>
-/// Tool reference block that can be included in tool_result content.
-/// </summary>
 [JsonConverter(typeof(BlockConverter))]
 public record class Block : ModelBase
 {
@@ -448,14 +447,16 @@ public record class Block : ModelBase
     {
         get
         {
-            return Match(
-                betaTextBlockParam: (x) => x.Type,
-                betaImageBlockParam: (x) => x.Type,
-                betaSearchResultBlockParam: (x) => x.Type,
-                betaRequestDocument: (x) => x.Type,
-                betaToolReferenceBlockParam: (x) => x.Type,
-                betaBrowserStateBlockParam: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam x => x.Type,
+                BetaImageBlockParam x => x.Type,
+                BetaSearchResultBlockParam x => x.Type,
+                BetaRequestDocumentBlock x => x.Type,
+                BetaToolReferenceBlockParam x => x.Type,
+                BetaBrowserStateBlockParam x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -463,14 +464,19 @@ public record class Block : ModelBase
     {
         get
         {
-            return Match<BetaCacheControlEphemeral?>(
-                betaTextBlockParam: (x) => x.CacheControl,
-                betaImageBlockParam: (x) => x.CacheControl,
-                betaSearchResultBlockParam: (x) => x.CacheControl,
-                betaRequestDocument: (x) => x.CacheControl,
-                betaToolReferenceBlockParam: (x) => x.CacheControl,
-                betaBrowserStateBlockParam: (x) => x.CacheControl
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam x => x.CacheControl,
+                BetaImageBlockParam x => x.CacheControl,
+                BetaSearchResultBlockParam x => x.CacheControl,
+                BetaRequestDocumentBlock x => x.CacheControl,
+                BetaToolReferenceBlockParam x => x.CacheControl,
+                BetaBrowserStateBlockParam x => x.CacheControl,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<BetaCacheControlEphemeral>(
+                    this.Json,
+                    "cache_control"
+                ),
+            };
         }
     }
 
@@ -478,14 +484,16 @@ public record class Block : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaTextBlockParam: (_) => null,
-                betaImageBlockParam: (_) => null,
-                betaSearchResultBlockParam: (x) => x.Title,
-                betaRequestDocument: (x) => x.Title,
-                betaToolReferenceBlockParam: (_) => null,
-                betaBrowserStateBlockParam: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaTextBlockParam _ => null,
+                BetaImageBlockParam _ => null,
+                BetaSearchResultBlockParam x => x.Title,
+                BetaRequestDocumentBlock x => x.Title,
+                BetaToolReferenceBlockParam _ => null,
+                BetaBrowserStateBlockParam _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "title"),
+            };
         }
     }
 

@@ -59,9 +59,6 @@ public sealed record class BetaManagedAgentsMcpOAuthRefreshParams : JsonModel
         init { this._rawData.Set("token_endpoint", value); }
     }
 
-    /// <summary>
-    /// Token endpoint requires no client authentication.
-    /// </summary>
     public required TokenEndpointAuth TokenEndpointAuth
     {
         get
@@ -150,9 +147,6 @@ class BetaManagedAgentsMcpOAuthRefreshParamsFromRaw
     ) => BetaManagedAgentsMcpOAuthRefreshParams.FromRawUnchecked(rawData);
 }
 
-/// <summary>
-/// Token endpoint requires no client authentication.
-/// </summary>
 [JsonConverter(typeof(TokenEndpointAuthConverter))]
 public record class TokenEndpointAuth : ModelBase
 {
@@ -175,11 +169,16 @@ public record class TokenEndpointAuth : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsTokenEndpointAuthNoneParam: (_) => null,
-                betaManagedAgentsTokenEndpointAuthBasicParam: (x) => x.ClientSecret,
-                betaManagedAgentsTokenEndpointAuthPostParam: (x) => x.ClientSecret
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsTokenEndpointAuthNoneParam _ => null,
+                BetaManagedAgentsTokenEndpointAuthBasicParam x => x.ClientSecret,
+                BetaManagedAgentsTokenEndpointAuthPostParam x => x.ClientSecret,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "client_secret"
+                ),
+            };
         }
     }
 

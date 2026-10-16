@@ -29,6 +29,7 @@ public sealed record class BetaContextManagementConfig : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("edits");
                 return;
             }
 
@@ -86,9 +87,6 @@ class BetaContextManagementConfigFromRaw : IFromRawJson<BetaContextManagementCon
     ) => BetaContextManagementConfig.FromRawUnchecked(rawData);
 }
 
-/// <summary>
-/// Automatically compact older context when reaching the configured trigger threshold.
-/// </summary>
 [JsonConverter(typeof(EditConverter))]
 public record class Edit : ModelBase
 {
@@ -111,11 +109,13 @@ public record class Edit : ModelBase
     {
         get
         {
-            return Match(
-                betaClearToolUses20250919: (x) => x.Type,
-                betaClearThinking20251015: (x) => x.Type,
-                betaCompact20260112: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaClearToolUses20250919Edit x => x.Type,
+                BetaClearThinking20251015Edit x => x.Type,
+                BetaCompact20260112Edit x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 

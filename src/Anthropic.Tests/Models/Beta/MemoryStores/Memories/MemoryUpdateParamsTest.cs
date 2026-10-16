@@ -25,6 +25,7 @@ public class MemoryUpdateParamsTest : TestBase
                 ContentSha256 = "content_sha256",
             },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedMemoryStoreID = "memory_store_id";
@@ -42,6 +43,7 @@ public class MemoryUpdateParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedMemoryStoreID, parameters.MemoryStoreID);
         Assert.Equal(expectedMemoryID, parameters.MemoryID);
@@ -55,6 +57,7 @@ public class MemoryUpdateParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -74,6 +77,8 @@ public class MemoryUpdateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("precondition"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -90,6 +95,7 @@ public class MemoryUpdateParamsTest : TestBase
             View = null,
             Precondition = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.View);
@@ -98,6 +104,44 @@ public class MemoryUpdateParamsTest : TestBase
         Assert.False(parameters.RawBodyData.ContainsKey("precondition"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new MemoryUpdateParams
+        {
+            MemoryStoreID = "memory_store_id",
+            MemoryID = "memory_id",
+            View = BetaManagedAgentsMemoryView.Basic,
+            Content = "content",
+            Path = "xx",
+            Precondition = new()
+            {
+                Type = BetaManagedAgentsPreconditionType.ContentSha256,
+                ContentSha256 = "content_sha256",
+            },
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            View = null,
+            Precondition = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.View);
+        Assert.False(parameters.RawQueryData.ContainsKey("view"));
+        Assert.Null(parameters.Precondition);
+        Assert.False(parameters.RawBodyData.ContainsKey("precondition"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -114,6 +158,7 @@ public class MemoryUpdateParamsTest : TestBase
                 ContentSha256 = "content_sha256",
             },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.Content);
@@ -136,6 +181,7 @@ public class MemoryUpdateParamsTest : TestBase
                 ContentSha256 = "content_sha256",
             },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             Content = null,
             Path = null,
@@ -178,13 +224,18 @@ public class MemoryUpdateParamsTest : TestBase
             MemoryStoreID = "memory_store_id",
             MemoryID = "memory_id",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["agent-memory-2026-07-22", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,agent-memory-2026-07-22"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -204,6 +255,7 @@ public class MemoryUpdateParamsTest : TestBase
                 ContentSha256 = "content_sha256",
             },
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         MemoryUpdateParams copied = new(parameters);

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Messages;
 
 namespace Anthropic.Tests.Models.Beta.Messages;
@@ -24,17 +25,15 @@ public class BetaRawContentBlockDeltaTest : TestBase
     public void CitationsValidationWorks()
     {
         BetaRawContentBlockDelta value = new BetaCitationsDelta(
-            new Citation(
-                new BetaCitationCharLocation()
-                {
-                    CitedText = "The grass is green. The sky is blue.",
-                    DocumentIndex = 0,
-                    DocumentTitle = "My Document",
-                    EndCharIndex = 0,
-                    FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
-                    StartCharIndex = 0,
-                }
-            )
+            new BetaCitationCharLocation()
+            {
+                CitedText = "The grass is green. The sky is blue.",
+                DocumentIndex = 0,
+                DocumentTitle = "My Document",
+                EndCharIndex = 0,
+                FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
+                StartCharIndex = 0,
+            }
         );
         value.Validate();
     }
@@ -98,17 +97,15 @@ public class BetaRawContentBlockDeltaTest : TestBase
     public void CitationsSerializationRoundtripWorks()
     {
         BetaRawContentBlockDelta value = new BetaCitationsDelta(
-            new Citation(
-                new BetaCitationCharLocation()
-                {
-                    CitedText = "The grass is green. The sky is blue.",
-                    DocumentIndex = 0,
-                    DocumentTitle = "My Document",
-                    EndCharIndex = 0,
-                    FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
-                    StartCharIndex = 0,
-                }
-            )
+            new BetaCitationCharLocation()
+            {
+                CitedText = "The grass is green. The sky is blue.",
+                DocumentIndex = 0,
+                DocumentTitle = "My Document",
+                EndCharIndex = 0,
+                FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
+                StartCharIndex = 0,
+            }
         );
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<BetaRawContentBlockDelta>(
@@ -164,5 +161,28 @@ public class BetaRawContentBlockDeltaTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaRawContentBlockDelta value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "text_delta"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("text_delta");
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        BetaRawContentBlockDelta emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
     }
 }

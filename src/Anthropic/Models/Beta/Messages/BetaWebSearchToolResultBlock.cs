@@ -44,9 +44,6 @@ public sealed record class BetaWebSearchToolResultBlock : JsonModel
         init { this._rawData.Set("type", value); }
     }
 
-    /// <summary>
-    /// Tool invocation directly from the model.
-    /// </summary>
     public BetaWebSearchToolResultBlockCaller? Caller
     {
         get
@@ -58,6 +55,7 @@ public sealed record class BetaWebSearchToolResultBlock : JsonModel
         {
             if (value == null)
             {
+                this._rawData.Remove("caller");
                 return;
             }
 
@@ -125,9 +123,6 @@ class BetaWebSearchToolResultBlockFromRaw : IFromRawJson<BetaWebSearchToolResult
     ) => BetaWebSearchToolResultBlock.FromRawUnchecked(rawData);
 }
 
-/// <summary>
-/// Tool invocation directly from the model.
-/// </summary>
 [JsonConverter(typeof(BetaWebSearchToolResultBlockCallerConverter))]
 public record class BetaWebSearchToolResultBlockCaller : ModelBase
 {
@@ -150,11 +145,13 @@ public record class BetaWebSearchToolResultBlockCaller : ModelBase
     {
         get
         {
-            return Match(
-                betaDirect: (x) => x.Type,
-                betaServerTool: (x) => x.Type,
-                betaServerToolCaller20260120: (x) => x.Type
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller x => x.Type,
+                BetaServerToolCaller x => x.Type,
+                BetaServerToolCaller20260120 x => x.Type,
+                _ => WrappedJsonSerializer.GetNotNullStructProperty<JsonElement>(this.Json, "type"),
+            };
         }
     }
 
@@ -162,11 +159,13 @@ public record class BetaWebSearchToolResultBlockCaller : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaDirect: (_) => null,
-                betaServerTool: (x) => x.ToolID,
-                betaServerToolCaller20260120: (x) => x.ToolID
-            );
+            return this.Value switch
+            {
+                BetaDirectCaller _ => null,
+                BetaServerToolCaller x => x.ToolID,
+                BetaServerToolCaller20260120 x => x.ToolID,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(this.Json, "tool_id"),
+            };
         }
     }
 

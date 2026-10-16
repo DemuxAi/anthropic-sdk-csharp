@@ -17,7 +17,7 @@ public class BetaUsageTest : TestBase
             CacheCreation = new() { Ephemeral1hInputTokens = 0, Ephemeral5mInputTokens = 0 },
             CacheCreationInputTokens = 2051,
             CacheReadInputTokens = 2051,
-            FallbackCredit = new(new Status(new BetaFallbackCreditRedeemed())),
+            FallbackCredit = new(new BetaFallbackCreditRedeemed()),
             InferenceGeo = "global",
             InputTokens = 2095,
             Iterations =
@@ -32,7 +32,7 @@ public class BetaUsageTest : TestBase
                     CacheCreationInputTokens = 0,
                     CacheReadInputTokens = 0,
                     InputTokens = 0,
-                    Model = Model.ClaudeSonnet5,
+                    Model = Model.ClaudeHaiku5_5,
                     OutputTokens = 0,
                 },
             ],
@@ -50,9 +50,7 @@ public class BetaUsageTest : TestBase
         };
         long expectedCacheCreationInputTokens = 2051;
         long expectedCacheReadInputTokens = 2051;
-        BetaFallbackCreditUsage expectedFallbackCredit = new(
-            new Status(new BetaFallbackCreditRedeemed())
-        );
+        BetaFallbackCreditUsage expectedFallbackCredit = new(new BetaFallbackCreditRedeemed());
         string expectedInferenceGeo = "global";
         long expectedInputTokens = 2095;
         List<BetaUsageIteration> expectedIterations =
@@ -63,7 +61,7 @@ public class BetaUsageTest : TestBase
                 CacheCreationInputTokens = 0,
                 CacheReadInputTokens = 0,
                 InputTokens = 0,
-                Model = Model.ClaudeSonnet5,
+                Model = Model.ClaudeHaiku5_5,
                 OutputTokens = 0,
             },
         ];
@@ -104,7 +102,7 @@ public class BetaUsageTest : TestBase
             CacheCreation = new() { Ephemeral1hInputTokens = 0, Ephemeral5mInputTokens = 0 },
             CacheCreationInputTokens = 2051,
             CacheReadInputTokens = 2051,
-            FallbackCredit = new(new Status(new BetaFallbackCreditRedeemed())),
+            FallbackCredit = new(new BetaFallbackCreditRedeemed()),
             InferenceGeo = "global",
             InputTokens = 2095,
             Iterations =
@@ -119,7 +117,7 @@ public class BetaUsageTest : TestBase
                     CacheCreationInputTokens = 0,
                     CacheReadInputTokens = 0,
                     InputTokens = 0,
-                    Model = Model.ClaudeSonnet5,
+                    Model = Model.ClaudeHaiku5_5,
                     OutputTokens = 0,
                 },
             ],
@@ -144,7 +142,7 @@ public class BetaUsageTest : TestBase
             CacheCreation = new() { Ephemeral1hInputTokens = 0, Ephemeral5mInputTokens = 0 },
             CacheCreationInputTokens = 2051,
             CacheReadInputTokens = 2051,
-            FallbackCredit = new(new Status(new BetaFallbackCreditRedeemed())),
+            FallbackCredit = new(new BetaFallbackCreditRedeemed()),
             InferenceGeo = "global",
             InputTokens = 2095,
             Iterations =
@@ -159,7 +157,7 @@ public class BetaUsageTest : TestBase
                     CacheCreationInputTokens = 0,
                     CacheReadInputTokens = 0,
                     InputTokens = 0,
-                    Model = Model.ClaudeSonnet5,
+                    Model = Model.ClaudeHaiku5_5,
                     OutputTokens = 0,
                 },
             ],
@@ -184,9 +182,7 @@ public class BetaUsageTest : TestBase
         };
         long expectedCacheCreationInputTokens = 2051;
         long expectedCacheReadInputTokens = 2051;
-        BetaFallbackCreditUsage expectedFallbackCredit = new(
-            new Status(new BetaFallbackCreditRedeemed())
-        );
+        BetaFallbackCreditUsage expectedFallbackCredit = new(new BetaFallbackCreditRedeemed());
         string expectedInferenceGeo = "global";
         long expectedInputTokens = 2095;
         List<BetaUsageIteration> expectedIterations =
@@ -197,7 +193,7 @@ public class BetaUsageTest : TestBase
                 CacheCreationInputTokens = 0,
                 CacheReadInputTokens = 0,
                 InputTokens = 0,
-                Model = Model.ClaudeSonnet5,
+                Model = Model.ClaudeHaiku5_5,
                 OutputTokens = 0,
             },
         ];
@@ -238,7 +234,7 @@ public class BetaUsageTest : TestBase
             CacheCreation = new() { Ephemeral1hInputTokens = 0, Ephemeral5mInputTokens = 0 },
             CacheCreationInputTokens = 2051,
             CacheReadInputTokens = 2051,
-            FallbackCredit = new(new Status(new BetaFallbackCreditRedeemed())),
+            FallbackCredit = new(new BetaFallbackCreditRedeemed()),
             InferenceGeo = "global",
             InputTokens = 2095,
             Iterations =
@@ -253,7 +249,7 @@ public class BetaUsageTest : TestBase
                     CacheCreationInputTokens = 0,
                     CacheReadInputTokens = 0,
                     InputTokens = 0,
-                    Model = Model.ClaudeSonnet5,
+                    Model = Model.ClaudeHaiku5_5,
                     OutputTokens = 0,
                 },
             ],
@@ -275,7 +271,7 @@ public class BetaUsageTest : TestBase
             CacheCreation = new() { Ephemeral1hInputTokens = 0, Ephemeral5mInputTokens = 0 },
             CacheCreationInputTokens = 2051,
             CacheReadInputTokens = 2051,
-            FallbackCredit = new(new Status(new BetaFallbackCreditRedeemed())),
+            FallbackCredit = new(new BetaFallbackCreditRedeemed()),
             InferenceGeo = "global",
             InputTokens = 2095,
             Iterations =
@@ -290,7 +286,7 @@ public class BetaUsageTest : TestBase
                     CacheCreationInputTokens = 0,
                     CacheReadInputTokens = 0,
                     InputTokens = 0,
-                    Model = Model.ClaudeSonnet5,
+                    Model = Model.ClaudeHaiku5_5,
                     OutputTokens = 0,
                 },
             ],
@@ -318,7 +314,7 @@ public class BetaUsageIterationTest : TestBase
             CacheCreationInputTokens = 0,
             CacheReadInputTokens = 0,
             InputTokens = 0,
-            Model = Model.ClaudeSonnet5,
+            Model = Model.ClaudeHaiku5_5,
             OutputTokens = 0,
         };
         value.Validate();
@@ -347,7 +343,7 @@ public class BetaUsageIterationTest : TestBase
             CacheCreationInputTokens = 0,
             CacheReadInputTokens = 0,
             InputTokens = 0,
-            Model = Model.ClaudeSonnet5,
+            Model = Model.ClaudeHaiku5_5,
             OutputTokens = 0,
         };
         value.Validate();
@@ -362,7 +358,7 @@ public class BetaUsageIterationTest : TestBase
             CacheCreationInputTokens = 0,
             CacheReadInputTokens = 0,
             InputTokens = 0,
-            Model = Model.ClaudeSonnet5,
+            Model = Model.ClaudeHaiku5_5,
             OutputTokens = 0,
         };
         value.Validate();
@@ -377,7 +373,7 @@ public class BetaUsageIterationTest : TestBase
             CacheCreationInputTokens = 0,
             CacheReadInputTokens = 0,
             InputTokens = 0,
-            Model = Model.ClaudeSonnet5,
+            Model = Model.ClaudeHaiku5_5,
             OutputTokens = 0,
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -418,7 +414,7 @@ public class BetaUsageIterationTest : TestBase
             CacheCreationInputTokens = 0,
             CacheReadInputTokens = 0,
             InputTokens = 0,
-            Model = Model.ClaudeSonnet5,
+            Model = Model.ClaudeHaiku5_5,
             OutputTokens = 0,
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -439,7 +435,7 @@ public class BetaUsageIterationTest : TestBase
             CacheCreationInputTokens = 0,
             CacheReadInputTokens = 0,
             InputTokens = 0,
-            Model = Model.ClaudeSonnet5,
+            Model = Model.ClaudeHaiku5_5,
             OutputTokens = 0,
         };
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
@@ -449,6 +445,92 @@ public class BetaUsageIterationTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaUsageIteration value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "cache_creation": {
+                    "ephemeral_1h_input_tokens": 0,
+                    "ephemeral_5m_input_tokens": 0
+                  },
+                  "cache_creation_input_tokens": 0,
+                  "cache_read_input_tokens": 0,
+                  "input_tokens": 0,
+                  "model": "claude-haiku-5-5",
+                  "output_tokens": 0,
+                  "type": "message"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        BetaCacheCreation expectedCacheCreation = new()
+        {
+            Ephemeral1hInputTokens = 0,
+            Ephemeral5mInputTokens = 0,
+        };
+        long expectedCacheCreationInputTokens = 0;
+        long expectedCacheReadInputTokens = 0;
+        long expectedInputTokens = 0;
+        ApiEnum<string, Model> expectedModel = Model.ClaudeHaiku5_5;
+        long expectedOutputTokens = 0;
+        JsonElement expectedType = JsonSerializer.SerializeToElement("message");
+
+        Assert.Equal(expectedCacheCreation, value.CacheCreation);
+        Assert.Equal(expectedCacheCreationInputTokens, value.CacheCreationInputTokens);
+        Assert.Equal(expectedCacheReadInputTokens, value.CacheReadInputTokens);
+        Assert.Equal(expectedInputTokens, value.InputTokens);
+        Assert.Equal(expectedModel, value.Model);
+        Assert.Equal(expectedOutputTokens, value.OutputTokens);
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        BetaUsageIteration emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Null(emptyValue.CacheCreation);
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.CacheCreationInputTokens);
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.CacheReadInputTokens);
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.InputTokens);
+        Assert.Null(emptyValue.Model);
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.OutputTokens);
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+
+        BetaUsageIteration mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "cache_creation": [
+                    "invalid"
+                  ],
+                  "cache_creation_input_tokens": [
+                    "invalid"
+                  ],
+                  "cache_read_input_tokens": [
+                    "invalid"
+                  ],
+                  "input_tokens": [
+                    "invalid"
+                  ],
+                  "output_tokens": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.CacheCreation);
+        Assert.Throws<AnthropicInvalidDataException>(() =>
+            mismatchedValue.CacheCreationInputTokens
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => mismatchedValue.CacheReadInputTokens);
+        Assert.Throws<AnthropicInvalidDataException>(() => mismatchedValue.InputTokens);
+        Assert.Throws<AnthropicInvalidDataException>(() => mismatchedValue.OutputTokens);
     }
 }
 

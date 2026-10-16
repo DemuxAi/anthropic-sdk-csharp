@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta.Vaults.Credentials;
 
 namespace Anthropic.Tests.Models.Beta.Vaults.Credentials;
@@ -142,6 +143,28 @@ public class BetaManagedAgentsMcpOAuthRefreshUpdateParamsTest : TestBase
             RefreshToken = "x",
             Scope = "scope",
 
+            // Null should be interpreted as omitted for these properties
+            TokenEndpointAuth = null,
+        };
+
+        Assert.Null(model.TokenEndpointAuth);
+        Assert.False(model.RawData.ContainsKey("token_endpoint_auth"));
+    }
+
+    [Fact]
+    public void OptionalNonNullablePropertiesSetToNullInWithAreUnset_Works()
+    {
+        var model = new BetaManagedAgentsMcpOAuthRefreshUpdateParams
+        {
+            RefreshToken = "x",
+            Scope = "scope",
+            TokenEndpointAuth = new BetaManagedAgentsTokenEndpointAuthBasicUpdateParam()
+            {
+                Type = BetaManagedAgentsTokenEndpointAuthBasicUpdateParamType.ClientSecretBasic,
+                ClientSecret = "x",
+            },
+        } with
+        {
             // Null should be interpreted as omitted for these properties
             TokenEndpointAuth = null,
         };
@@ -319,5 +342,44 @@ public class BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAuthTest :
             );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAuth value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "client_secret": "x"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        string expectedClientSecret = "x";
+
+        Assert.Equal(expectedClientSecret, value.ClientSecret);
+
+        BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAuth emptyValue = new(
+            JsonSerializer.Deserialize<JsonElement>("{}")
+        );
+
+        Assert.Null(emptyValue.ClientSecret);
+
+        BetaManagedAgentsMcpOAuthRefreshUpdateParamsTokenEndpointAuth mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "client_secret": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.ClientSecret);
     }
 }

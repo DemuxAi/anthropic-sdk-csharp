@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Beta;
 using Anthropic.Models.Beta.Organization.Federation.Issuers;
 
@@ -81,6 +82,34 @@ public class IssuerCreateParamsTest : TestBase
             CheckJti = true,
             MaxJwtLifetimeSeconds = 1,
 
+            // Null should be interpreted as omitted for these properties
+            Jwks = null,
+            Betas = null,
+        };
+
+        Assert.Null(parameters.Jwks);
+        Assert.False(parameters.RawBodyData.ContainsKey("jwks"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new IssuerCreateParams
+        {
+            IssuerUrl = "x",
+            Name = "x",
+            CheckJti = true,
+            Jwks = new BetaJwksDiscovery()
+            {
+                CACertPem = "ca_cert_pem",
+                DiscoveryBase = "discovery_base",
+            },
+            MaxJwtLifetimeSeconds = 1,
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+        } with
+        {
             // Null should be interpreted as omitted for these properties
             Jwks = null,
             Betas = null,
@@ -267,5 +296,46 @@ public class JwksTest : TestBase
         var deserialized = JsonSerializer.Deserialize<Jwks>(element, ModelBase.SerializerOptions);
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        Jwks value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "discovery",
+                  "ca_cert_pem": "ca_cert_pem"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("discovery");
+        string expectedCACertPem = "ca_cert_pem";
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+        Assert.Equal(expectedCACertPem, value.CACertPem);
+
+        Jwks emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
+        Assert.Null(emptyValue.CACertPem);
+
+        Jwks mismatchedValue = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "ca_cert_pem": [
+                    "invalid"
+                  ]
+                }
+                """
+            )
+        );
+
+        Assert.Null(mismatchedValue.CACertPem);
     }
 }

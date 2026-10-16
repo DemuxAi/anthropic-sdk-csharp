@@ -10,7 +10,7 @@ using System = System;
 namespace Anthropic.Models.Beta.Sessions;
 
 /// <summary>
-/// Evaluation state for a single outcome defined via a define_outcome event.
+/// Evaluation state for a single outcome defined via a `define_outcome` event.
 /// </summary>
 [JsonConverter(
     typeof(JsonModelConverter<
@@ -21,7 +21,7 @@ namespace Anthropic.Models.Beta.Sessions;
 public sealed record class BetaManagedAgentsOutcomeEvaluationResource : JsonModel
 {
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// When the outcome reached a terminal result. Null while `pending`/`running`/`evaluating`.
     /// </summary>
     public required System::DateTimeOffset? CompletedAt
     {
@@ -47,9 +47,9 @@ public sealed record class BetaManagedAgentsOutcomeEvaluationResource : JsonMode
     }
 
     /// <summary>
-    /// Grader's verdict text from the most recent evaluation. For satisfied, explains
-    /// why criteria are met; for needs_revision (intermediate), what's missing;
-    /// for failed, why unrecoverable.
+    /// Grader's verdict text from the most recent evaluation. For `satisfied`, explains
+    /// why criteria are met; for `needs_revision` (intermediate), what's missing;
+    /// for `failed`, why unrecoverable.
     /// </summary>
     public required string? Explanation
     {

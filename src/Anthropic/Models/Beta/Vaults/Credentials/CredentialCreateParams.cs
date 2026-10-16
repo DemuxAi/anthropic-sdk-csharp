@@ -31,7 +31,7 @@ public record class CredentialCreateParams : ParamsBase
     public string? VaultID { get; init; }
 
     /// <summary>
-    /// Authentication details for creating a credential.
+    /// Authentication configuration for the credential.
     /// </summary>
     public required Auth Auth
     {
@@ -71,6 +71,7 @@ public record class CredentialCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawBodyData.Remove("metadata");
                 return;
             }
 
@@ -82,7 +83,8 @@ public record class CredentialCreateParams : ParamsBase
     }
 
     /// <summary>
-    /// Optional header to specify the beta version(s) you want to use.
+    /// This endpoint is in beta: requests must send `managed-agents-2026-04-01` in
+    /// this header.
     /// </summary>
     public IReadOnlyList<ApiEnum<string, AnthropicBeta>>? Betas
     {
@@ -97,6 +99,7 @@ public record class CredentialCreateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -104,6 +107,33 @@ public record class CredentialCreateParams : ParamsBase
                 "anthropic-beta",
                 value == null ? null : ImmutableArray.ToImmutableArray(value)
             );
+        }
+    }
+
+    /// <summary>
+    /// Optional header to select the Workspace for this request. The value is a Workspace
+    /// ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
+    ///
+    /// <para>Only needed for credentials that can act on more than one Workspace.
+    /// A credential that belongs to a specific Workspace may omit it; if sent, it
+    /// must match that Workspace.</para>
+    /// </summary>
+    public string? WorkspaceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("anthropic-workspace-id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                this._rawHeaderData.Remove("anthropic-workspace-id");
+                return;
+            }
+
+            this._rawHeaderData.Set("anthropic-workspace-id", value);
         }
     }
 
@@ -198,12 +228,17 @@ public record class CredentialCreateParams : ParamsBase
         var queryString = this.QueryString(options);
         return new System::UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/vaults/{0}/credentials", this.VaultID)
+                + string.Format(
+                    "/v1/vaults/{0}/credentials",
+                    ParamsBase.EncodePathSegment(this.VaultID, nameof(this.VaultID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/vaults/{vault_id}/credentials";
 
     internal override HttpContent? BodyContent()
     {
@@ -231,7 +266,7 @@ public record class CredentialCreateParams : ParamsBase
 }
 
 /// <summary>
-/// Authentication details for creating a credential.
+/// Authentication configuration for the credential.
 /// </summary>
 [JsonConverter(typeof(AuthConverter))]
 public record class Auth : ModelBase
@@ -255,11 +290,16 @@ public record class Auth : ModelBase
     {
         get
         {
-            return Match<string?>(
-                betaManagedAgentsMcpOAuthCreateParams: (x) => x.McpServerUrl,
-                betaManagedAgentsStaticBearerCreateParams: (x) => x.McpServerUrl,
-                betaManagedAgentsEnvironmentVariableCreateParams: (_) => null
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsMcpOAuthCreateParams x => x.McpServerUrl,
+                BetaManagedAgentsStaticBearerCreateParams x => x.McpServerUrl,
+                BetaManagedAgentsEnvironmentVariableCreateParams _ => null,
+                _ => WrappedJsonSerializer.GetNullableClassProperty<string>(
+                    this.Json,
+                    "mcp_server_url"
+                ),
+            };
         }
     }
 

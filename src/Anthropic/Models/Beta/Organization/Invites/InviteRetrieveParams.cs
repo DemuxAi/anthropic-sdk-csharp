@@ -100,12 +100,17 @@ public record class InviteRetrieveParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/invites/{0}", this.InviteID)
+                + string.Format(
+                    "/v1/organizations/invites/{0}",
+                    ParamsBase.EncodePathSegment(this.InviteID, nameof(this.InviteID))
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/invites/{invite_id}";
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

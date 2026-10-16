@@ -36,7 +36,8 @@ public sealed record class BetaManagedAgentsDeploymentRun : JsonModel
     }
 
     /// <summary>
-    /// A resolved agent reference with a concrete version.
+    /// Snapshot of the agent at fire time. Always fully resolved — deployments pin
+    /// agent + version.
     /// </summary>
     public required BetaManagedAgentsAgentReference Agent
     {
@@ -49,7 +50,7 @@ public sealed record class BetaManagedAgentsDeploymentRun : JsonModel
     }
 
     /// <summary>
-    /// A timestamp in RFC 3339 format
+    /// Time this run record was persisted.
     /// </summary>
     public required System::DateTimeOffset CreatedAt
     {
@@ -75,8 +76,8 @@ public sealed record class BetaManagedAgentsDeploymentRun : JsonModel
     }
 
     /// <summary>
-    /// Why the run failed to create a session. The type identifies the failure; message
-    /// is human-readable detail.
+    /// Populated on creation failure. Null on success. Exactly one of `session_id`
+    /// or `error` is non-null.
     /// </summary>
     public required Error? Error
     {
@@ -89,8 +90,8 @@ public sealed record class BetaManagedAgentsDeploymentRun : JsonModel
     }
 
     /// <summary>
-    /// Populated on success. Null on creation failure. Exactly one of session_id
-    /// or error is non-null.
+    /// Populated on success. Null on creation failure. Exactly one of `session_id`
+    /// or `error` is non-null.
     /// </summary>
     public required string? SessionID
     {
@@ -103,7 +104,7 @@ public sealed record class BetaManagedAgentsDeploymentRun : JsonModel
     }
 
     /// <summary>
-    /// Describes what triggered a deployment run, with trigger-specific metadata.
+    /// What triggered this run and trigger-specific metadata.
     /// </summary>
     public required BetaManagedAgentsTriggerContext TriggerContext
     {
@@ -183,8 +184,8 @@ class BetaManagedAgentsDeploymentRunFromRaw : IFromRawJson<BetaManagedAgentsDepl
 }
 
 /// <summary>
-/// Why the run failed to create a session. The type identifies the failure; message
-/// is human-readable detail.
+/// Populated on creation failure. Null on success. Exactly one of `session_id` or
+/// `error` is non-null.
 /// </summary>
 [JsonConverter(typeof(ErrorConverter))]
 public record class Error : ModelBase
@@ -208,24 +209,26 @@ public record class Error : ModelBase
     {
         get
         {
-            return Match(
-                betaManagedAgentsEnvironmentArchivedRun: (x) => x.Message,
-                betaManagedAgentsAgentArchivedRun: (x) => x.Message,
-                betaManagedAgentsEnvironmentNotFoundRun: (x) => x.Message,
-                betaManagedAgentsVaultNotFoundRun: (x) => x.Message,
-                betaManagedAgentsVaultArchivedRun: (x) => x.Message,
-                betaManagedAgentsFileNotFoundRun: (x) => x.Message,
-                betaManagedAgentsMemoryStoreArchivedRun: (x) => x.Message,
-                betaManagedAgentsSkillNotFoundRun: (x) => x.Message,
-                betaManagedAgentsSessionResourceNotFoundRun: (x) => x.Message,
-                betaManagedAgentsWorkspaceArchivedRun: (x) => x.Message,
-                betaManagedAgentsOrganizationDisabledRun: (x) => x.Message,
-                betaManagedAgentsSessionRateLimitedRun: (x) => x.Message,
-                betaManagedAgentsSessionCreationRejectedRun: (x) => x.Message,
-                betaManagedAgentsUnknownRun: (x) => x.Message,
-                betaManagedAgentsSelfHostedResourcesUnsupportedRun: (x) => x.Message,
-                betaManagedAgentsMcpEgressBlockedRun: (x) => x.Message
-            );
+            return this.Value switch
+            {
+                BetaManagedAgentsEnvironmentArchivedRunError x => x.Message,
+                BetaManagedAgentsAgentArchivedRunError x => x.Message,
+                BetaManagedAgentsEnvironmentNotFoundRunError x => x.Message,
+                BetaManagedAgentsVaultNotFoundRunError x => x.Message,
+                BetaManagedAgentsVaultArchivedRunError x => x.Message,
+                BetaManagedAgentsFileNotFoundRunError x => x.Message,
+                BetaManagedAgentsMemoryStoreArchivedRunError x => x.Message,
+                BetaManagedAgentsSkillNotFoundRunError x => x.Message,
+                BetaManagedAgentsSessionResourceNotFoundRunError x => x.Message,
+                BetaManagedAgentsWorkspaceArchivedRunError x => x.Message,
+                BetaManagedAgentsOrganizationDisabledRunError x => x.Message,
+                BetaManagedAgentsSessionRateLimitedRunError x => x.Message,
+                BetaManagedAgentsSessionCreationRejectedRunError x => x.Message,
+                BetaManagedAgentsUnknownRunError x => x.Message,
+                BetaManagedAgentsSelfHostedResourcesUnsupportedRunError x => x.Message,
+                BetaManagedAgentsMcpEgressBlockedRunError x => x.Message,
+                _ => WrappedJsonSerializer.GetNotNullClassProperty<string>(this.Json, "message"),
+            };
         }
     }
 

@@ -14,6 +14,7 @@ public class BetaModelCapabilitiesTest : TestBase
             Batch = new(true),
             Citations = new(true),
             CodeExecution = new(true),
+            Compaction = new() { Summarize = new(true), Supported = true },
             ContextManagement = new()
             {
                 ClearThinking20251015 = new(true),
@@ -32,17 +33,34 @@ public class BetaModelCapabilitiesTest : TestBase
             },
             ImageInput = new(true),
             PdfInput = new(true),
+            ServerTools = new()
+            {
+                CodeExecution = new(true),
+                Supported = true,
+                WebSearch = new(true),
+            },
             StructuredOutputs = new(true),
             Thinking = new()
             {
                 Supported = true,
-                Types = new() { Adaptive = new(true), Enabled = new(true) },
+                Types = new()
+                {
+                    Adaptive = new(true),
+                    BetweenTools = new(true),
+                    Disabled = new(true),
+                    Enabled = new(true),
+                },
             },
         };
 
         BetaCapabilitySupport expectedBatch = new(true);
         BetaCapabilitySupport expectedCitations = new(true);
         BetaCapabilitySupport expectedCodeExecution = new(true);
+        BetaCompactionCapability expectedCompaction = new()
+        {
+            Summarize = new(true),
+            Supported = true,
+        };
         BetaContextManagementCapability expectedContextManagement = new()
         {
             ClearThinking20251015 = new(true),
@@ -61,20 +79,34 @@ public class BetaModelCapabilitiesTest : TestBase
         };
         BetaCapabilitySupport expectedImageInput = new(true);
         BetaCapabilitySupport expectedPdfInput = new(true);
+        BetaServerToolsCapability expectedServerTools = new()
+        {
+            CodeExecution = new(true),
+            Supported = true,
+            WebSearch = new(true),
+        };
         BetaCapabilitySupport expectedStructuredOutputs = new(true);
         BetaThinkingCapability expectedThinking = new()
         {
             Supported = true,
-            Types = new() { Adaptive = new(true), Enabled = new(true) },
+            Types = new()
+            {
+                Adaptive = new(true),
+                BetweenTools = new(true),
+                Disabled = new(true),
+                Enabled = new(true),
+            },
         };
 
         Assert.Equal(expectedBatch, model.Batch);
         Assert.Equal(expectedCitations, model.Citations);
         Assert.Equal(expectedCodeExecution, model.CodeExecution);
+        Assert.Equal(expectedCompaction, model.Compaction);
         Assert.Equal(expectedContextManagement, model.ContextManagement);
         Assert.Equal(expectedEffort, model.Effort);
         Assert.Equal(expectedImageInput, model.ImageInput);
         Assert.Equal(expectedPdfInput, model.PdfInput);
+        Assert.Equal(expectedServerTools, model.ServerTools);
         Assert.Equal(expectedStructuredOutputs, model.StructuredOutputs);
         Assert.Equal(expectedThinking, model.Thinking);
     }
@@ -87,6 +119,7 @@ public class BetaModelCapabilitiesTest : TestBase
             Batch = new(true),
             Citations = new(true),
             CodeExecution = new(true),
+            Compaction = new() { Summarize = new(true), Supported = true },
             ContextManagement = new()
             {
                 ClearThinking20251015 = new(true),
@@ -105,11 +138,23 @@ public class BetaModelCapabilitiesTest : TestBase
             },
             ImageInput = new(true),
             PdfInput = new(true),
+            ServerTools = new()
+            {
+                CodeExecution = new(true),
+                Supported = true,
+                WebSearch = new(true),
+            },
             StructuredOutputs = new(true),
             Thinking = new()
             {
                 Supported = true,
-                Types = new() { Adaptive = new(true), Enabled = new(true) },
+                Types = new()
+                {
+                    Adaptive = new(true),
+                    BetweenTools = new(true),
+                    Disabled = new(true),
+                    Enabled = new(true),
+                },
             },
         };
 
@@ -130,6 +175,7 @@ public class BetaModelCapabilitiesTest : TestBase
             Batch = new(true),
             Citations = new(true),
             CodeExecution = new(true),
+            Compaction = new() { Summarize = new(true), Supported = true },
             ContextManagement = new()
             {
                 ClearThinking20251015 = new(true),
@@ -148,11 +194,23 @@ public class BetaModelCapabilitiesTest : TestBase
             },
             ImageInput = new(true),
             PdfInput = new(true),
+            ServerTools = new()
+            {
+                CodeExecution = new(true),
+                Supported = true,
+                WebSearch = new(true),
+            },
             StructuredOutputs = new(true),
             Thinking = new()
             {
                 Supported = true,
-                Types = new() { Adaptive = new(true), Enabled = new(true) },
+                Types = new()
+                {
+                    Adaptive = new(true),
+                    BetweenTools = new(true),
+                    Disabled = new(true),
+                    Enabled = new(true),
+                },
             },
         };
 
@@ -166,6 +224,11 @@ public class BetaModelCapabilitiesTest : TestBase
         BetaCapabilitySupport expectedBatch = new(true);
         BetaCapabilitySupport expectedCitations = new(true);
         BetaCapabilitySupport expectedCodeExecution = new(true);
+        BetaCompactionCapability expectedCompaction = new()
+        {
+            Summarize = new(true),
+            Supported = true,
+        };
         BetaContextManagementCapability expectedContextManagement = new()
         {
             ClearThinking20251015 = new(true),
@@ -184,20 +247,34 @@ public class BetaModelCapabilitiesTest : TestBase
         };
         BetaCapabilitySupport expectedImageInput = new(true);
         BetaCapabilitySupport expectedPdfInput = new(true);
+        BetaServerToolsCapability expectedServerTools = new()
+        {
+            CodeExecution = new(true),
+            Supported = true,
+            WebSearch = new(true),
+        };
         BetaCapabilitySupport expectedStructuredOutputs = new(true);
         BetaThinkingCapability expectedThinking = new()
         {
             Supported = true,
-            Types = new() { Adaptive = new(true), Enabled = new(true) },
+            Types = new()
+            {
+                Adaptive = new(true),
+                BetweenTools = new(true),
+                Disabled = new(true),
+                Enabled = new(true),
+            },
         };
 
         Assert.Equal(expectedBatch, deserialized.Batch);
         Assert.Equal(expectedCitations, deserialized.Citations);
         Assert.Equal(expectedCodeExecution, deserialized.CodeExecution);
+        Assert.Equal(expectedCompaction, deserialized.Compaction);
         Assert.Equal(expectedContextManagement, deserialized.ContextManagement);
         Assert.Equal(expectedEffort, deserialized.Effort);
         Assert.Equal(expectedImageInput, deserialized.ImageInput);
         Assert.Equal(expectedPdfInput, deserialized.PdfInput);
+        Assert.Equal(expectedServerTools, deserialized.ServerTools);
         Assert.Equal(expectedStructuredOutputs, deserialized.StructuredOutputs);
         Assert.Equal(expectedThinking, deserialized.Thinking);
     }
@@ -210,6 +287,7 @@ public class BetaModelCapabilitiesTest : TestBase
             Batch = new(true),
             Citations = new(true),
             CodeExecution = new(true),
+            Compaction = new() { Summarize = new(true), Supported = true },
             ContextManagement = new()
             {
                 ClearThinking20251015 = new(true),
@@ -228,11 +306,23 @@ public class BetaModelCapabilitiesTest : TestBase
             },
             ImageInput = new(true),
             PdfInput = new(true),
+            ServerTools = new()
+            {
+                CodeExecution = new(true),
+                Supported = true,
+                WebSearch = new(true),
+            },
             StructuredOutputs = new(true),
             Thinking = new()
             {
                 Supported = true,
-                Types = new() { Adaptive = new(true), Enabled = new(true) },
+                Types = new()
+                {
+                    Adaptive = new(true),
+                    BetweenTools = new(true),
+                    Disabled = new(true),
+                    Enabled = new(true),
+                },
             },
         };
 
@@ -247,6 +337,7 @@ public class BetaModelCapabilitiesTest : TestBase
             Batch = new(true),
             Citations = new(true),
             CodeExecution = new(true),
+            Compaction = new() { Summarize = new(true), Supported = true },
             ContextManagement = new()
             {
                 ClearThinking20251015 = new(true),
@@ -265,11 +356,23 @@ public class BetaModelCapabilitiesTest : TestBase
             },
             ImageInput = new(true),
             PdfInput = new(true),
+            ServerTools = new()
+            {
+                CodeExecution = new(true),
+                Supported = true,
+                WebSearch = new(true),
+            },
             StructuredOutputs = new(true),
             Thinking = new()
             {
                 Supported = true,
-                Types = new() { Adaptive = new(true), Enabled = new(true) },
+                Types = new()
+                {
+                    Adaptive = new(true),
+                    BetweenTools = new(true),
+                    Disabled = new(true),
+                    Enabled = new(true),
+                },
             },
         };
 

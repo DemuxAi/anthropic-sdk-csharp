@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Anthropic.Exceptions;
 
 namespace Anthropic.Core;
 
@@ -67,6 +70,23 @@ public abstract record class ParamsBase
 
     public abstract Uri Url(ClientOptions options);
 
+    /// <summary>
+    /// The path of the endpoint that these parameters are for, as the API's description gives it:
+    /// with the name of each path parameter in place of its value, such as
+    /// <c>/v1/files/{file_id}</c>. The call span has it as <c>http.route</c>.
+    /// </summary>
+    internal virtual string? Route => null;
+
+    /// <summary>
+    /// The names of the query parameters that the endpoint's description defines, as the API
+    /// spells them. The call span's <c>url.query</c> leaves out every other part of a query
+    /// string.
+    /// </summary>
+    internal virtual IReadOnlyList<string> QueryParams => [];
+
+    /// <summary>The query parameters whose value is content on this endpoint only.</summary>
+    internal virtual IReadOnlyList<string> ContentQueryParams => [];
+
     protected static void AddQueryElementToCollection(
         NameValueCollection collection,
         string key,
@@ -109,6 +129,7 @@ public abstract record class ParamsBase
                             JsonValueKind.Null => "",
                             JsonValueKind.True => "true",
                             JsonValueKind.False => "false",
+                            JsonValueKind.Number => item.ToString(),
                             _ => item.GetString(),
                         }
                     );
@@ -150,18 +171,28 @@ public abstract record class ParamsBase
                 }
                 break;
             case JsonValueKind.Array:
-                foreach (var item in element.EnumerateArray())
+                if (element.GetArrayLength() > 0)
                 {
-                    request.Headers.Add(
-                        key,
-                        item.ValueKind switch
-                        {
-                            JsonValueKind.Null => "",
-                            JsonValueKind.True => "true",
-                            JsonValueKind.False => "false",
-                            _ => item.GetString(),
-                        }
+                    var value = string.Join(
+                        ",",
+                        Enumerable.Concat(
+                            Enumerable.Select(
+                                element.EnumerateArray(),
+                                x =>
+                                    x.ValueKind switch
+                                    {
+                                        JsonValueKind.Null => "",
+                                        JsonValueKind.True => "true",
+                                        JsonValueKind.False => "false",
+                                        JsonValueKind.Number => x.ToString(),
+                                        _ => x.GetString(),
+                                    }
+                            ),
+                            request.Headers.TryGetValues(key, out var existing) ? existing : []
+                        )
                     );
+                    request.Headers.Remove(key);
+                    request.Headers.Add(key, value);
                 }
                 break;
         }
@@ -193,12 +224,51 @@ public abstract record class ParamsBase
         return sb.ToString();
     }
 
+    internal static string EncodePathSegment(string? value, string paramName)
+    {
+        if (value == null || value == "")
+        {
+            throw new AnthropicInvalidDataException(
+                $"Expected a non-empty value for `{paramName}`"
+            );
+        }
+        // "." is unreserved, so escaping leaves it as is and the segment would still resolve as a dot-segment.
+        if (value == "." || value == "..")
+        {
+            throw new AnthropicInvalidDataException(
+                $"'{paramName}' value \"{value}\" is a dot-segment and can't be safely passed as a path parameter"
+            );
+        }
+        return Uri.EscapeDataString(value);
+    }
+
+    internal static string EncodePathSegment(JsonElement? value, string paramName)
+    {
+        return EncodePathSegment(
+            value?.ValueKind switch
+            {
+                null or JsonValueKind.Undefined or JsonValueKind.Null => null,
+                JsonValueKind.String => value.Value.GetString(),
+                JsonValueKind.True => "true",
+                JsonValueKind.False => "false",
+                _ => value.Value.GetRawText(),
+            },
+            paramName
+        );
+    }
+
     internal abstract void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options);
 
     internal virtual HttpContent? BodyContent()
     {
         return null;
     }
+
+    /// <summary>
+    /// Whether <see cref="BodyContent"/> can produce the body again for a retry; when false the request is
+    /// sent once. A multipart body with a part that reads from a caller's stream can't: the first attempt consumes it.
+    /// </summary>
+    internal virtual bool IsBodyRepeatable() => true;
 
     internal static void AddDefaultHeaders(HttpRequestMessage request, ClientOptions options)
     {
@@ -217,7 +287,9 @@ public abstract record class ParamsBase
         }
         request.Headers.Add(
             "X-Stainless-Timeout",
-            (options.Timeout ?? ClientOptions.DefaultTimeout).TotalSeconds.ToString()
+            (options.Timeout ?? ClientOptions.DefaultTimeout).TotalSeconds.ToString(
+                CultureInfo.InvariantCulture
+            )
         );
     }
 

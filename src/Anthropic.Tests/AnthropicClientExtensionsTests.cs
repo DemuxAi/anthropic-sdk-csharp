@@ -18,8 +18,9 @@ public class AnthropicClientExtensionsTests : AnthropicClientExtensionsTestsBase
     protected override IChatClient CreateChatClient(
         AnthropicClient client,
         string? modelId = null,
-        int? defaultMaxOutputTokens = null
-    ) => client.AsIChatClient(modelId, defaultMaxOutputTokens);
+        int? defaultMaxOutputTokens = null,
+        AnthropicThinkingMode thinkingMode = AnthropicThinkingMode.Adaptive
+    ) => client.AsIChatClient(modelId, defaultMaxOutputTokens, thinkingMode);
 
     [Fact]
     public void AsIChatClient_ReturnsValidChatClient()
@@ -253,8 +254,17 @@ public class AnthropicClientExtensionsTests : AnthropicClientExtensionsTestsBase
         Assert.Null(aiTool.GetService<ToolUnion>("key"));
         Assert.Null(aiTool.GetService<string>());
 
-        Assert.NotNull(aiTool.Name);
-        Assert.Contains(nameof(WebSearchTool20250305), aiTool.Name);
+        Assert.Equal("web_search", aiTool.Name);
+    }
+
+    [Fact]
+    public void AsAITool_Name_ReturnsCustomToolName()
+    {
+        ToolUnion weather = new Tool { Name = "get_weather", InputSchema = new InputSchema() };
+        ToolUnion time = new Tool { Name = "get_time", InputSchema = new InputSchema() };
+
+        Assert.Equal("get_weather", weather.AsAITool().Name);
+        Assert.Equal("get_time", time.AsAITool().Name);
     }
 
     [Fact]

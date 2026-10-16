@@ -63,6 +63,7 @@ public sealed class BetaMessageContentAggregator
         var stopDetails = startMessage.Message.StopDetails;
         var container = startMessage.Message.Container;
         var contextManagement = startMessage.Message.ContextManagement;
+        var inputTransformations = startMessage.Message.InputTransformations;
         var usage = startMessage.Message.Usage;
 
         // message_delta usage counters are cumulative whole-message totals, so overwrite
@@ -88,6 +89,13 @@ public sealed class BetaMessageContentAggregator
                 if (delta.ContextManagement != null)
                 {
                     contextManagement = delta.ContextManagement;
+                }
+
+                // input_transformations is re-sent on the event only after a mid-stream
+                // model fallback; when absent the message_start list stands.
+                if (delta.InputTransformations != null)
+                {
+                    inputTransformations = delta.InputTransformations;
                 }
 
                 usage = usage with { OutputTokens = delta.Usage.OutputTokens };
@@ -147,7 +155,7 @@ public sealed class BetaMessageContentAggregator
 
         // Start from the message_start message so fields that are never re-sent
         // (service_tier, cache_creation, inference_geo, speed, ...) survive untouched.
-        return startMessage.Message with
+        var result = startMessage.Message with
         {
             Content = [.. contentBlocks],
             Container = container,
@@ -158,6 +166,15 @@ public sealed class BetaMessageContentAggregator
             StopSequence = stopSequence,
             Usage = usage,
         };
+
+        // The init accessor writes an explicit `null` into the raw data; the server omits
+        // the key entirely when the beta is off, so only set it when a list was streamed.
+        return inputTransformations == null
+            ? result
+            : result with
+            {
+                InputTransformations = inputTransformations,
+            };
     }
 
     private static BetaContentBlock MergeBlock(
@@ -228,6 +245,21 @@ public sealed class BetaMessageContentAggregator
                 };
         }
 
+        // Assigning null through the init accessor writes an explicit `null` into the wire JSON, so
+        // a field the server left out of the start block stays out unless a delta filled it in.
+        BetaCompactionBlock MergeCompactionBlock(BetaCompactionBlock start)
+        {
+            var content = MergeCompaction(start.Content, d => d.Content);
+            var encryptedContent = MergeCompaction(start.EncryptedContent, d => d.EncryptedContent);
+            var merged = content == null ? start : start with { Content = content };
+            return encryptedContent == null
+                ? merged
+                : merged with
+                {
+                    EncryptedContent = encryptedContent,
+                };
+        }
+
         // Only the variants below carry deltas. Every other block type — including ones this SDK
         // version doesn't model yet — arrives complete in its content_block_start event, so its
         // wire JSON passes through unchanged.
@@ -262,14 +294,7 @@ public sealed class BetaMessageContentAggregator
                 PartialJsons(),
                 BetaMcpToolUseBlock.FromRawUnchecked
             ),
-            BetaCompactionBlock compactionBlock => new BetaCompactionBlock()
-            {
-                Content = MergeCompaction(compactionBlock.Content, d => d.Content),
-                EncryptedContent = MergeCompaction(
-                    compactionBlock.EncryptedContent,
-                    d => d.EncryptedContent
-                ),
-            },
+            BetaCompactionBlock compactionBlock => MergeCompactionBlock(compactionBlock),
             _ => JsonSerializer.Deserialize<BetaContentBlock>(
                 contentBlock.Json,
                 ModelBase.SerializerOptions

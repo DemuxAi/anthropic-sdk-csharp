@@ -27,6 +27,7 @@ public class MemoryVersionListParamsTest : TestBase
             SessionID = "session_id",
             View = BetaManagedAgentsMemoryView.Basic,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         string expectedMemoryStoreID = "memory_store_id";
@@ -46,6 +47,7 @@ public class MemoryVersionListParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedMemoryStoreID, parameters.MemoryStoreID);
         Assert.Equal(expectedApiKeyID, parameters.ApiKeyID);
@@ -64,6 +66,7 @@ public class MemoryVersionListParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -93,6 +96,8 @@ public class MemoryVersionListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("view"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -114,6 +119,7 @@ public class MemoryVersionListParamsTest : TestBase
             SessionID = null,
             View = null,
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.ApiKeyID);
@@ -138,6 +144,69 @@ public class MemoryVersionListParamsTest : TestBase
         Assert.False(parameters.RawQueryData.ContainsKey("view"));
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        var parameters = new MemoryVersionListParams
+        {
+            MemoryStoreID = "memory_store_id",
+            ApiKeyID = "api_key_id",
+            CreatedAtGte = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            CreatedAtLte = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+            Limit = 0,
+            MemoryID = "memory_id",
+            Operation = BetaManagedAgentsMemoryVersionOperation.Created,
+            Page = "page",
+            ServiceAccountID = "service_account_id",
+            SessionID = "session_id",
+            View = BetaManagedAgentsMemoryView.Basic,
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            ApiKeyID = null,
+            CreatedAtGte = null,
+            CreatedAtLte = null,
+            Limit = null,
+            MemoryID = null,
+            Operation = null,
+            Page = null,
+            ServiceAccountID = null,
+            SessionID = null,
+            View = null,
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.ApiKeyID);
+        Assert.False(parameters.RawQueryData.ContainsKey("api_key_id"));
+        Assert.Null(parameters.CreatedAtGte);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[gte]"));
+        Assert.Null(parameters.CreatedAtLte);
+        Assert.False(parameters.RawQueryData.ContainsKey("created_at[lte]"));
+        Assert.Null(parameters.Limit);
+        Assert.False(parameters.RawQueryData.ContainsKey("limit"));
+        Assert.Null(parameters.MemoryID);
+        Assert.False(parameters.RawQueryData.ContainsKey("memory_id"));
+        Assert.Null(parameters.Operation);
+        Assert.False(parameters.RawQueryData.ContainsKey("operation"));
+        Assert.Null(parameters.Page);
+        Assert.False(parameters.RawQueryData.ContainsKey("page"));
+        Assert.Null(parameters.ServiceAccountID);
+        Assert.False(parameters.RawQueryData.ContainsKey("service_account_id"));
+        Assert.Null(parameters.SessionID);
+        Assert.False(parameters.RawQueryData.ContainsKey("session_id"));
+        Assert.Null(parameters.View);
+        Assert.False(parameters.RawQueryData.ContainsKey("view"));
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -178,13 +247,18 @@ public class MemoryVersionListParamsTest : TestBase
         {
             MemoryStoreID = "memory_store_id",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
 
         Assert.Equal(
-            ["agent-memory-2026-07-22", "message-batches-2024-09-24"],
+            ["message-batches-2024-09-24,agent-memory-2026-07-22"],
             requestMessage.Headers.GetValues("anthropic-beta")
+        );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
         );
     }
 
@@ -205,6 +279,7 @@ public class MemoryVersionListParamsTest : TestBase
             SessionID = "session_id",
             View = BetaManagedAgentsMemoryView.Basic,
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         MemoryVersionListParams copied = new(parameters);

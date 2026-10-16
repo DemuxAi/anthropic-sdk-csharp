@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using Anthropic.Core;
@@ -20,6 +21,7 @@ public class SkillCreateParamsTest : TestBase
             Files = [files],
             DisplayName = "display_name",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         List<BinaryContent> expectedFiles = [files];
@@ -28,6 +30,7 @@ public class SkillCreateParamsTest : TestBase
         [
             AnthropicBeta.MessageBatches2024_09_24,
         ];
+        string expectedWorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy";
 
         Assert.Equal(expectedFiles.Count, parameters.Files.Count);
         for (int i = 0; i < expectedFiles.Count; i++)
@@ -41,6 +44,7 @@ public class SkillCreateParamsTest : TestBase
         {
             Assert.Equal(expectedBetas[i], parameters.Betas[i]);
         }
+        Assert.Equal(expectedWorkspaceID, parameters.WorkspaceID);
     }
 
     [Fact]
@@ -52,6 +56,8 @@ public class SkillCreateParamsTest : TestBase
 
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -66,10 +72,37 @@ public class SkillCreateParamsTest : TestBase
 
             // Null should be interpreted as omitted for these properties
             Betas = null,
+            WorkspaceID = null,
         };
 
         Assert.Null(parameters.Betas);
         Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
+    }
+
+    [Fact]
+    public void OptionalNonNullableParamsSetToNullInWithAreUnset_Works()
+    {
+        BinaryContent files = Encoding.UTF8.GetBytes("Example data");
+
+        var parameters = new SkillCreateParams
+        {
+            Files = [files],
+            DisplayName = "display_name",
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        } with
+        {
+            // Null should be interpreted as omitted for these properties
+            Betas = null,
+            WorkspaceID = null,
+        };
+
+        Assert.Null(parameters.Betas);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-beta"));
+        Assert.Null(parameters.WorkspaceID);
+        Assert.False(parameters.RawHeaderData.ContainsKey("anthropic-workspace-id"));
     }
 
     [Fact]
@@ -81,6 +114,7 @@ public class SkillCreateParamsTest : TestBase
         {
             Files = [files],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         Assert.Null(parameters.DisplayName);
@@ -96,6 +130,7 @@ public class SkillCreateParamsTest : TestBase
         {
             Files = [files],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
 
             DisplayName = null,
         };
@@ -124,6 +159,7 @@ public class SkillCreateParamsTest : TestBase
         {
             Files = [Encoding.UTF8.GetBytes("Example data")],
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         parameters.AddHeadersToRequest(requestMessage, new() { ApiKey = "my-anthropic-api-key" });
@@ -132,6 +168,45 @@ public class SkillCreateParamsTest : TestBase
             ["message-batches-2024-09-24"],
             requestMessage.Headers.GetValues("anthropic-beta")
         );
+        Assert.Equal(
+            ["wrkspc_011CZkZaBF1tNoB5wlCeusgy"],
+            requestMessage.Headers.GetValues("anthropic-workspace-id")
+        );
+    }
+
+    [Fact]
+    public void IsBodyRepeatable_Works()
+    {
+        BinaryContent files = Encoding.UTF8.GetBytes("Example data");
+
+        var parameters = new SkillCreateParams
+        {
+            Files = [files],
+            DisplayName = "display_name",
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        };
+
+        Assert.True(parameters.IsBodyRepeatable());
+    }
+
+    [Fact]
+    public void IsBodyRepeatableFromStream_Works()
+    {
+        BinaryContent files = new BinaryContent
+        {
+            Stream = new MemoryStream(Encoding.UTF8.GetBytes("Example data")),
+        };
+
+        var parameters = new SkillCreateParams
+        {
+            Files = [files],
+            DisplayName = "display_name",
+            Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
+        };
+
+        Assert.False(parameters.IsBodyRepeatable());
     }
 
     [Fact]
@@ -142,6 +217,7 @@ public class SkillCreateParamsTest : TestBase
             Files = [Encoding.UTF8.GetBytes("Example data")],
             DisplayName = "display_name",
             Betas = [AnthropicBeta.MessageBatches2024_09_24],
+            WorkspaceID = "wrkspc_011CZkZaBF1tNoB5wlCeusgy",
         };
 
         SkillCreateParams copied = new(parameters);

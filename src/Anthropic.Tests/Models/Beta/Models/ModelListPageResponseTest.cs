@@ -17,13 +17,14 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     AllowedFallbackModels = ["string"],
                     Capabilities = new()
                     {
                         Batch = new(true),
                         Citations = new(true),
                         CodeExecution = new(true),
+                        Compaction = new() { Summarize = new(true), Supported = true },
                         ContextManagement = new()
                         {
                             ClearThinking20251015 = new(true),
@@ -42,17 +43,33 @@ public class ModelListPageResponseTest : TestBase
                         },
                         ImageInput = new(true),
                         PdfInput = new(true),
+                        ServerTools = new()
+                        {
+                            CodeExecution = new(true),
+                            Supported = true,
+                            WebSearch = new(true),
+                        },
                         StructuredOutputs = new(true),
                         Thinking = new()
                         {
                             Supported = true,
-                            Types = new() { Adaptive = new(true), Enabled = new(true) },
+                            Types = new()
+                            {
+                                Adaptive = new(true),
+                                BetweenTools = new(true),
+                                Disabled = new(true),
+                                Enabled = new(true),
+                            },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
-                    DisplayName = "Claude Opus 5",
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
+                    DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                    DisplayName = "Claude Opus 5.5",
+                    Lifecycle = BetaModelInfoLifecycle.Active,
+                    Line = BetaModelLine.Haiku,
                     MaxInputTokens = 0,
                     MaxTokens = 0,
+                    RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
                 },
             ],
             FirstID = "first_id",
@@ -64,13 +81,14 @@ public class ModelListPageResponseTest : TestBase
         [
             new()
             {
-                ID = "claude-opus-5",
+                ID = "claude-opus-5-5",
                 AllowedFallbackModels = ["string"],
                 Capabilities = new()
                 {
                     Batch = new(true),
                     Citations = new(true),
                     CodeExecution = new(true),
+                    Compaction = new() { Summarize = new(true), Supported = true },
                     ContextManagement = new()
                     {
                         ClearThinking20251015 = new(true),
@@ -89,17 +107,33 @@ public class ModelListPageResponseTest : TestBase
                     },
                     ImageInput = new(true),
                     PdfInput = new(true),
+                    ServerTools = new()
+                    {
+                        CodeExecution = new(true),
+                        Supported = true,
+                        WebSearch = new(true),
+                    },
                     StructuredOutputs = new(true),
                     Thinking = new()
                     {
                         Supported = true,
-                        Types = new() { Adaptive = new(true), Enabled = new(true) },
+                        Types = new()
+                        {
+                            Adaptive = new(true),
+                            BetweenTools = new(true),
+                            Disabled = new(true),
+                            Enabled = new(true),
+                        },
                     },
                 },
-                CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
-                DisplayName = "Claude Opus 5",
+                CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
+                DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                DisplayName = "Claude Opus 5.5",
+                Lifecycle = BetaModelInfoLifecycle.Active,
+                Line = BetaModelLine.Haiku,
                 MaxInputTokens = 0,
                 MaxTokens = 0,
+                RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
             },
         ];
         string expectedFirstID = "first_id";
@@ -125,13 +159,14 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     AllowedFallbackModels = ["string"],
                     Capabilities = new()
                     {
                         Batch = new(true),
                         Citations = new(true),
                         CodeExecution = new(true),
+                        Compaction = new() { Summarize = new(true), Supported = true },
                         ContextManagement = new()
                         {
                             ClearThinking20251015 = new(true),
@@ -150,17 +185,33 @@ public class ModelListPageResponseTest : TestBase
                         },
                         ImageInput = new(true),
                         PdfInput = new(true),
+                        ServerTools = new()
+                        {
+                            CodeExecution = new(true),
+                            Supported = true,
+                            WebSearch = new(true),
+                        },
                         StructuredOutputs = new(true),
                         Thinking = new()
                         {
                             Supported = true,
-                            Types = new() { Adaptive = new(true), Enabled = new(true) },
+                            Types = new()
+                            {
+                                Adaptive = new(true),
+                                BetweenTools = new(true),
+                                Disabled = new(true),
+                                Enabled = new(true),
+                            },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
-                    DisplayName = "Claude Opus 5",
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
+                    DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                    DisplayName = "Claude Opus 5.5",
+                    Lifecycle = BetaModelInfoLifecycle.Active,
+                    Line = BetaModelLine.Haiku,
                     MaxInputTokens = 0,
                     MaxTokens = 0,
+                    RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
                 },
             ],
             FirstID = "first_id",
@@ -186,13 +237,14 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     AllowedFallbackModels = ["string"],
                     Capabilities = new()
                     {
                         Batch = new(true),
                         Citations = new(true),
                         CodeExecution = new(true),
+                        Compaction = new() { Summarize = new(true), Supported = true },
                         ContextManagement = new()
                         {
                             ClearThinking20251015 = new(true),
@@ -211,17 +263,33 @@ public class ModelListPageResponseTest : TestBase
                         },
                         ImageInput = new(true),
                         PdfInput = new(true),
+                        ServerTools = new()
+                        {
+                            CodeExecution = new(true),
+                            Supported = true,
+                            WebSearch = new(true),
+                        },
                         StructuredOutputs = new(true),
                         Thinking = new()
                         {
                             Supported = true,
-                            Types = new() { Adaptive = new(true), Enabled = new(true) },
+                            Types = new()
+                            {
+                                Adaptive = new(true),
+                                BetweenTools = new(true),
+                                Disabled = new(true),
+                                Enabled = new(true),
+                            },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
-                    DisplayName = "Claude Opus 5",
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
+                    DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                    DisplayName = "Claude Opus 5.5",
+                    Lifecycle = BetaModelInfoLifecycle.Active,
+                    Line = BetaModelLine.Haiku,
                     MaxInputTokens = 0,
                     MaxTokens = 0,
+                    RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
                 },
             ],
             FirstID = "first_id",
@@ -240,13 +308,14 @@ public class ModelListPageResponseTest : TestBase
         [
             new()
             {
-                ID = "claude-opus-5",
+                ID = "claude-opus-5-5",
                 AllowedFallbackModels = ["string"],
                 Capabilities = new()
                 {
                     Batch = new(true),
                     Citations = new(true),
                     CodeExecution = new(true),
+                    Compaction = new() { Summarize = new(true), Supported = true },
                     ContextManagement = new()
                     {
                         ClearThinking20251015 = new(true),
@@ -265,17 +334,33 @@ public class ModelListPageResponseTest : TestBase
                     },
                     ImageInput = new(true),
                     PdfInput = new(true),
+                    ServerTools = new()
+                    {
+                        CodeExecution = new(true),
+                        Supported = true,
+                        WebSearch = new(true),
+                    },
                     StructuredOutputs = new(true),
                     Thinking = new()
                     {
                         Supported = true,
-                        Types = new() { Adaptive = new(true), Enabled = new(true) },
+                        Types = new()
+                        {
+                            Adaptive = new(true),
+                            BetweenTools = new(true),
+                            Disabled = new(true),
+                            Enabled = new(true),
+                        },
                     },
                 },
-                CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
-                DisplayName = "Claude Opus 5",
+                CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
+                DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                DisplayName = "Claude Opus 5.5",
+                Lifecycle = BetaModelInfoLifecycle.Active,
+                Line = BetaModelLine.Haiku,
                 MaxInputTokens = 0,
                 MaxTokens = 0,
+                RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
             },
         ];
         string expectedFirstID = "first_id";
@@ -301,13 +386,14 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     AllowedFallbackModels = ["string"],
                     Capabilities = new()
                     {
                         Batch = new(true),
                         Citations = new(true),
                         CodeExecution = new(true),
+                        Compaction = new() { Summarize = new(true), Supported = true },
                         ContextManagement = new()
                         {
                             ClearThinking20251015 = new(true),
@@ -326,17 +412,33 @@ public class ModelListPageResponseTest : TestBase
                         },
                         ImageInput = new(true),
                         PdfInput = new(true),
+                        ServerTools = new()
+                        {
+                            CodeExecution = new(true),
+                            Supported = true,
+                            WebSearch = new(true),
+                        },
                         StructuredOutputs = new(true),
                         Thinking = new()
                         {
                             Supported = true,
-                            Types = new() { Adaptive = new(true), Enabled = new(true) },
+                            Types = new()
+                            {
+                                Adaptive = new(true),
+                                BetweenTools = new(true),
+                                Disabled = new(true),
+                                Enabled = new(true),
+                            },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
-                    DisplayName = "Claude Opus 5",
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
+                    DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                    DisplayName = "Claude Opus 5.5",
+                    Lifecycle = BetaModelInfoLifecycle.Active,
+                    Line = BetaModelLine.Haiku,
                     MaxInputTokens = 0,
                     MaxTokens = 0,
+                    RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
                 },
             ],
             FirstID = "first_id",
@@ -356,13 +458,14 @@ public class ModelListPageResponseTest : TestBase
             [
                 new()
                 {
-                    ID = "claude-opus-5",
+                    ID = "claude-opus-5-5",
                     AllowedFallbackModels = ["string"],
                     Capabilities = new()
                     {
                         Batch = new(true),
                         Citations = new(true),
                         CodeExecution = new(true),
+                        Compaction = new() { Summarize = new(true), Supported = true },
                         ContextManagement = new()
                         {
                             ClearThinking20251015 = new(true),
@@ -381,17 +484,33 @@ public class ModelListPageResponseTest : TestBase
                         },
                         ImageInput = new(true),
                         PdfInput = new(true),
+                        ServerTools = new()
+                        {
+                            CodeExecution = new(true),
+                            Supported = true,
+                            WebSearch = new(true),
+                        },
                         StructuredOutputs = new(true),
                         Thinking = new()
                         {
                             Supported = true,
-                            Types = new() { Adaptive = new(true), Enabled = new(true) },
+                            Types = new()
+                            {
+                                Adaptive = new(true),
+                                BetweenTools = new(true),
+                                Disabled = new(true),
+                                Enabled = new(true),
+                            },
                         },
                     },
-                    CreatedAt = DateTimeOffset.Parse("2026-07-24T00:00:00Z"),
-                    DisplayName = "Claude Opus 5",
+                    CreatedAt = DateTimeOffset.Parse("2026-09-21T00:00:00Z"),
+                    DeprecatedAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
+                    DisplayName = "Claude Opus 5.5",
+                    Lifecycle = BetaModelInfoLifecycle.Active,
+                    Line = BetaModelLine.Haiku,
                     MaxInputTokens = 0,
                     MaxTokens = 0,
+                    RetiresAt = DateTimeOffset.Parse("2019-12-27T18:11:19.117Z"),
                 },
             ],
             FirstID = "first_id",

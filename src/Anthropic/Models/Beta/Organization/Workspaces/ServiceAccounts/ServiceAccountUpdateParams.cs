@@ -70,6 +70,7 @@ public record class ServiceAccountUpdateParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -183,14 +184,20 @@ public record class ServiceAccountUpdateParams : ParamsBase
             options.BaseUrl.ToString().TrimEnd('/')
                 + string.Format(
                     "/v1/organizations/workspaces/{0}/service_accounts/{1}",
-                    this.WorkspaceID,
-                    this.ServiceAccountID
+                    ParamsBase.EncodePathSegment(this.WorkspaceID, nameof(this.WorkspaceID)),
+                    ParamsBase.EncodePathSegment(
+                        this.ServiceAccountID,
+                        nameof(this.ServiceAccountID)
+                    )
                 )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route =>
+        "/v1/organizations/workspaces/{workspace_id}/service_accounts/{service_account_id}";
 
     internal override HttpContent? BodyContent()
     {

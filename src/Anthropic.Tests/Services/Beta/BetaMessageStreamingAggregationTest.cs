@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Anthropic.Core;
 using Anthropic.Helpers;
 using Anthropic.Models.Beta.Messages;
 using Anthropic.Services.Beta;
 using Moq;
+using static Anthropic.Tests.TestHelpers.ReflectionTripwire;
 using Messages = Anthropic.Models.Messages;
 
 namespace Anthropic.Tests.Services.Beta;
@@ -54,6 +57,26 @@ public class BetaMessageStreamingAggregationTest
             Container = null,
             ContextManagement = null,
             Diagnostics = null,
+        };
+
+    private static BetaThinkingDroppedInputTransformation StartInputTransformation =>
+        new()
+        {
+            Path = "messages.1.content.0",
+            Reason = BetaThinkingDroppedInputTransformationReason.PrefixBindingMismatch,
+        };
+
+    private static BetaThinkingDroppedInputTransformation DeltaInputTransformation =>
+        new()
+        {
+            Path = "messages.3.content.0",
+            Reason = BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+        };
+
+    private static BetaMessage StartMessageWithInputTransformation =>
+        GenerateStartMessage with
+        {
+            InputTransformations = [StartInputTransformation],
         };
 
     private static MessageCreateParams StreamingParam =>
@@ -215,6 +238,33 @@ public class BetaMessageStreamingAggregationTest
         Assert.Single(stream.Content);
         Assert.IsType<BetaTextBlock>(stream.Content[0].Value);
         Assert.Equal("this is a Test", ((BetaTextBlock)stream.Content[0].Value!).Text);
+    }
+
+    [Fact]
+    public async Task CollectAsync_ReadsTheSourceToItsEnd_AndPassesNothingOnAfterTheEndMessage()
+    {
+        var readToTheEnd = false;
+        async IAsyncEnumerable<BetaRawMessageStreamEvent> GetTestValues()
+        {
+            yield return new(new BetaRawMessageStartEvent(GenerateStartMessage));
+            yield return new(new BetaRawMessageStopEvent());
+            // Nothing follows `message_stop`. An event that did is read and left out.
+            yield return new(new BetaRawContentBlockStopEvent() { Index = 0 });
+            await Task.CompletedTask;
+            readToTheEnd = true;
+        }
+        BetaMessageContentAggregator aggregator = new();
+
+        List<BetaRawMessageStreamEvent> passedOn = [];
+        await foreach (var streamEvent in GetTestValues().CollectAsync(aggregator))
+        {
+            passedOn.Add(streamEvent);
+        }
+
+        Assert.True(readToTheEnd);
+        Assert.Equal(2, passedOn.Count);
+        Assert.IsType<BetaRawMessageStopEvent>(passedOn[1].Value);
+        Assert.Empty(aggregator.Message().Content);
     }
 
     [Fact]
@@ -509,6 +559,64 @@ public class BetaMessageStreamingAggregationTest
     }
 
     [Fact]
+    public async Task Add_BuildsTheSameMessageAsCollectAsync()
+    {
+        // arrange
+
+        BetaRawMessageStreamEvent[] events =
+        [
+            new(new BetaRawMessageStartEvent(GenerateStartMessage)),
+            new(
+                new BetaRawContentBlockStartEvent()
+                {
+                    Index = 0,
+                    ContentBlock = new(
+                        new BetaTextBlock() { Citations = null, Text = "This is a " }
+                    ),
+                }
+            ),
+            new(
+                new BetaRawContentBlockDeltaEvent()
+                {
+                    Index = 0,
+                    Delta = new(new BetaTextDelta("Test")),
+                }
+            ),
+            new(new BetaRawContentBlockStopEvent() { Index = 0 }),
+            new(new BetaRawMessageStopEvent()),
+        ];
+        static async IAsyncEnumerable<BetaRawMessageStreamEvent> Stream(
+            IEnumerable<BetaRawMessageStreamEvent> events
+        )
+        {
+            foreach (var streamEvent in events)
+            {
+                yield return streamEvent;
+            }
+            await Task.CompletedTask;
+        }
+
+        // act
+
+        var collected = await Stream(events).Aggregate();
+        var aggregator = new BetaMessageContentAggregator();
+        foreach (var streamEvent in events)
+        {
+            aggregator.Add(streamEvent);
+        }
+        var pushed = aggregator.Message();
+
+        // assert
+
+        pushed.Validate();
+        Assert.Equal("This is a Test", ((BetaTextBlock)pushed.Content[0].Value!).Text);
+        Assert.Equal(
+            JsonSerializer.Serialize(collected, ModelBase.SerializerOptions),
+            JsonSerializer.Serialize(pushed, ModelBase.SerializerOptions)
+        );
+    }
+
+    [Fact]
     public async Task CreateStreamingAggregation_Works()
     {
         // arrange
@@ -725,6 +833,224 @@ public class BetaMessageStreamingAggregationTest
         Assert.Equal(25, stream.Usage.InputTokens);
         Assert.Equal(BetaUsageServiceTier.Standard, stream.Usage.ServiceTier!.Value());
         Assert.Equal("inference_geo", stream.Usage.InferenceGeo);
+
+        // never streamed (beta off), so the key must stay absent rather than become null
+        Assert.Null(stream.InputTransformations);
+        Assert.False(stream.RawData.ContainsKey("input_transformations"));
+    }
+
+    [Fact]
+    public async Task CreateStreamingAggregation_ReplacesInputTransformationsFromMessageDelta()
+    {
+        // arrange
+
+        var messagesServiceMock = new Mock<IMessageService>();
+        static async IAsyncEnumerable<BetaRawMessageStreamEvent> GetTestValues()
+        {
+            yield return new(new BetaRawMessageStartEvent(StartMessageWithInputTransformation));
+            yield return new(
+                new BetaRawMessageDeltaEvent()
+                {
+                    ContextManagement = null,
+                    Delta = new()
+                    {
+                        Container = null,
+                        StopDetails = null,
+                        StopReason = BetaStopReason.EndTurn,
+                        StopSequence = null,
+                    },
+                    InputTransformations = [DeltaInputTransformation],
+                    Usage = new()
+                    {
+                        CacheCreationInputTokens = null,
+                        CacheReadInputTokens = null,
+                        FallbackCredit = null,
+                        InputTokens = null,
+                        Iterations = null,
+                        OutputTokens = 50,
+                        OutputTokensDetails = null,
+                        ServerToolUse = null,
+                    },
+                }
+            );
+            yield return new(new BetaRawMessageStopEvent());
+            await Task.CompletedTask;
+        }
+        messagesServiceMock
+            .Setup(e =>
+                e.CreateStreaming(It.IsAny<MessageCreateParams>(), It.IsAny<CancellationToken>())
+            )
+            .Returns(GetTestValues);
+
+        // act
+
+        var stream = await messagesServiceMock
+            .Object.CreateStreaming(StreamingParam, TestContext.Current.CancellationToken)
+            .Aggregate();
+
+        // assert
+
+        Assert.NotNull(stream);
+        stream.Validate();
+        // the list on message_delta (a mid-stream fallback) replaces the message_start one
+        Assert.NotNull(stream.InputTransformations);
+        var transformation = Assert.Single(stream.InputTransformations!);
+        Assert.Equal("messages.3.content.0", transformation.Path);
+        Assert.True(transformation.TryPickThinkingDropped(out var dropped));
+        Assert.Equal(
+            BetaThinkingDroppedInputTransformationReason.ModelBindingMismatch,
+            dropped!.Reason.Value()
+        );
+    }
+
+    [Fact]
+    public async Task CreateStreamingAggregation_KeepsInputTransformationsWhenMessageDeltaOmitsThem()
+    {
+        // arrange
+
+        var messagesServiceMock = new Mock<IMessageService>();
+        static async IAsyncEnumerable<BetaRawMessageStreamEvent> GetTestValues()
+        {
+            yield return new(new BetaRawMessageStartEvent(StartMessageWithInputTransformation));
+            yield return new(
+                new BetaRawMessageDeltaEvent()
+                {
+                    ContextManagement = null,
+                    Delta = new()
+                    {
+                        Container = null,
+                        StopDetails = null,
+                        StopReason = BetaStopReason.EndTurn,
+                        StopSequence = null,
+                    },
+                    Usage = new()
+                    {
+                        CacheCreationInputTokens = null,
+                        CacheReadInputTokens = null,
+                        FallbackCredit = null,
+                        InputTokens = null,
+                        Iterations = null,
+                        OutputTokens = 50,
+                        OutputTokensDetails = null,
+                        ServerToolUse = null,
+                    },
+                }
+            );
+            yield return new(new BetaRawMessageStopEvent());
+            await Task.CompletedTask;
+        }
+        messagesServiceMock
+            .Setup(e =>
+                e.CreateStreaming(It.IsAny<MessageCreateParams>(), It.IsAny<CancellationToken>())
+            )
+            .Returns(GetTestValues);
+
+        // act
+
+        var stream = await messagesServiceMock
+            .Object.CreateStreaming(StreamingParam, TestContext.Current.CancellationToken)
+            .Aggregate();
+
+        // assert
+
+        Assert.NotNull(stream);
+        stream.Validate();
+        // not re-sent on this message_delta, so the message_start list must survive
+        Assert.NotNull(stream.InputTransformations);
+        var transformation = Assert.Single(stream.InputTransformations!);
+        Assert.Equal("messages.1.content.0", transformation.Path);
+        Assert.True(transformation.TryPickThinkingDropped(out var dropped));
+        Assert.Equal(
+            BetaThinkingDroppedInputTransformationReason.PrefixBindingMismatch,
+            dropped!.Reason.Value()
+        );
+    }
+
+    [Fact]
+    public async Task CreateStreamingAggregation_ClearsInputTransformationsWhenMessageDeltaReportsEmptyList()
+    {
+        // arrange
+
+        var messagesServiceMock = new Mock<IMessageService>();
+        static async IAsyncEnumerable<BetaRawMessageStreamEvent> GetTestValues()
+        {
+            yield return new(new BetaRawMessageStartEvent(StartMessageWithInputTransformation));
+            yield return new(
+                new BetaRawMessageDeltaEvent()
+                {
+                    ContextManagement = null,
+                    Delta = new()
+                    {
+                        Container = null,
+                        StopDetails = null,
+                        StopReason = BetaStopReason.EndTurn,
+                        StopSequence = null,
+                    },
+                    InputTransformations = [],
+                    Usage = new()
+                    {
+                        CacheCreationInputTokens = null,
+                        CacheReadInputTokens = null,
+                        FallbackCredit = null,
+                        InputTokens = null,
+                        Iterations = null,
+                        OutputTokens = 50,
+                        OutputTokensDetails = null,
+                        ServerToolUse = null,
+                    },
+                }
+            );
+            yield return new(new BetaRawMessageStopEvent());
+            await Task.CompletedTask;
+        }
+        messagesServiceMock
+            .Setup(e =>
+                e.CreateStreaming(It.IsAny<MessageCreateParams>(), It.IsAny<CancellationToken>())
+            )
+            .Returns(GetTestValues);
+
+        // act
+
+        var stream = await messagesServiceMock
+            .Object.CreateStreaming(StreamingParam, TestContext.Current.CancellationToken)
+            .Aggregate();
+
+        // assert
+
+        Assert.NotNull(stream);
+        stream.Validate();
+        // an empty list on message_delta still replaces the non-empty message_start one
+        Assert.NotNull(stream.InputTransformations);
+        Assert.Empty(stream.InputTransformations);
+    }
+
+    [Fact]
+    public void MessageDeltaEventFields_AreAllHandledByAggregator()
+    {
+        // tripwire: handle a new field in BetaMessageContentAggregator, then list it here
+        Assert.Equal(
+            ["ContextManagement", "Delta", "InputTransformations", "Type", "Usage"],
+            DeclaredPropertyNames(typeof(BetaRawMessageDeltaEvent))
+        );
+        Assert.Equal(
+            ["Container", "StopDetails", "StopReason", "StopSequence"],
+            DeclaredPropertyNames(
+                typeof(BetaRawMessageDeltaEvent).GetProperty("Delta")!.PropertyType
+            )
+        );
+        Assert.Equal(
+            [
+                "CacheCreationInputTokens",
+                "CacheReadInputTokens",
+                "FallbackCredit",
+                "InputTokens",
+                "Iterations",
+                "OutputTokens",
+                "OutputTokensDetails",
+                "ServerToolUse",
+            ],
+            DeclaredPropertyNames(typeof(BetaMessageDeltaUsage))
+        );
     }
 
     [Fact]
@@ -847,6 +1173,90 @@ public class BetaMessageStreamingAggregationTest
         );
         Assert.Equal("srvtoolu_01", serverToolUse.ID);
         Assert.Empty(serverToolUse.Input);
+    }
+
+    [Fact]
+    public async Task CreateStreamingAggregation_CompactionBlockKeepsStartBlockFields()
+    {
+        // The block arrives whole on content_block_start and has to be sent back unchanged;
+        // the deltas only fill in content and encrypted_content.
+        const string ToolChanges =
+            """[{"type":"tool_removal","tool":{"type":"tool_reference","name":"get_tides"}},{"type":"tool_addition","tool":{"type":"tool_definition","definition":{"name":"get_time","description":"Get the local time.","input_schema":{"type":"object","properties":{"zone":{"type":"string"},"city":{"type":"string"}},"required":["zone"]}}}}]""";
+        static BetaRawMessageStreamEvent Event(string json) =>
+            JsonSerializer.Deserialize<BetaRawMessageStreamEvent>(json)!;
+        static async IAsyncEnumerable<BetaRawMessageStreamEvent> GetTestValues()
+        {
+            yield return new(new BetaRawMessageStartEvent(GenerateStartMessage));
+            yield return Event(
+                """{"type":"content_block_start","index":0,"content_block":{"type":"compaction","content":null,"encrypted_content":null,"signature":"sig_01","tool_changes":"""
+                    + ToolChanges
+                    + "}}"
+            );
+            yield return Event(
+                """{"type":"content_block_delta","index":0,"delta":{"type":"compaction_delta","content":"Summary.","encrypted_content":"opaque"}}"""
+            );
+            yield return new(new BetaRawContentBlockStopEvent() { Index = 0 });
+            yield return new(new BetaRawMessageStopEvent());
+            await Task.CompletedTask;
+        }
+
+        var stream = await GetTestValues().Aggregate();
+
+        stream.Validate();
+        var block = Assert.Single(stream.Content);
+        var compaction = Assert.IsType<BetaCompactionBlock>(block.Value);
+        Assert.Equal("Summary.", compaction.Content);
+        Assert.Equal("opaque", compaction.EncryptedContent);
+        Assert.Equal("sig_01", compaction.Signature);
+        Assert.Equal(ToolChanges, block.Json.GetProperty("tool_changes").GetRawText());
+    }
+
+    [Fact]
+    public async Task CreateStreamingAggregation_CompactionBlockDoesNotAddAbsentEncryptedContent()
+    {
+        var stream = await CompactionStream(
+            """{"type":"compaction","content":null,"signature":"sig_01"}""",
+            """{"type":"compaction_delta","content":"Summary."}"""
+        );
+
+        var compaction = Assert.IsType<BetaCompactionBlock>(Assert.Single(stream.Content).Value);
+        Assert.Equal("Summary.", compaction.Content);
+        Assert.False(compaction.RawData.ContainsKey("encrypted_content"));
+        Assert.Equal("sig_01", compaction.Signature);
+    }
+
+    [Fact]
+    public async Task CreateStreamingAggregation_CompactionBlockAddsEncryptedContentFromDelta()
+    {
+        var stream = await CompactionStream(
+            """{"type":"compaction","content":null,"signature":"sig_01"}""",
+            """{"type":"compaction_delta","content":"Summary.","encrypted_content":"opaque"}"""
+        );
+
+        var compaction = Assert.IsType<BetaCompactionBlock>(Assert.Single(stream.Content).Value);
+        Assert.Equal("opaque", compaction.EncryptedContent);
+        Assert.True(compaction.RawData.ContainsKey("encrypted_content"));
+    }
+
+    private static async Task<BetaMessage> CompactionStream(string startBlockJson, string deltaJson)
+    {
+        static BetaRawMessageStreamEvent Event(string json) =>
+            JsonSerializer.Deserialize<BetaRawMessageStreamEvent>(json)!;
+        async IAsyncEnumerable<BetaRawMessageStreamEvent> GetTestValues()
+        {
+            yield return new(new BetaRawMessageStartEvent(GenerateStartMessage));
+            yield return Event(
+                $$"""{"type":"content_block_start","index":0,"content_block":{{startBlockJson}}}"""
+            );
+            yield return Event(
+                $$"""{"type":"content_block_delta","index":0,"delta":{{deltaJson}}}"""
+            );
+            yield return new(new BetaRawContentBlockStopEvent() { Index = 0 });
+            yield return new(new BetaRawMessageStopEvent());
+            await Task.CompletedTask;
+        }
+
+        return await GetTestValues().Aggregate();
     }
 
     [Fact]

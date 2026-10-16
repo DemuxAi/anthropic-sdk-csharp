@@ -40,6 +40,7 @@ public record class IssuerRetrieveParams : ParamsBase
         {
             if (value == null)
             {
+                this._rawHeaderData.Remove("anthropic-beta");
                 return;
             }
 
@@ -136,12 +137,20 @@ public record class IssuerRetrieveParams : ParamsBase
         var queryString = this.QueryString(options);
         return new UriBuilder(
             options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/v1/organizations/federation_issuers/{0}", this.FederationIssuerID)
+                + string.Format(
+                    "/v1/organizations/federation_issuers/{0}",
+                    ParamsBase.EncodePathSegment(
+                        this.FederationIssuerID,
+                        nameof(this.FederationIssuerID)
+                    )
+                )
         )
         {
             Query = string.IsNullOrEmpty(queryString) ? "beta=true" : ("beta=true&" + queryString),
         }.Uri;
     }
+
+    internal override string Route => "/v1/organizations/federation_issuers/{federation_issuer_id}";
 
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {

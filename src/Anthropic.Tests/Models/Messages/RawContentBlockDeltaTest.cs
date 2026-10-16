@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Anthropic.Core;
+using Anthropic.Exceptions;
 using Anthropic.Models.Messages;
 
 namespace Anthropic.Tests.Models.Messages;
@@ -24,17 +25,15 @@ public class RawContentBlockDeltaTest : TestBase
     public void CitationsValidationWorks()
     {
         RawContentBlockDelta value = new CitationsDelta(
-            new Citation(
-                new CitationCharLocation()
-                {
-                    CitedText = "The grass is green. The sky is blue.",
-                    DocumentIndex = 0,
-                    DocumentTitle = "My Document",
-                    EndCharIndex = 0,
-                    FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
-                    StartCharIndex = 0,
-                }
-            )
+            new CitationCharLocation()
+            {
+                CitedText = "The grass is green. The sky is blue.",
+                DocumentIndex = 0,
+                DocumentTitle = "My Document",
+                EndCharIndex = 0,
+                FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
+                StartCharIndex = 0,
+            }
         );
         value.Validate();
     }
@@ -83,17 +82,15 @@ public class RawContentBlockDeltaTest : TestBase
     public void CitationsSerializationRoundtripWorks()
     {
         RawContentBlockDelta value = new CitationsDelta(
-            new Citation(
-                new CitationCharLocation()
-                {
-                    CitedText = "The grass is green. The sky is blue.",
-                    DocumentIndex = 0,
-                    DocumentTitle = "My Document",
-                    EndCharIndex = 0,
-                    FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
-                    StartCharIndex = 0,
-                }
-            )
+            new CitationCharLocation()
+            {
+                CitedText = "The grass is green. The sky is blue.",
+                DocumentIndex = 0,
+                DocumentTitle = "My Document",
+                EndCharIndex = 0,
+                FileID = "file_011CNha8iCJcU1wXNR6q4V8w",
+                StartCharIndex = 0,
+            }
         );
         string element = JsonSerializer.Serialize(value, ModelBase.SerializerOptions);
         var deserialized = JsonSerializer.Deserialize<RawContentBlockDelta>(
@@ -128,5 +125,28 @@ public class RawContentBlockDeltaTest : TestBase
         );
 
         Assert.Equal(value, deserialized);
+    }
+
+    [Fact]
+    public void UnknownVariantCommonProperties_Works()
+    {
+        RawContentBlockDelta value = new(
+            JsonSerializer.Deserialize<JsonElement>(
+                """
+                {
+                  "type": "text_delta"
+                }
+                """
+            )
+        );
+        Assert.Throws<AnthropicInvalidDataException>(() => value.Validate());
+
+        JsonElement expectedType = JsonSerializer.SerializeToElement("text_delta");
+
+        Assert.True(JsonElement.DeepEquals(expectedType, value.Type));
+
+        RawContentBlockDelta emptyValue = new(JsonSerializer.Deserialize<JsonElement>("{}"));
+
+        Assert.Throws<AnthropicInvalidDataException>(() => emptyValue.Type);
     }
 }
